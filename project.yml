@@ -1,0 +1,43 @@
+name: Telega
+options:
+  createIntermediateGroups: true
+configs:
+  Debug: debug
+  Release: release
+packages:
+  TDLibFramework:
+    url: https://github.com/Swiftgram/TDLibFramework
+    revision: 9f267f0da0bdc86ebd6b1a2252b966e0c861377f
+targets:
+  Telega:
+    type: application
+    platform: macOS
+    deploymentTarget: "15.0"
+    sources:
+      - path: Sources
+    resources:
+      - path: Resources/Assets
+      - path: Resources/Assets/Telega.xcassets
+      - path: Resources/Localization/en.lproj
+      - path: Resources/Localization/ru.lproj
+    dependencies:
+      - package: TDLibFramework
+        product: TDLibFramework
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.codex.Telega
+        PRODUCT_NAME: Telega
+        INFOPLIST_FILE: Config/Telega-Info.plist
+        GENERATE_INFOPLIST_FILE: NO
+        MACOSX_DEPLOYMENT_TARGET: 15.0
+        SWIFT_VERSION: 6.0
+        CODE_SIGN_STYLE: Automatic
+        DEVELOPMENT_TEAM: ""
+        MARKETING_VERSION: 0.1.0
+        CURRENT_PROJECT_VERSION: 1
+        LOCALIZATION_PREFERS_STRING_CATALOGS: NO
+        SUPPORTS_MACCATALYST: NO
+        ENABLE_HARDENED_RUNTIME: YES
+        LD_RUNPATH_SEARCH_PATHS:
+          - $(inherited)
+          - "@executable_path/../Frameworks"
