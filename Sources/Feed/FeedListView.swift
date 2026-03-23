@@ -65,9 +65,9 @@ struct FeedListView: View {
         HStack(alignment: .top, spacing: 14) {
             VStack(alignment: .leading, spacing: 6) {
                 Text(L10n.tr("feed.title"))
-                    .font(.system(size: 23, weight: .semibold, design: .rounded))
+                    .font(.system(size: 21, weight: .semibold, design: .rounded))
                 Text(L10n.tr("feed.subtitle"))
-                    .font(.callout.weight(.semibold))
+                    .font(.system(size: 12.5, weight: .semibold, design: .rounded))
                     .foregroundStyle(.primary)
                     .lineLimit(1)
                 HStack(spacing: 8) {
@@ -98,47 +98,34 @@ struct FeedListView: View {
         let isUnread = viewModel.isUnread(post)
         let parts = cardParts(for: post)
 
-        HStack(alignment: .top, spacing: 8) {
-            VStack(alignment: .leading, spacing: 6) {
-                HStack(alignment: .firstTextBaseline, spacing: 8) {
-                    if isUnread {
-                        Circle()
-                            .fill(Color.blue)
-                            .frame(width: 8, height: 8)
-                    } else {
-                        Circle()
-                            .fill(Color.clear)
-                            .frame(width: 8, height: 8)
-                    }
+        VStack(alignment: .leading, spacing: 5) {
+            Text(parts.title)
+                .font(.system(size: 12, weight: isUnread ? .bold : .semibold, design: .rounded))
+                .foregroundStyle(.primary)
+                .lineLimit(2)
+                .multilineTextAlignment(.leading)
+                .frame(maxWidth: .infinity, alignment: .leading)
 
-                    Text(parts.title)
-                        .font(.system(size: 13, weight: .semibold, design: .rounded))
-                        .foregroundStyle(.primary)
-                        .lineLimit(2)
+            Text(parts.source)
+                .font(.system(size: 10, weight: .regular, design: .rounded))
+                .foregroundStyle(.secondary)
+                .lineLimit(1)
+                .multilineTextAlignment(.leading)
 
-                    Spacer(minLength: 0)
-                }
+            Text(parts.body)
+                .font(.system(size: 12, weight: .regular, design: .rounded))
+                .foregroundStyle(.primary)
+                .multilineTextAlignment(.leading)
+                .lineLimit(3)
 
-                Text(parts.source)
-                    .font(.system(size: 11, weight: .regular, design: .rounded))
-                    .foregroundStyle(.secondary)
-                    .lineLimit(1)
-
-                Text(parts.body)
-                    .font(.system(size: 14, weight: .regular, design: .rounded))
-                    .foregroundStyle(.primary)
-                    .multilineTextAlignment(.leading)
-                    .lineLimit(3)
-
-                Text(post.date.formatted(date: .abbreviated, time: .shortened))
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .padding(.top, 2)
-            }
+            Text(post.date.formatted(date: .abbreviated, time: .shortened))
+                .font(.system(size: 10, weight: .regular, design: .rounded))
+                .foregroundStyle(.secondary)
+                .padding(.top, 1)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(.horizontal, 9)
-        .padding(.vertical, 8)
+        .padding(.horizontal, 7)
+        .padding(.vertical, 7)
         .background(
             RoundedRectangle(cornerRadius: 10, style: .continuous)
                 .fill(isSelected ? Color(red: 0.88, green: 0.86, blue: 0.82) : Color.clear)
