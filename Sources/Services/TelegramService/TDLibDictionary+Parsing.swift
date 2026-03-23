@@ -95,15 +95,18 @@ enum TelegramParsing {
         let author = object.string("author_signature")
         let channelTitle = object.string("chat_title") ?? fallbackChannelTitle
         let parsedContent = parseContent(from: content)
+        guard case .unsupported = parsedContent else {
+            return UnreadPost(
+                chatID: chatID,
+                messageID: messageID,
+                channelTitle: channelTitle,
+                author: author?.isEmpty == true ? nil : author,
+                date: Date(timeIntervalSince1970: TimeInterval(timestamp)),
+                content: parsedContent
+            )
+        }
 
-        return UnreadPost(
-            chatID: chatID,
-            messageID: messageID,
-            channelTitle: channelTitle,
-            author: author?.isEmpty == true ? nil : author,
-            date: Date(timeIntervalSince1970: TimeInterval(timestamp)),
-            content: parsedContent
-        )
+        return nil
     }
 
     static func parseConnectionStatus(from object: TDLibObject) -> TelegramConnectionStatus {

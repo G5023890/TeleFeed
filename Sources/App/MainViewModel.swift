@@ -525,6 +525,7 @@ final class MainViewModel: ObservableObject {
     }
 
     private func refreshAggregatedFeedPresentation() {
+        pruneUnsupportedSessionPosts()
         let allPosts = aggregateSessionPosts()
         feedViewModel.setPosts(allPosts)
         feedViewModel.errorMessage = nil
@@ -606,13 +607,28 @@ final class MainViewModel: ObservableObject {
     }
 
     private func aggregateSessionPosts() -> [UnreadPost] {
-        sortedUnreadPosts(sessionFeedPosts.values.map { $0 })
+        sortedUnreadPosts(sessionFeedPosts.values.filter { isSupported($0) })
     }
 
     private func storeSessionPosts(_ posts: [UnreadPost]) {
         for post in posts {
+            guard isSupported(post) else {
+                sessionFeedPosts.removeValue(forKey: post.id)
+                continue
+            }
             sessionFeedPosts[post.id] = post
         }
+    }
+
+    private func pruneUnsupportedSessionPosts() {
+        sessionFeedPosts = sessionFeedPosts.filter { isSupported($0.value) }
+    }
+
+    private func isSupported(_ post: UnreadPost) -> Bool {
+        if case .unsupported = post.content {
+            return false
+        }
+        return true
     }
 
     private func sortedUnreadPosts(_ posts: [UnreadPost]) -> [UnreadPost] {
