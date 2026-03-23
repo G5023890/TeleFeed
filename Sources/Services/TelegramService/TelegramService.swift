@@ -671,7 +671,7 @@ final class TelegramService: TelegramServiceProtocol {
         fallbackUsername: String?
     ) async throws -> WatchedChannel? {
         let response = try await sendRequest(request)
-        let chatIDs = ((response.array("chat_ids") as? [Any]) ?? []).compactMap { value -> Int64? in
+        let chatIDs = (response.array("chat_ids") ?? []).compactMap { value -> Int64? in
             switch value {
             case let id as Int64:
                 return id

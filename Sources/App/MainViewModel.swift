@@ -11,13 +11,19 @@ final class MainViewModel: ObservableObject {
     @Published var showingSettings = false
     @Published var connectionStatus: TelegramConnectionStatus = .offline
     @Published var viewerPresentedPost: UnreadPost?
+    @Published var selectedUnreadPostID: UnreadPostIdentity?
     @Published var isSidebarPresented = false
+    @Published var unreadColumnWidth: CGFloat
 
     var showWindow: (() -> Void)?
 
     private let stateStore: StateStoreProtocol
     private let telegramService: TelegramServiceProtocol
     private let notificationService: NotificationServiceProtocol
+    private var channelNavigationStates: [Int64: ChannelUnreadState] = [:]
+    private var sessionFeedPosts: [UnreadPostIdentity: UnreadPost] = [:]
+    private var unreadFocusTimerTask: Task<Void, Never>?
+    private var unreadColumnWidthPersistTask: Task<Void, Never>?
 
     init(
         stateStore: StateStoreProtocol,
@@ -29,6 +35,7 @@ final class MainViewModel: ObservableObject {
         self.telegramService = telegramService
         self.notificationService = notificationService
         self.settings = state.settings
+        self.unreadColumnWidth = CGFloat(state.unreadColumnWidth ?? 300)
         self.authViewModel = AuthViewModel()
         self.channelsViewModel = ChannelsViewModel(
             channels: state.watchedChannels,
@@ -57,6 +64,9 @@ final class MainViewModel: ObservableObject {
     }
 
     func shutdown() async {
+        cancelUnreadFocusTimer()
+        unreadColumnWidthPersistTask?.cancel()
+        persistState()
         await telegramService.shutdown()
     }
 
@@ -66,6 +76,7 @@ final class MainViewModel: ObservableObject {
             persistState()
         }
         showWindow?()
+        refreshAggregatedFeedPresentation()
         Task {
             await refreshSelectedChannel()
         }
@@ -92,10 +103,8 @@ final class MainViewModel: ObservableObject {
 
     func selectChannel(_ chatID: Int64?) {
         channelsViewModel.selectedChannelID = chatID
+        isSidebarPresented = false
         persistState()
-        Task {
-            await refreshSelectedChannel()
-        }
     }
 
     func addChannel() {
@@ -113,6 +122,7 @@ final class MainViewModel: ObservableObject {
                 }
                 try channelsViewModel.add(channel)
                 channelsViewModel.channelInput = ""
+                isSidebarPresented = false
                 persistState()
                 await syncWatchedChannels()
                 await refreshSelectedChannel()
@@ -125,52 +135,109 @@ final class MainViewModel: ObservableObject {
     }
 
     func removeSelectedChannel() {
+        guard let removedChannelID = channelsViewModel.selectedChannelID else {
+            return
+        }
+
         channelsViewModel.removeSelectedChannel()
-        feedViewModel.reset()
+        channelNavigationStates.removeValue(forKey: removedChannelID)
+
         persistState()
         Task {
             await syncWatchedChannels()
+            await refreshSelectedChannel()
         }
     }
 
     func refreshSelectedChannel() async {
-        guard let channel = channelsViewModel.selectedChannel else {
+        feedViewModel.isLoading = true
+        feedViewModel.errorMessage = nil
+
+        defer {
+            feedViewModel.isLoading = false
+        }
+
+        guard channelsViewModel.channels.isEmpty == false else {
             feedViewModel.reset()
+            selectedUnreadPostID = nil
+            cancelUnreadFocusTimer()
+            viewerPresentedPost = nil
+            viewerViewModel.dismiss()
+            sessionFeedPosts.removeAll()
             return
         }
 
-        feedViewModel.isLoading = true
-        feedViewModel.errorMessage = nil
-        do {
-            let syncedChannel = try await synchronizeChannel(channel)
-            let posts = try await telegramService.fetchUnreadPosts(for: syncedChannel, limit: 20)
-            feedViewModel.setPosts(posts)
-        } catch {
-            feedViewModel.errorMessage = error.localizedDescription
+        var encounteredError: String?
+        for channel in channelsViewModel.channels {
+            do {
+                let syncedChannel = try await synchronizeChannel(channel)
+                let posts = try await telegramService.fetchUnreadPosts(for: syncedChannel, limit: 50)
+                storeSessionPosts(posts)
+                updateNavigationState(for: syncedChannel.chatID) { state in
+                    state.unreadPosts = sortedUnreadPosts(posts)
+                }
+            } catch {
+                encounteredError = encounteredError ?? error.localizedDescription
+            }
         }
-        feedViewModel.isLoading = false
+        refreshAggregatedFeedPresentation()
+
+        if let encounteredError {
+            feedViewModel.errorMessage = encounteredError
+        }
     }
 
     func openPost(_ post: UnreadPost) {
-        viewerPresentedPost = post
-        viewerViewModel.present(post: post, telegramService: telegramService)
+        selectUnreadPost(post.id)
     }
 
-    func closeViewer() {
-        let postToMark = viewerPresentedPost
-        viewerPresentedPost = nil
-        viewerViewModel.dismiss()
+    func toggleReadState(for post: UnreadPost) {
+        if feedViewModel.isUnread(post) {
+            markPostAsRead(post)
+        } else {
+            feedViewModel.markUnread(identity: post.id)
+            persistState()
+        }
+    }
 
-        guard let postToMark else {
+    func selectUnreadPost(_ postID: UnreadPostIdentity?) {
+        if let postID,
+           selectedUnreadPostID == postID,
+           viewerPresentedPost?.id == postID {
             return
         }
 
-        markPostAsRead(postToMark)
+        selectedUnreadPostID = postID
+
+        guard let postID else {
+            cancelUnreadFocusTimer()
+            return
+        }
+
+        guard let post = feedViewModel.posts.first(where: { $0.id == postID }) else {
+            cancelUnreadFocusTimer()
+            return
+        }
+
+        present(post, startUnreadTimer: true, updateSelection: true)
+    }
+
+    func closeViewer() {
+        cancelUnreadFocusTimer()
+        viewerPresentedPost = nil
+        viewerViewModel.dismiss()
     }
 
     private func markPostAsRead(_ post: UnreadPost) {
+        cancelUnreadFocusTimer()
         channelsViewModel.markAsRead(chatID: post.chatID, messageID: post.messageID)
         notificationService.removeNotification(chatID: post.chatID, messageID: post.messageID)
+        feedViewModel.markRead(identity: post.id)
+        updateNavigationState(for: post.chatID) { state in
+            state.unreadPosts.removeAll { $0.messageID == post.messageID }
+            state.lastViewedPost = nil
+        }
+
         persistState()
 
         Task {
@@ -181,7 +248,6 @@ final class MainViewModel: ObservableObject {
                     self.feedViewModel.errorMessage = error.localizedDescription
                 }
             }
-            await refreshSelectedChannel()
         }
     }
 
@@ -244,6 +310,10 @@ final class MainViewModel: ObservableObject {
                 try await telegramService.logout()
                 feedViewModel.reset()
                 viewerViewModel.dismiss()
+                viewerPresentedPost = nil
+                selectedUnreadPostID = nil
+                cancelUnreadFocusTimer()
+                channelNavigationStates.removeAll()
                 showingSettings = false
             } catch {
                 authViewModel.errorMessage = error.localizedDescription
@@ -258,10 +328,28 @@ final class MainViewModel: ObservableObject {
         persistState()
     }
 
+    func updateUnreadColumnWidth(_ width: CGFloat) {
+        let normalizedWidth = max(240, min(width, 420))
+        guard abs(unreadColumnWidth - normalizedWidth) > 1 else {
+            return
+        }
+
+        unreadColumnWidth = normalizedWidth
+        unreadColumnWidthPersistTask?.cancel()
+        unreadColumnWidthPersistTask = Task { [weak self] in
+            try? await Task.sleep(for: .milliseconds(250))
+            await MainActor.run {
+                self?.persistState()
+            }
+        }
+    }
+
     func openChannel(chatID: Int64) {
         channelsViewModel.selectedChannelID = chatID
+        isSidebarPresented = false
         persistState()
         showWindow?()
+        refreshAggregatedFeedPresentation()
         Task {
             await refreshSelectedChannel()
         }
@@ -314,11 +402,16 @@ final class MainViewModel: ObservableObject {
                 lastReadInboxMessageID: lastReadInboxMessageID,
                 unreadCount: unreadCount
             )
-            persistState()
-
-            if channelsViewModel.selectedChannelID == chatID {
-                feedViewModel.unreadPosts.removeAll { $0.messageID <= lastReadInboxMessageID }
+            updateNavigationState(for: chatID) { state in
+                state.unreadPosts.removeAll { $0.messageID <= lastReadInboxMessageID }
             }
+
+            for post in sessionFeedPosts.values where post.chatID == chatID && post.messageID <= lastReadInboxMessageID {
+                feedViewModel.markRead(identity: post.id)
+            }
+
+            refreshAggregatedFeedPresentation()
+            persistState()
 
         case .unreadPost(let post):
             guard var watchedChannel = channelsViewModel.registerIncoming(post) else {
@@ -329,6 +422,16 @@ final class MainViewModel: ObservableObject {
             let hydratedPost = post.channelTitle.isEmpty ? post.updatingChannelTitle(watchedChannel.title) : post
             let shouldNotify = hydratedPost.messageID > (watchedChannel.lastNotifiedMessageID ?? 0)
 
+            storeSessionPosts([hydratedPost])
+            feedViewModel.markUnread(identity: hydratedPost.id)
+
+            updateNavigationState(for: hydratedPost.chatID) { state in
+                state.unreadPosts.removeAll { $0.id == hydratedPost.id }
+                state.unreadPosts = sortedUnreadPosts(state.unreadPosts + [hydratedPost])
+            }
+
+            refreshAggregatedFeedPresentation()
+
             if shouldNotify {
                 channelsViewModel.markAsNotified(chatID: hydratedPost.chatID, messageID: hydratedPost.messageID)
                 persistState()
@@ -338,9 +441,6 @@ final class MainViewModel: ObservableObject {
             }
 
             watchedChannel = channelsViewModel.channel(for: hydratedPost.chatID) ?? watchedChannel
-            if channelsViewModel.selectedChannelID == hydratedPost.chatID {
-                feedViewModel.prepend(hydratedPost.updatingChannelTitle(watchedChannel.title))
-            }
 
         case .debug(let message):
             authViewModel.debugMessage = message
@@ -420,12 +520,120 @@ final class MainViewModel: ObservableObject {
         await telegramService.syncWatchedChannels(channelsViewModel.channels)
     }
 
+    private func restoreCurrentChannelNavigationState() {
+        refreshAggregatedFeedPresentation()
+    }
+
+    private func refreshAggregatedFeedPresentation() {
+        let allPosts = aggregateSessionPosts()
+        feedViewModel.setPosts(allPosts)
+        feedViewModel.errorMessage = nil
+
+        guard let selectedUnreadPostID else {
+            if viewerPresentedPost == nil, let firstUnreadPost = allPosts.first {
+                selectedUnreadPostID = firstUnreadPost.id
+                present(firstUnreadPost, startUnreadTimer: true, updateSelection: true)
+            }
+            return
+        }
+
+        if let selectedPost = allPosts.first(where: { $0.id == selectedUnreadPostID }) {
+            if viewerPresentedPost?.id != selectedUnreadPostID {
+                present(selectedPost, startUnreadTimer: true, updateSelection: true)
+            }
+        } else if viewerPresentedPost != nil {
+            closeViewer()
+        }
+    }
+
+    private func present(
+        _ post: UnreadPost,
+        startUnreadTimer: Bool,
+        updateSelection: Bool
+    ) {
+        viewerPresentedPost = post
+        viewerViewModel.present(post: post, telegramService: telegramService)
+        updateNavigationState(for: post.chatID) { state in
+            state.lastViewedPost = post
+        }
+        if updateSelection {
+            selectedUnreadPostID = post.id
+        }
+
+        if startUnreadTimer {
+            scheduleUnreadFocusTimer(for: post)
+        } else {
+            cancelUnreadFocusTimer()
+        }
+    }
+
+    private func scheduleUnreadFocusTimer(for post: UnreadPost) {
+        cancelUnreadFocusTimer()
+        unreadFocusTimerTask = Task { [weak self] in
+            try? await Task.sleep(for: .seconds(5))
+            guard let self else {
+                return
+            }
+            await MainActor.run {
+                self.handleUnreadFocusTimerFired(for: post)
+            }
+        }
+    }
+
+    private func handleUnreadFocusTimerFired(for post: UnreadPost) {
+        guard selectedUnreadPostID == post.id else {
+            return
+        }
+        guard viewerPresentedPost?.id == post.id else {
+            return
+        }
+        markPostAsRead(post)
+    }
+
+    private func cancelUnreadFocusTimer() {
+        unreadFocusTimerTask?.cancel()
+        unreadFocusTimerTask = nil
+    }
+
+    private func channelNavigationState(for chatID: Int64) -> ChannelUnreadState {
+        channelNavigationStates[chatID] ?? ChannelUnreadState()
+    }
+
+    private func updateNavigationState(for chatID: Int64, _ mutate: (inout ChannelUnreadState) -> Void) {
+        var state = channelNavigationState(for: chatID)
+        mutate(&state)
+        channelNavigationStates[chatID] = state
+    }
+
+    private func aggregateSessionPosts() -> [UnreadPost] {
+        sortedUnreadPosts(sessionFeedPosts.values.map { $0 })
+    }
+
+    private func storeSessionPosts(_ posts: [UnreadPost]) {
+        for post in posts {
+            sessionFeedPosts[post.id] = post
+        }
+    }
+
+    private func sortedUnreadPosts(_ posts: [UnreadPost]) -> [UnreadPost] {
+        posts.sorted { lhs, rhs in
+            if lhs.date == rhs.date {
+                if lhs.chatID == rhs.chatID {
+                    return lhs.messageID > rhs.messageID
+                }
+                return lhs.chatID > rhs.chatID
+            }
+            return lhs.date > rhs.date
+        }
+    }
+
     private func persistState() {
         do {
             try stateStore.save(PersistedAppState(
                 settings: settings,
                 watchedChannels: channelsViewModel.channels,
-                selectedChannelID: channelsViewModel.selectedChannelID
+                selectedChannelID: channelsViewModel.selectedChannelID,
+                unreadColumnWidth: Double(unreadColumnWidth)
             ))
         } catch {
             authViewModel.errorMessage = error.localizedDescription
@@ -444,4 +652,9 @@ final class MainViewModel: ObservableObject {
             authViewModel.errorMessage = error.localizedDescription
         }
     }
+}
+
+private struct ChannelUnreadState {
+    var unreadPosts: [UnreadPost] = []
+    var lastViewedPost: UnreadPost?
 }

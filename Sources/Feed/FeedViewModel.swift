@@ -2,28 +2,38 @@ import Foundation
 
 @MainActor
 final class FeedViewModel: ObservableObject {
-    @Published var unreadPosts: [UnreadPost] = []
+    @Published var posts: [UnreadPost] = []
+    @Published var readPostIDs: Set<UnreadPostIdentity> = []
     @Published var isLoading = false
     @Published var errorMessage: String?
 
     func setPosts(_ posts: [UnreadPost]) {
-        unreadPosts = sortedPosts(posts)
+        self.posts = sortedPosts(posts)
     }
 
     func prepend(_ post: UnreadPost) {
-        guard unreadPosts.contains(where: { $0.messageID == post.messageID }) == false else {
+        guard posts.contains(where: { $0.id == post.id }) == false else {
             return
         }
-        unreadPosts = sortedPosts(unreadPosts + [post])
-        unreadPosts = Array(unreadPosts.suffix(20))
+        posts = sortedPosts(posts + [post])
+        posts = Array(posts.suffix(20))
     }
 
-    func remove(messageID: Int64) {
-        unreadPosts.removeAll { $0.messageID == messageID }
+    func markRead(identity: UnreadPostIdentity) {
+        readPostIDs.insert(identity)
+    }
+
+    func markUnread(identity: UnreadPostIdentity) {
+        readPostIDs.remove(identity)
+    }
+
+    func isUnread(_ post: UnreadPost) -> Bool {
+        readPostIDs.contains(post.id) == false
     }
 
     func reset() {
-        unreadPosts = []
+        posts = []
+        readPostIDs = []
         errorMessage = nil
         isLoading = false
     }
@@ -31,9 +41,12 @@ final class FeedViewModel: ObservableObject {
     private func sortedPosts(_ posts: [UnreadPost]) -> [UnreadPost] {
         posts.sorted { lhs, rhs in
             if lhs.date == rhs.date {
-                return lhs.messageID < rhs.messageID
+                if lhs.chatID == rhs.chatID {
+                    return lhs.messageID > rhs.messageID
+                }
+                return lhs.chatID > rhs.chatID
             }
-            return lhs.date < rhs.date
+            return lhs.date > rhs.date
         }
     }
 }

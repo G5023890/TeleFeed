@@ -10,34 +10,82 @@ struct PostViewerView: View {
     var body: some View {
         ZStack(alignment: .bottomTrailing) {
             ScrollView {
-                VStack(alignment: .leading, spacing: 20) {
-                    HStack {
-                        VStack(alignment: .leading, spacing: 6) {
-                            Text(post.channelTitle)
-                                .font(.system(size: 24, weight: .semibold, design: .rounded))
-                            Text(post.date.formatted(date: .abbreviated, time: .shortened))
-                                .font(.callout)
-                                .foregroundStyle(.secondary)
-                        }
-                        Spacer()
-                        Button(L10n.tr("viewer.close")) {
-                            onClose()
-                        }
-                        .buttonStyle(.bordered)
-                    }
+                VStack(alignment: .leading, spacing: 22) {
+                    header
 
                     content(for: post)
                         .frame(maxWidth: .infinity, alignment: .leading)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal, 2)
             }
             .scrollIndicators(.visible)
 
             scrollHint
         }
-        .padding(28)
-        .frame(minWidth: 780, minHeight: 560)
-        .background(.ultraThinMaterial)
+        .padding(22)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color.white.opacity(0.28))
+    }
+
+    private var header: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            HStack(alignment: .top) {
+                Button {
+                    onClose()
+                } label: {
+                    Image(systemName: "chevron.left")
+                        .font(.system(size: 15, weight: .semibold))
+                        .frame(width: 42, height: 42)
+                }
+                .buttonStyle(NavBackButtonStyle())
+                .help(L10n.tr("viewer.close"))
+
+                Spacer(minLength: 0)
+            }
+
+            VStack(alignment: .leading, spacing: 10) {
+                Text(post.channelTitle)
+                    .font(.system(size: 16, weight: .semibold, design: .rounded))
+                    .foregroundStyle(.secondary)
+                    .lineLimit(2)
+
+                Text(post.titleOrFallback)
+                    .font(.system(size: 26, weight: .bold, design: .rounded))
+                    .foregroundStyle(.primary)
+                    .lineLimit(4)
+                    .fixedSize(horizontal: false, vertical: true)
+
+                HStack(spacing: 8) {
+                    Text(post.date.formatted(date: .abbreviated, time: .shortened))
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(.secondary)
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 6)
+                        .background(Color.white.opacity(0.88), in: Capsule(style: .continuous))
+                        .overlay(
+                            Capsule(style: .continuous)
+                                .strokeBorder(Color.black.opacity(0.05), lineWidth: 1)
+                        )
+
+                    if let author = post.author, author.isEmpty == false {
+                        Text(author)
+                            .font(.caption.weight(.semibold))
+                            .foregroundStyle(.secondary)
+                            .padding(.horizontal, 10)
+                            .padding(.vertical, 6)
+                            .background(Color.white.opacity(0.88), in: Capsule(style: .continuous))
+                            .overlay(
+                                Capsule(style: .continuous)
+                                    .strokeBorder(Color.black.opacity(0.05), lineWidth: 1)
+                            )
+                    }
+                }
+            }
+
+            Divider()
+                .overlay(Color.black.opacity(0.08))
+        }
     }
 
     @ViewBuilder
@@ -45,21 +93,24 @@ struct PostViewerView: View {
         switch post.content {
         case .text(let body):
             Text(body)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .font(.system(size: 17, weight: .regular, design: .rounded))
+                .frame(maxWidth: 760, alignment: .leading)
+                .font(.system(size: 18, weight: .regular, design: .rounded))
+                .foregroundStyle(.primary)
                 .textSelection(.enabled)
+                .lineSpacing(4)
 
         case .photo(let caption, _):
             mediaWrapper(caption: caption) {
                 if viewModel.isLoadingMedia {
                     ProgressView(L10n.tr("viewer.loadingMedia"))
+                        .frame(maxWidth: .infinity, minHeight: 360)
                 } else if let url = viewModel.mediaURL, let image = loadImage(from: url) {
                     Image(nsImage: image)
                         .resizable()
                         .scaledToFit()
-                        .frame(maxWidth: .infinity)
-                        .frame(maxHeight: 420)
+                        .frame(maxWidth: 760)
                         .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+                        .shadow(color: .black.opacity(0.12), radius: 18, x: 0, y: 10)
                 } else {
                     Text(viewModel.errorMessage ?? L10n.tr("viewer.mediaUnavailable"))
                         .foregroundStyle(.secondary)
@@ -70,10 +121,13 @@ struct PostViewerView: View {
             mediaWrapper(caption: caption) {
                 if viewModel.isLoadingMedia {
                     ProgressView(L10n.tr("viewer.loadingMedia"))
+                        .frame(maxWidth: .infinity, minHeight: 360)
                 } else if let player = viewModel.player {
                     NativeVideoPlayerView(player: player)
+                        .frame(maxWidth: 760)
                         .frame(minHeight: 360)
                         .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+                        .shadow(color: .black.opacity(0.12), radius: 18, x: 0, y: 10)
                 } else {
                     Text(viewModel.errorMessage ?? L10n.tr("viewer.mediaUnavailable"))
                         .foregroundStyle(.secondary)
@@ -83,6 +137,7 @@ struct PostViewerView: View {
         case .unsupported(let summary):
             Text(summary)
                 .foregroundStyle(.secondary)
+                .frame(maxWidth: 760, alignment: .leading)
         }
     }
 
@@ -91,8 +146,10 @@ struct PostViewerView: View {
             content()
             if caption.isEmpty == false {
                 Text(caption)
-                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .frame(maxWidth: 760, alignment: .leading)
                     .textSelection(.enabled)
+                    .font(.body)
+                    .foregroundStyle(.primary)
             }
         }
     }
@@ -118,14 +175,46 @@ struct PostViewerView: View {
         .foregroundStyle(.secondary)
         .padding(.horizontal, 10)
         .padding(.vertical, 6)
-        .background(.thinMaterial, in: Capsule(style: .continuous))
+        .background(Color.white.opacity(0.86), in: Capsule(style: .continuous))
         .overlay(
             Capsule(style: .continuous)
-                .strokeBorder(.white.opacity(0.15), lineWidth: 0.5)
+                .strokeBorder(Color.black.opacity(0.05), lineWidth: 1)
         )
-        .padding(.trailing, 12)
-        .padding(.bottom, 12)
+        .padding(.trailing, 14)
+        .padding(.bottom, 14)
         .allowsHitTesting(false)
+    }
+}
+
+private struct NavBackButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .foregroundStyle(.secondary)
+            .background(
+                Circle()
+                    .fill(Color.white.opacity(configuration.isPressed ? 0.72 : 0.92))
+            )
+            .overlay(
+                Circle()
+                    .strokeBorder(Color.black.opacity(0.05), lineWidth: 1)
+            )
+            .shadow(color: .black.opacity(configuration.isPressed ? 0.03 : 0.08), radius: 10, x: 0, y: 4)
+            .scaleEffect(configuration.isPressed ? 0.97 : 1)
+    }
+}
+
+private extension UnreadPost {
+    var titleOrFallback: String {
+        switch content {
+        case .text(let body):
+            return body.split(separator: "\n").first.map(String.init) ?? summary
+        case .photo(let caption, _):
+            return caption.isEmpty ? summary : caption
+        case .video(let caption, _, _):
+            return caption.isEmpty ? summary : caption
+        case .unsupported(let summary):
+            return summary
+        }
     }
 }
 

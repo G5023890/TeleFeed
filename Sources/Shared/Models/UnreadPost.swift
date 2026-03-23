@@ -10,6 +10,11 @@ struct TelegramMediaDescriptor: Hashable {
     let kind: TelegramMediaKind
 }
 
+struct UnreadPostIdentity: Hashable, Codable {
+    let chatID: Int64
+    let messageID: Int64
+}
+
 enum TelegramPostContent: Hashable {
     case text(body: String)
     case photo(caption: String, media: TelegramMediaDescriptor)
@@ -25,7 +30,8 @@ struct UnreadPost: Hashable, Identifiable {
     let date: Date
     let content: TelegramPostContent
 
-    var id: Int64 { messageID }
+    var id: UnreadPostIdentity { UnreadPostIdentity(chatID: chatID, messageID: messageID) }
+    var globalID: UnreadPostIdentity { id }
 
     var summary: String {
         switch content {

@@ -55,4 +55,5 @@ struct PersistedAppState: Codable {
     var settings = AppSettings()
     var watchedChannels: [WatchedChannel] = []
     var selectedChannelID: Int64? = nil
+    var unreadColumnWidth: Double? = nil
 }

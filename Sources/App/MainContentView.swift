@@ -5,72 +5,64 @@ struct MainContentView: View {
     @ObservedObject var viewModel: MainViewModel
 
     var body: some View {
-        GeometryReader { proxy in
-            let sidebarWidth = min(max(proxy.size.width * 0.34, 300), 420)
+        ZStack {
+            appBackground
 
-            ZStack(alignment: .leading) {
-                LinearGradient(
-                    colors: [
-                        Color(nsColor: .windowBackgroundColor),
-                        Color.blue.opacity(0.15),
-                        Color.cyan.opacity(0.12),
-                    ],
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                )
-                .ignoresSafeArea()
+            content
+                .padding(.horizontal, 16)
+                .padding(.top, -10)
+                .padding(.bottom, 16)
 
-                detailContent
-
-                if canShowSidebar, viewModel.isSidebarPresented {
-                    Color.black.opacity(0.22)
-                        .ignoresSafeArea()
-                        .transition(.opacity)
-                        .onTapGesture {
-                            closeSidebar()
-                        }
-
-                    sidebarDrawer(width: sidebarWidth)
-                        .padding(.leading, 12)
-                        .padding(.vertical, 12)
-                        .transition(.move(edge: .leading).combined(with: .opacity))
-                        .zIndex(1)
-                }
+            if viewModel.isSidebarPresented {
+                drawerBackdrop
+                channelDrawer
+                    .transition(.move(edge: .leading).combined(with: .opacity))
+                    .zIndex(2)
             }
-            .animation(.spring(response: 0.34, dampingFraction: 0.88), value: viewModel.isSidebarPresented)
-            .toolbar {
-                ToolbarItem(placement: .navigation) {
-                    Button(action: toggleSidebar) {
-                        Image(systemName: "sidebar.leading")
+        }
+        .animation(.snappy(duration: 0.25), value: viewModel.isSidebarPresented)
+        .onExitCommand {
+            if viewModel.closeSidebar() == false {
+                NSApp.keyWindow?.performClose(nil)
+            }
+        }
+        .toolbar {
+            ToolbarItemGroup(placement: .automatic) {
+                Button {
+                    withAnimation(.snappy(duration: 0.25)) {
+                        viewModel.isSidebarPresented = true
                     }
-                    .help(canShowSidebar ? L10n.tr("sidebar.channels") : L10n.tr("sidebar.empty"))
-                    .disabled(canShowSidebar == false)
-                    .opacity(canShowSidebar ? 1 : 0.4)
+                } label: {
+                    Image(systemName: "plus")
                 }
+                .help(L10n.tr("sidebar.addChannel"))
 
-                ToolbarItemGroup(placement: .automatic) {
-                    Text(viewModel.connectionLabel)
-                        .font(.caption)
-                        .padding(.horizontal, 10)
-                        .padding(.vertical, 6)
-                        .background(.thinMaterial, in: Capsule())
+                Text(viewModel.connectionLabel)
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(.secondary)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 6)
+                    .background(Color.white.opacity(0.72), in: Capsule(style: .continuous))
+                    .overlay(
+                        Capsule(style: .continuous)
+                            .strokeBorder(Color.black.opacity(0.04), lineWidth: 1)
+                    )
 
-                    Button {
-                        Task {
-                            await viewModel.refreshSelectedChannel()
-                        }
-                    } label: {
-                        Image(systemName: "arrow.clockwise")
+                Button {
+                    Task {
+                        await viewModel.refreshSelectedChannel()
                     }
-                    .help(L10n.tr("feed.refresh"))
-
-                    Button {
-                        viewModel.openSettings()
-                    } label: {
-                        Image(systemName: "gearshape")
-                    }
-                    .help(L10n.tr("menu.settings"))
+                } label: {
+                    Image(systemName: "arrow.clockwise")
                 }
+                .help(L10n.tr("feed.refresh"))
+
+                Button {
+                    viewModel.openSettings()
+                } label: {
+                    Image(systemName: "gearshape")
+                }
+                .help(L10n.tr("menu.settings"))
             }
         }
         .sheet(isPresented: $viewModel.showingSettings) {
@@ -87,89 +79,176 @@ struct MainContentView: View {
         }
     }
 
-    private var canShowSidebar: Bool {
+    private var appBackground: some View {
+        ZStack {
+            LinearGradient(
+                colors: [
+                    Color(red: 0.97, green: 0.95, blue: 0.92),
+                    Color(red: 0.94, green: 0.92, blue: 0.89),
+                    Color(red: 0.92, green: 0.90, blue: 0.87),
+                ],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+
+            RadialGradient(
+                colors: [
+                    Color.white.opacity(0.72),
+                    .clear
+                ],
+                center: .topTrailing,
+                startRadius: 20,
+                endRadius: 520
+            )
+            .blendMode(.screen)
+            .offset(x: -180, y: -160)
+
+            RadialGradient(
+                colors: [
+                    Color(red: 0.98, green: 0.90, blue: 0.80).opacity(0.52),
+                    .clear
+                ],
+                center: .bottomLeading,
+                startRadius: 20,
+                endRadius: 540
+            )
+            .blendMode(.screen)
+            .offset(x: 180, y: 140)
+        }
+        .ignoresSafeArea()
+    }
+
+    @ViewBuilder
+    private var content: some View {
         if case .ready = viewModel.authViewModel.state {
-            return true
-        }
-        return false
-    }
+            VStack(spacing: 10) {
+                HSplitView {
+                    unreadColumn
+                        .frame(
+                            minWidth: max(260, viewModel.unreadColumnWidth - 45),
+                            idealWidth: viewModel.unreadColumnWidth,
+                            maxWidth: min(390, viewModel.unreadColumnWidth + 55)
+                        )
 
-    @ViewBuilder
-    private var detailContent: some View {
-        Group {
-            if case .ready = viewModel.authViewModel.state {
-                if let channel = viewModel.channelsViewModel.selectedChannel {
-                    if let post = viewModel.viewerPresentedPost {
-                        PostViewerView(
-                            post: post,
-                            viewModel: viewModel.viewerViewModel,
-                            onClose: viewModel.closeViewer
-                        )
-                    } else {
-                        FeedListView(
-                            channel: channel,
-                            viewModel: viewModel.feedViewModel,
-                            onRefresh: {
-                                Task {
-                                    await viewModel.refreshSelectedChannel()
-                                }
-                            },
-                            onOpen: viewModel.openPost
-                        )
-                    }
-                } else {
-                    ContentUnavailableView(L10n.tr("sidebar.empty"), systemImage: "dot.radiowaves.left.and.right")
+                    detailColumn
+                        .frame(minWidth: 700, idealWidth: 980, maxWidth: .infinity)
                 }
-            } else {
-                AuthView(
-                    viewModel: viewModel.authViewModel,
-                    onSaveCredentials: viewModel.saveCredentials,
-                    onRefreshQR: viewModel.refreshQRCode,
-                    onSubmitPassword: viewModel.submitPassword
-                )
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
+        } else {
+            AuthView(
+                viewModel: viewModel.authViewModel,
+                onSaveCredentials: viewModel.saveCredentials,
+                onRefreshQR: viewModel.refreshQRCode,
+                onSubmitPassword: viewModel.submitPassword
+            )
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(.clear)
+    }
+
+    private var drawerBackdrop: some View {
+        Color.black.opacity(0.12)
+            .ignoresSafeArea()
+            .onTapGesture {
+                withAnimation(.snappy(duration: 0.25)) {
+                    viewModel.isSidebarPresented = false
+                }
+            }
+    }
+
+    private var channelDrawer: some View {
+        HStack(alignment: .top, spacing: 0) {
+            ChannelsManagementView(
+                viewModel: viewModel.channelsViewModel,
+                onAdd: {
+                    viewModel.addChannel()
+                },
+                onRemove: {
+                    viewModel.removeSelectedChannel()
+                },
+                onSelect: { chatID in
+                    viewModel.selectChannel(chatID)
+                },
+                onClose: {
+                    withAnimation(.snappy(duration: 0.25)) {
+                        viewModel.isSidebarPresented = false
+                    }
+                }
+            )
+            .frame(width: 362, alignment: .topLeading)
+            .background(Color.white.opacity(0.72))
+            .overlay(
+                RoundedRectangle(cornerRadius: 30, style: .continuous)
+                    .strokeBorder(Color.white.opacity(0.82), lineWidth: 1)
+            )
+            .clipShape(RoundedRectangle(cornerRadius: 30, style: .continuous))
+            .shadow(color: .black.opacity(0.12), radius: 26, x: 8, y: 18)
+            .padding(.leading, 18)
+            .padding(.top, 12)
+
+            Spacer(minLength: 0)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
     }
 
     @ViewBuilder
-    private func sidebarDrawer(width: CGFloat) -> some View {
-        ChannelsManagementView(
-            viewModel: viewModel.channelsViewModel,
-            onAdd: viewModel.addChannel,
-            onRemove: viewModel.removeSelectedChannel,
-            onSelect: { chatID in
-                viewModel.selectChannel(chatID)
-                if chatID != nil {
-                    closeSidebar()
-                }
-            },
-            onClose: {
-                closeSidebar()
+    private var unreadColumn: some View {
+        FeedListView(
+            viewModel: viewModel.feedViewModel,
+            selectedPostID: Binding(
+                get: { viewModel.selectedUnreadPostID },
+                set: { viewModel.selectedUnreadPostID = $0 }
+            ),
+            onSelectionChange: viewModel.selectUnreadPost,
+            onSwipeRight: viewModel.toggleReadState
+        )
+        .background(
+            GeometryReader { proxy in
+                Color.clear
+                    .preference(key: UnreadColumnWidthKey.self, value: proxy.size.width)
             }
         )
-        .frame(width: width, alignment: .leading)
-        .shadow(color: .black.opacity(0.18), radius: 30, x: 0, y: 18)
-    }
-
-    private func toggleSidebar() {
-        guard canShowSidebar else {
-            return
-        }
-
-        withAnimation {
-            viewModel.toggleSidebar()
+        .onPreferenceChange(UnreadColumnWidthKey.self) { width in
+            viewModel.updateUnreadColumnWidth(width)
         }
     }
 
-    private func closeSidebar() {
-        guard viewModel.isSidebarPresented else {
-            return
+    @ViewBuilder
+    private var detailColumn: some View {
+        if let post = viewModel.viewerPresentedPost {
+            PostViewerView(
+                post: post,
+                viewModel: viewModel.viewerViewModel,
+                onClose: viewModel.closeViewer
+            )
+        } else {
+            Color.clear
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
+    }
+}
 
-        _ = withAnimation {
-            viewModel.closeSidebar()
-        }
+private struct UnreadColumnWidthKey: PreferenceKey {
+    static let defaultValue: CGFloat = 0
+
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value = nextValue()
+    }
+}
+
+private struct TopBarButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .foregroundStyle(.primary)
+            .background(
+                Circle()
+                    .fill(Color.white.opacity(configuration.isPressed ? 0.72 : 0.88))
+            )
+            .overlay(
+                Circle()
+                    .strokeBorder(Color.black.opacity(0.05), lineWidth: 1)
+            )
+            .shadow(color: .black.opacity(configuration.isPressed ? 0.03 : 0.08), radius: 10, x: 0, y: 4)
+            .scaleEffect(configuration.isPressed ? 0.97 : 1)
     }
 }

@@ -192,7 +192,9 @@ final class MenuBarStatusItemController: NSObject {
         button.sendAction(on: [.leftMouseUp, .rightMouseUp])
         button.imagePosition = .imageLeading
         button.imageScaling = .scaleProportionallyDown
-        button.image = bundledMenuBarImage()
+        let image = bundledMenuBarImage()
+        image.size = NSSize(width: 18, height: 18)
+        button.image = image
         button.title = ""
         button.toolTip = L10n.tr("app.title")
     }
@@ -274,12 +276,6 @@ final class MenuBarStatusItemController: NSObject {
     }
 
     private func bundledMenuBarImage() -> NSImage {
-        if let url = Bundle.main.url(forResource: "MenuBarIcon", withExtension: "png", subdirectory: "Assets/Icons"),
-           let image = NSImage(contentsOf: url) {
-            image.isTemplate = false
-            return image
-        }
-
         if let url = Bundle.main.url(forResource: "MenuBarIcon", withExtension: "png"),
            let image = NSImage(contentsOf: url) {
             image.isTemplate = false
@@ -310,6 +306,9 @@ final class TelegaAppDelegate: NSObject, NSApplicationDelegate {
     }
 
     @objc private func closeOpenFeedFromMenu() {
+        if runtime.mainViewModel.closeSidebar() {
+            return
+        }
         runtime.closeOpenFeedWindow()
     }
 
