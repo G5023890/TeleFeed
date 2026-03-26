@@ -29,7 +29,6 @@ final class ViewerViewModel: ObservableObject {
                     self.isLoadingMedia = false
                     if descriptor.kind == .video {
                         self.player = AVPlayer(url: url)
-                        self.player?.play()
                     }
                 }
             } catch {
@@ -48,5 +47,9 @@ final class ViewerViewModel: ObservableObject {
         player = nil
         errorMessage = nil
         isLoadingMedia = false
+    }
+
+    func playVideo() {
+        player?.play()
     }
 }

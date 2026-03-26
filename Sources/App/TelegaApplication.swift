@@ -87,7 +87,13 @@ final class AppRuntime: ObservableObject {
         }
 
         let rootView = MainContentView(viewModel: container.mainViewModel)
-        let windowController = MainWindowController(rootView: rootView)
+        let windowController = MainWindowController(
+            rootView: rootView,
+            initialFrame: container.mainViewModel.windowFrame
+        )
+        windowController.onPersistWindowFrame = { [weak mainViewModel = container.mainViewModel] frame in
+            mainViewModel?.updateWindowFrame(frame)
+        }
         self.windowController = windowController
 
         container.mainViewModel.showWindow = { [weak windowController] in
@@ -123,6 +129,16 @@ final class AppRuntime: ObservableObject {
 
     func openSettings() {
         container.mainViewModel.openSettings()
+    }
+
+    func openAddChannel() {
+        configureWindowIfNeeded()
+        container.mainViewModel.isSidebarPresented = true
+        container.mainViewModel.showWindow?()
+    }
+
+    func refreshSelectedChannel() async {
+        await container.mainViewModel.refreshSelectedChannel()
     }
 
     func closeOpenFeedWindow() {
@@ -202,8 +218,13 @@ final class MenuBarStatusItemController: NSObject {
     private func configureMenu() {
         menu.autoenablesItems = false
         menu.addItem(NSMenuItem(
-            title: L10n.tr("menu.open"),
-            action: #selector(openFeedFromMenu),
+            title: L10n.tr("menu.addChannel"),
+            action: #selector(addChannelFromMenu),
+            keyEquivalent: ""
+        ))
+        menu.addItem(NSMenuItem(
+            title: L10n.tr("feed.refresh"),
+            action: #selector(refreshFromMenu),
             keyEquivalent: ""
         ))
         menu.addItem(NSMenuItem(
@@ -212,6 +233,11 @@ final class MenuBarStatusItemController: NSObject {
             keyEquivalent: ","
         ))
         menu.addItem(.separator())
+        menu.addItem(NSMenuItem(
+            title: L10n.tr("menu.closeFeed"),
+            action: #selector(closeFeedFromMenu),
+            keyEquivalent: "\u{1b}"
+        ))
         menu.addItem(NSMenuItem(
             title: L10n.tr("menu.quit"),
             action: #selector(quitFromMenu),
@@ -253,12 +279,25 @@ final class MenuBarStatusItemController: NSObject {
         }
     }
 
-    @objc private func openFeedFromMenu() {
-        runtime.openHome()
+    @objc private func addChannelFromMenu() {
+        runtime.openAddChannel()
+    }
+
+    @objc private func refreshFromMenu() {
+        Task {
+            await runtime.refreshSelectedChannel()
+        }
     }
 
     @objc private func openSettingsFromMenu() {
         runtime.openSettings()
+    }
+
+    @objc private func closeFeedFromMenu() {
+        if runtime.mainViewModel.closeSidebar() {
+            return
+        }
+        runtime.closeOpenFeedWindow()
     }
 
     @objc private func quitFromMenu() {
@@ -282,8 +321,7 @@ final class MenuBarStatusItemController: NSObject {
             return image
         }
 
-        if let url = Bundle.main.url(forResource: "MenuBarIcon", withExtension: "png"),
-           let image = NSImage(contentsOf: url) {
+        if let image = NSImage(named: "MenuBarIcon") {
             image.isTemplate = false
             return image
         }
@@ -311,27 +349,100 @@ final class TelegaAppDelegate: NSObject, NSApplicationDelegate {
         runtime.shutdown()
     }
 
-    @objc private func closeOpenFeedFromMenu() {
+    private func configureMainMenu() {
+        let appMenuItem = NSMenuItem()
+        let appMenu = NSMenu()
+
+        let addChannelItem = NSMenuItem(
+            title: L10n.tr("menu.addChannel"),
+            action: #selector(addChannelFromMenu),
+            keyEquivalent: ""
+        )
+        addChannelItem.target = self
+        appMenu.addItem(addChannelItem)
+
+        let refreshItem = NSMenuItem(
+            title: L10n.tr("feed.refresh"),
+            action: #selector(refreshFromMenu),
+            keyEquivalent: ""
+        )
+        refreshItem.target = self
+        appMenu.addItem(refreshItem)
+
+        let settingsItem = NSMenuItem(
+            title: L10n.tr("menu.settings"),
+            action: #selector(openSettingsFromMenu),
+            keyEquivalent: ","
+        )
+        settingsItem.target = self
+        appMenu.addItem(settingsItem)
+
+        appMenu.addItem(.separator())
+
+        let closeFeedItem = NSMenuItem(
+            title: L10n.tr("menu.closeFeed"),
+            action: #selector(closeFeedFromMenu),
+            keyEquivalent: "\u{1b}"
+        )
+        closeFeedItem.target = self
+        appMenu.addItem(closeFeedItem)
+        appMenu.addItem(.separator())
+
+        let quitItem = NSMenuItem(
+            title: L10n.tr("menu.quit"),
+            action: #selector(quitFromMenu),
+            keyEquivalent: "q"
+        )
+        quitItem.target = self
+        appMenu.addItem(quitItem)
+
+        appMenuItem.submenu = appMenu
+        mainMenu.addItem(appMenuItem)
+
+        let editMenuItem = NSMenuItem()
+        let editMenu = NSMenu(title: L10n.tr("menu.edit"))
+
+        let cutItem = NSMenuItem(title: L10n.tr("menu.cut"), action: #selector(NSText.cut(_:)), keyEquivalent: "x")
+        editMenu.addItem(cutItem)
+
+        let copyItem = NSMenuItem(title: L10n.tr("menu.copy"), action: #selector(NSText.copy(_:)), keyEquivalent: "c")
+        editMenu.addItem(copyItem)
+
+        let pasteItem = NSMenuItem(title: L10n.tr("menu.paste"), action: #selector(NSText.paste(_:)), keyEquivalent: "v")
+        editMenu.addItem(pasteItem)
+
+        editMenu.addItem(.separator())
+
+        let selectAllItem = NSMenuItem(title: L10n.tr("menu.select_all"), action: #selector(NSText.selectAll(_:)), keyEquivalent: "a")
+        editMenu.addItem(selectAllItem)
+
+        editMenuItem.submenu = editMenu
+        mainMenu.addItem(editMenuItem)
+        NSApp.mainMenu = mainMenu
+    }
+
+    @objc private func addChannelFromMenu() {
+        runtime.openAddChannel()
+    }
+
+    @objc private func refreshFromMenu() {
+        Task {
+            await runtime.refreshSelectedChannel()
+        }
+    }
+
+    @objc private func openSettingsFromMenu() {
+        runtime.openSettings()
+    }
+
+    @objc private func closeFeedFromMenu() {
         if runtime.mainViewModel.closeSidebar() {
             return
         }
         runtime.closeOpenFeedWindow()
     }
 
-    private func configureMainMenu() {
-        let appMenuItem = NSMenuItem()
-        let appMenu = NSMenu()
-
-        let closeOpenFeedItem = NSMenuItem(
-            title: L10n.tr("sidebar.close"),
-            action: #selector(closeOpenFeedFromMenu),
-            keyEquivalent: "\u{1b}"
-        )
-        closeOpenFeedItem.target = self
-        appMenu.addItem(closeOpenFeedItem)
-        appMenu.addItem(.separator())
-        appMenuItem.submenu = appMenu
-        mainMenu.addItem(appMenuItem)
-        NSApp.mainMenu = mainMenu
+    @objc private func quitFromMenu() {
+        runtime.quit()
     }
 }

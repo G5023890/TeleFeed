@@ -5,6 +5,7 @@ struct AuthView: View {
     let onSaveCredentials: () -> Void
     let onRefreshQR: () -> Void
     let onSubmitPassword: () -> Void
+    @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
         ScrollView {
@@ -51,7 +52,11 @@ struct AuthView: View {
                     }
                     .padding(16)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+                    .background(AppTheme.surfaceFill(for: colorScheme), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 18, style: .continuous)
+                            .strokeBorder(AppTheme.surfaceStroke(for: colorScheme), lineWidth: 1)
+                    )
                 }
 
                 Text(L10n.tr("auth.currentState", viewModel.stateDebugLabel))
@@ -91,7 +96,11 @@ struct AuthView: View {
                 .disabled(viewModel.apiID.isEmpty || viewModel.apiHash.isEmpty || viewModel.isBusy)
         }
         .padding(24)
-        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
+        .background(AppTheme.surfaceFill(for: colorScheme), in: RoundedRectangle(cornerRadius: 24, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 24, style: .continuous)
+                .strokeBorder(AppTheme.surfaceStroke(for: colorScheme), lineWidth: 1)
+        )
     }
 
     private var qrCard: some View {
@@ -125,7 +134,11 @@ struct AuthView: View {
                 .disabled(viewModel.isBusy)
         }
         .padding(24)
-        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
+        .background(AppTheme.surfaceFill(for: colorScheme), in: RoundedRectangle(cornerRadius: 24, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 24, style: .continuous)
+                .strokeBorder(AppTheme.surfaceStroke(for: colorScheme), lineWidth: 1)
+        )
     }
 
     private var passwordCard: some View {
@@ -147,7 +160,11 @@ struct AuthView: View {
                 .disabled(viewModel.password.isEmpty || viewModel.isBusy)
         }
         .padding(24)
-        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
+        .background(AppTheme.surfaceFill(for: colorScheme), in: RoundedRectangle(cornerRadius: 24, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 24, style: .continuous)
+                .strokeBorder(AppTheme.surfaceStroke(for: colorScheme), lineWidth: 1)
+        )
     }
 
     private func statusCard(text: String) -> some View {
@@ -168,6 +185,10 @@ struct AuthView: View {
             }
         }
         .padding(24)
-        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
+        .background(AppTheme.surfaceFill(for: colorScheme), in: RoundedRectangle(cornerRadius: 24, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 24, style: .continuous)
+                .strokeBorder(AppTheme.surfaceStroke(for: colorScheme), lineWidth: 1)
+        )
     }
 }

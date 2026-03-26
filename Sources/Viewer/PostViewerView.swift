@@ -6,6 +6,10 @@ struct PostViewerView: View {
     let post: UnreadPost
     @ObservedObject var viewModel: ViewerViewModel
     let onClose: () -> Void
+    let onOpenReader: (() -> Void)?
+    @Environment(\.colorScheme) private var colorScheme
+    @State private var contentHeight: CGFloat = 0
+    @State private var viewportHeight: CGFloat = 0
 
     var body: some View {
         ZStack(alignment: .bottomTrailing) {
@@ -18,14 +22,31 @@ struct PostViewerView: View {
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.horizontal, 2)
+                .background(
+                    GeometryReader { proxy in
+                        Color.clear.preference(key: ViewerContentHeightKey.self, value: proxy.size.height)
+                    }
+                )
             }
             .scrollIndicators(.visible)
 
-            scrollHint
+            if shouldShowScrollHint {
+                scrollHint
+            }
         }
         .padding(22)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color.white.opacity(0.28))
+        .background(
+            GeometryReader { proxy in
+                Color.clear.preference(key: ViewerViewportHeightKey.self, value: proxy.size.height)
+            }
+        )
+        .onPreferenceChange(ViewerContentHeightKey.self) { contentHeight = $0 }
+        .onPreferenceChange(ViewerViewportHeightKey.self) { viewportHeight = $0 }
+    }
+
+    private var shouldShowScrollHint: Bool {
+        contentHeight > viewportHeight + 1
     }
 
     private var header: some View {
@@ -38,7 +59,7 @@ struct PostViewerView: View {
                         .font(.system(size: 15, weight: .semibold))
                         .frame(width: 42, height: 42)
                 }
-                .buttonStyle(NavBackButtonStyle())
+                .buttonStyle(NavBackButtonStyle(colorScheme: colorScheme))
                 .help(L10n.tr("viewer.close"))
 
                 Spacer(minLength: 0)
@@ -50,41 +71,57 @@ struct PostViewerView: View {
                     .foregroundStyle(.secondary)
                     .lineLimit(2)
 
-                Text(post.titleOrFallback)
-                    .font(.system(size: 26, weight: .bold, design: .rounded))
-                    .foregroundStyle(.primary)
-                    .lineLimit(4)
-                    .fixedSize(horizontal: false, vertical: true)
+                if let onOpenReader, post.articleURL != nil {
+                    Button {
+                        onOpenReader()
+                    } label: {
+                        Text(post.titleOrFallback)
+                            .font(.system(size: 22, weight: .bold, design: .rounded))
+                            .foregroundStyle(.primary)
+                            .lineLimit(4)
+                            .fixedSize(horizontal: false, vertical: true)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+                    .help(L10n.tr("reader.open"))
+                } else {
+                    Text(post.titleOrFallback)
+                        .font(.system(size: 22, weight: .bold, design: .rounded))
+                        .foregroundStyle(.primary)
+                        .lineLimit(4)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
 
                 HStack(spacing: 8) {
-                    Text(post.date.formatted(date: .abbreviated, time: .shortened))
-                        .font(.caption.weight(.semibold))
-                        .foregroundStyle(.secondary)
-                        .padding(.horizontal, 10)
-                        .padding(.vertical, 6)
-                        .background(Color.white.opacity(0.88), in: Capsule(style: .continuous))
-                        .overlay(
-                            Capsule(style: .continuous)
-                                .strokeBorder(Color.black.opacity(0.05), lineWidth: 1)
-                        )
-
-                    if let author = post.author, author.isEmpty == false {
-                        Text(author)
+                        Text(post.date.formatted(date: .abbreviated, time: .shortened))
                             .font(.caption.weight(.semibold))
                             .foregroundStyle(.secondary)
                             .padding(.horizontal, 10)
                             .padding(.vertical, 6)
-                            .background(Color.white.opacity(0.88), in: Capsule(style: .continuous))
+                            .background(AppTheme.readerChipFill(for: colorScheme), in: Capsule(style: .continuous))
                             .overlay(
                                 Capsule(style: .continuous)
-                                    .strokeBorder(Color.black.opacity(0.05), lineWidth: 1)
+                                    .strokeBorder(AppTheme.readerChipStroke(for: colorScheme), lineWidth: 1)
                             )
+
+                    if let author = post.author, author.isEmpty == false {
+                            Text(author)
+                                .font(.caption.weight(.semibold))
+                                .foregroundStyle(.secondary)
+                                .padding(.horizontal, 10)
+                                .padding(.vertical, 6)
+                                .background(AppTheme.readerChipFill(for: colorScheme), in: Capsule(style: .continuous))
+                                .overlay(
+                                    Capsule(style: .continuous)
+                                        .strokeBorder(AppTheme.readerChipStroke(for: colorScheme), lineWidth: 1)
+                                )
                     }
                 }
             }
 
             Divider()
-                .overlay(Color.black.opacity(0.08))
+                .overlay(AppTheme.separatorColor(for: colorScheme))
         }
     }
 
@@ -92,12 +129,14 @@ struct PostViewerView: View {
     private func content(for post: UnreadPost) -> some View {
         switch post.content {
         case .text(let body):
-            Text(body)
-                .frame(maxWidth: 760, alignment: .leading)
-                .font(.system(size: 18, weight: .regular, design: .rounded))
-                .foregroundStyle(.primary)
-                .textSelection(.enabled)
-                .lineSpacing(4)
+            SelectableTextView(
+                text: body,
+                font: .systemFont(ofSize: 18, weight: .regular),
+                textColor: .labelColor,
+                lineSpacing: 4,
+                maximumWidth: 760
+            )
+            .frame(maxWidth: 760, alignment: .leading)
 
         case .photo(let caption, _):
             mediaWrapper(caption: caption) {
@@ -123,11 +162,26 @@ struct PostViewerView: View {
                     ProgressView(L10n.tr("viewer.loadingMedia"))
                         .frame(maxWidth: .infinity, minHeight: 360)
                 } else if let player = viewModel.player {
-                    NativeVideoPlayerView(player: player)
-                        .frame(maxWidth: 760)
-                        .frame(minHeight: 360)
-                        .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
-                        .shadow(color: .black.opacity(0.12), radius: 18, x: 0, y: 10)
+                    ZStack {
+                        NativeVideoPlayerView(player: player)
+                            .frame(maxWidth: 760)
+                            .frame(minHeight: 360)
+
+                        Button {
+                            viewModel.playVideo()
+                        } label: {
+                            HStack(spacing: 8) {
+                                Image(systemName: "play.fill")
+                                Text("Play")
+                            }
+                            .font(.system(size: 14, weight: .semibold, design: .rounded))
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 10)
+                        }
+                        .buttonStyle(VideoPlayButtonStyle(colorScheme: colorScheme))
+                    }
+                    .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+                    .shadow(color: .black.opacity(0.12), radius: 18, x: 0, y: 10)
                 } else {
                     Text(viewModel.errorMessage ?? L10n.tr("viewer.mediaUnavailable"))
                         .foregroundStyle(.secondary)
@@ -145,11 +199,13 @@ struct PostViewerView: View {
         VStack(alignment: .leading, spacing: 16) {
             content()
             if caption.isEmpty == false {
-                Text(caption)
-                    .frame(maxWidth: 760, alignment: .leading)
-                    .textSelection(.enabled)
-                    .font(.body)
-                    .foregroundStyle(.primary)
+                SelectableTextView(
+                    text: caption,
+                    font: .systemFont(ofSize: 15, weight: .regular),
+                    textColor: .labelColor,
+                    maximumWidth: 760
+                )
+                .frame(maxWidth: 760, alignment: .leading)
             }
         }
     }
@@ -175,10 +231,10 @@ struct PostViewerView: View {
         .foregroundStyle(.secondary)
         .padding(.horizontal, 10)
         .padding(.vertical, 6)
-        .background(Color.white.opacity(0.86), in: Capsule(style: .continuous))
+        .background(AppTheme.readerChipFill(for: colorScheme), in: Capsule(style: .continuous))
         .overlay(
             Capsule(style: .continuous)
-                .strokeBorder(Color.black.opacity(0.05), lineWidth: 1)
+                .strokeBorder(AppTheme.readerChipStroke(for: colorScheme), lineWidth: 1)
         )
         .padding(.trailing, 14)
         .padding(.bottom, 14)
@@ -186,35 +242,38 @@ struct PostViewerView: View {
     }
 }
 
+private struct ViewerContentHeightKey: PreferenceKey {
+    static let defaultValue: CGFloat = 0
+
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value = nextValue()
+    }
+}
+
+private struct ViewerViewportHeightKey: PreferenceKey {
+    static let defaultValue: CGFloat = 0
+
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value = nextValue()
+    }
+}
+
 private struct NavBackButtonStyle: ButtonStyle {
+    let colorScheme: ColorScheme
+
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .foregroundStyle(.secondary)
             .background(
                 Circle()
-                    .fill(Color.white.opacity(configuration.isPressed ? 0.72 : 0.92))
+                    .fill(colorScheme == .dark ? Color.white.opacity(configuration.isPressed ? 0.08 : 0.12) : Color.white.opacity(configuration.isPressed ? 0.72 : 0.92))
             )
             .overlay(
                 Circle()
-                    .strokeBorder(Color.black.opacity(0.05), lineWidth: 1)
+                    .strokeBorder(AppTheme.readerChipStroke(for: colorScheme), lineWidth: 1)
             )
-            .shadow(color: .black.opacity(configuration.isPressed ? 0.03 : 0.08), radius: 10, x: 0, y: 4)
+            .shadow(color: colorScheme == .dark ? .black.opacity(configuration.isPressed ? 0.18 : 0.3) : .black.opacity(configuration.isPressed ? 0.03 : 0.08), radius: 10, x: 0, y: 4)
             .scaleEffect(configuration.isPressed ? 0.97 : 1)
-    }
-}
-
-private extension UnreadPost {
-    var titleOrFallback: String {
-        switch content {
-        case .text(let body):
-            return body.split(separator: "\n").first.map(String.init) ?? summary
-        case .photo(let caption, _):
-            return caption.isEmpty ? summary : caption
-        case .video(let caption, _, _):
-            return caption.isEmpty ? summary : caption
-        case .unsupported(let summary):
-            return summary
-        }
     }
 }
 
@@ -234,5 +293,24 @@ private struct NativeVideoPlayerView: NSViewRepresentable {
         if nsView.player !== player {
             nsView.player = player
         }
+    }
+}
+
+private struct VideoPlayButtonStyle: ButtonStyle {
+    let colorScheme: ColorScheme
+
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .foregroundStyle(.primary)
+            .background(
+                Capsule(style: .continuous)
+                    .fill(colorScheme == .dark ? Color.white.opacity(configuration.isPressed ? 0.10 : 0.14) : Color.white.opacity(configuration.isPressed ? 0.80 : 0.92))
+            )
+            .overlay(
+                Capsule(style: .continuous)
+                    .strokeBorder(AppTheme.readerChipStroke(for: colorScheme), lineWidth: 1)
+            )
+            .shadow(color: colorScheme == .dark ? .black.opacity(0.25) : .black.opacity(0.08), radius: 10, x: 0, y: 4)
+            .scaleEffect(configuration.isPressed ? 0.97 : 1)
     }
 }

@@ -9,7 +9,11 @@
 /* Begin PBXBuildFile section */
 		05BD0CA5796530972EC230C8 /* StateStoreProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 287950C7BF26153A8C7C10A1 /* StateStoreProtocol.swift */; };
 		08ECA2DA89B552D0A5F11ADE /* TelegramService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C71152E3739086864C775BAD /* TelegramService.swift */; };
+		1024F6C4CBDFF074B247A888 /* ReaderViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF00ABF8169A62F4E1322A71 /* ReaderViewModel.swift */; };
+		201E7EA039B4791A7198EB6D /* ReaderService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 990CF66C4D9E0CC64E06AA22 /* ReaderService.swift */; };
+		2E1BD6400325BBFBD9CD92BA /* ReaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B4508F1A141833EA6A0046E /* ReaderView.swift */; };
 		328AF28789A9CEE151BCEA13 /* TelegaApplication.swift in Sources */ = {isa = PBXBuildFile; fileRef = 051CC4E6ECCBF333C9826998 /* TelegaApplication.swift */; };
+		3C1C45FEB26160CAC917F5FA /* ReaderArticle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7FD4B86701150CCAE635063F /* ReaderArticle.swift */; };
 		3F0EC81BE2788C1ED943570C /* MenuBarContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89CDC93F26C1A10CD20402F5 /* MenuBarContentView.swift */; };
 		43C98737A352FE7C878FF823 /* ChannelsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCAC04741232F2A8E830AF0B /* ChannelsViewModel.swift */; };
 		4BD2C84375ACE3AAE5FD5444 /* TelegramServiceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3F3DFB6A2D25791B703DD50 /* TelegramServiceProtocol.swift */; };
@@ -20,6 +24,7 @@
 		7528AD3C73D395FD8BF5753B /* WatchedChannel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D96276AA212848BA72A0C080 /* WatchedChannel.swift */; };
 		77CB35B0CF59F2396944463A /* AuthView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7BE72D2BB2114777355537A /* AuthView.swift */; };
 		814B47428CDA861390A906FD /* PostViewerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC2CEE32344622B651A66E9E /* PostViewerView.swift */; };
+		97B3293ACEE24A1CA65CB6A6 /* RSSService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 33449E483EEF47FB7BBD1BB6 /* RSSService.swift */; };
 		99764CE6C488DB4EA9303637 /* NotificationServiceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = A6D75EEBA61613E02E1AC0CB /* NotificationServiceProtocol.swift */; };
 		9F2EDD0CC50E8F68EA714301 /* FeedListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B76346F8E869DED11279469 /* FeedListView.swift */; };
 		9F309CDA819CB22FA54B7C74 /* TDLibDictionary+Parsing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 919D5A2E4D26C747ED6B01C5 /* TDLibDictionary+Parsing.swift */; };
@@ -30,15 +35,22 @@
 		BAC5DB742E87A9BB3E3D28CB /* TelegaApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79A6AA4F1A0F2BD7D6B0829B /* TelegaApp.swift */; };
 		BCE46A28A7C848FADAAD3665 /* L10n.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE6A38E0E87DEA42F430AEF3 /* L10n.swift */; };
 		BDE10DAB46739EEA1D69818E /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24FCC31DC264561196C0DB04 /* SettingsView.swift */; };
+		BE95FC6DA2B8AA26B9BB6E8F /* RSSFeedSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB51BD0CA2971B30A64FA5A3 /* RSSFeedSource.swift */; };
 		BF6F8EF66749A56D45DF0573 /* TDLibClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3ED4BFE5FCEB14AE01457C7 /* TDLibClient.swift */; };
 		C485486681E2A2900852A867 /* UnreadPost.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66AEB74C7F2F72145209AF81 /* UnreadPost.swift */; };
 		C7AB652CC42E6CADD35D7BD5 /* FileAppStateStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D306A0C94BE0416ECB3ED8A /* FileAppStateStore.swift */; };
+		CA5312642039AE3087517262 /* SelectableTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3F8FA5DA780E2D5E45E28F5 /* SelectableTextView.swift */; };
 		D0878E57B1625AF78696155D /* AppSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65AE1B0D5EC03A01A2456409 /* AppSettings.swift */; };
 		D5E86E42E9F3A86532A2C5E1 /* AppContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B37243C6E5D8E4599F2F9792 /* AppContainer.swift */; };
+		D684FFDDEF50CE8D8A726003 /* WindowFrameState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CC2727A9E5F04DD3EE9C341 /* WindowFrameState.swift */; };
 		DF53DF4D8BE6AFA7FA77C5F4 /* MainWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6ECED36381384C9202760917 /* MainWindowController.swift */; };
 		E42C1B4C01EE951FCF51436D /* MainViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3007D8B05FB2F1A58BC48FF /* MainViewModel.swift */; };
+		E5D8D59FD0E4B5404B8D13C0 /* RSSFeedsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E288AC7CBE89879B9595FDC3 /* RSSFeedsViewModel.swift */; };
 		E816A7839C965E87E32CF91C /* AppRoute.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45F38CB68E341194EAD9EC12 /* AppRoute.swift */; };
+		F23DF7DA34298B41FB55E27E /* AppTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94BAD433FE5B4A0948B18C3B /* AppTheme.swift */; };
+		F701F2B660E2B14F0694CC9C /* ReaderServiceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 656CCBDA1EBD9E74249C7270 /* ReaderServiceProtocol.swift */; };
 		F7BE6423EED4421320B25F62 /* AuthViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 645E5C9F01FC4243B3EAC54C /* AuthViewModel.swift */; };
+		FB8645B5946839794C64076C /* RSSServiceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF3B2B5163CEC194310BDB52 /* RSSServiceProtocol.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -48,17 +60,24 @@
 		1FB21D387C9D130DBE17F5BD /* SecureStorageProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecureStorageProtocol.swift; sourceTree = "<group>"; };
 		24FCC31DC264561196C0DB04 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		287950C7BF26153A8C7C10A1 /* StateStoreProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StateStoreProtocol.swift; sourceTree = "<group>"; };
+		33449E483EEF47FB7BBD1BB6 /* RSSService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RSSService.swift; sourceTree = "<group>"; };
 		37EEB01AF28261B21C554A8C /* MainContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainContentView.swift; sourceTree = "<group>"; };
 		3D306A0C94BE0416ECB3ED8A /* FileAppStateStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileAppStateStore.swift; sourceTree = "<group>"; };
 		45F38CB68E341194EAD9EC12 /* AppRoute.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppRoute.swift; sourceTree = "<group>"; };
+		4CC2727A9E5F04DD3EE9C341 /* WindowFrameState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WindowFrameState.swift; sourceTree = "<group>"; };
 		645E5C9F01FC4243B3EAC54C /* AuthViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthViewModel.swift; sourceTree = "<group>"; };
+		656CCBDA1EBD9E74249C7270 /* ReaderServiceProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReaderServiceProtocol.swift; sourceTree = "<group>"; };
 		65AE1B0D5EC03A01A2456409 /* AppSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSettings.swift; sourceTree = "<group>"; };
 		66AEB74C7F2F72145209AF81 /* UnreadPost.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnreadPost.swift; sourceTree = "<group>"; };
+		6B4508F1A141833EA6A0046E /* ReaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReaderView.swift; sourceTree = "<group>"; };
 		6ECED36381384C9202760917 /* MainWindowController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainWindowController.swift; sourceTree = "<group>"; };
 		79A6AA4F1A0F2BD7D6B0829B /* TelegaApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TelegaApp.swift; sourceTree = "<group>"; };
+		7FD4B86701150CCAE635063F /* ReaderArticle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReaderArticle.swift; sourceTree = "<group>"; };
 		884260647CE1A5AB6EE996FB /* LocalNotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalNotificationService.swift; sourceTree = "<group>"; };
 		89CDC93F26C1A10CD20402F5 /* MenuBarContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarContentView.swift; sourceTree = "<group>"; };
 		919D5A2E4D26C747ED6B01C5 /* TDLibDictionary+Parsing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TDLibDictionary+Parsing.swift"; sourceTree = "<group>"; };
+		94BAD433FE5B4A0948B18C3B /* AppTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTheme.swift; sourceTree = "<group>"; };
+		990CF66C4D9E0CC64E06AA22 /* ReaderService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReaderService.swift; sourceTree = "<group>"; };
 		9B76346F8E869DED11279469 /* FeedListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedListView.swift; sourceTree = "<group>"; };
 		A026F26D84A892A40EA9085E /* ChannelsManagementView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChannelsManagementView.swift; sourceTree = "<group>"; };
 		A3ED4BFE5FCEB14AE01457C7 /* TDLibClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TDLibClient.swift; sourceTree = "<group>"; };
@@ -67,12 +86,17 @@
 		B3F3DFB6A2D25791B703DD50 /* TelegramServiceProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TelegramServiceProtocol.swift; sourceTree = "<group>"; };
 		BC2CEE32344622B651A66E9E /* PostViewerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostViewerView.swift; sourceTree = "<group>"; };
 		BE6A38E0E87DEA42F430AEF3 /* L10n.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = L10n.swift; sourceTree = "<group>"; };
+		BF00ABF8169A62F4E1322A71 /* ReaderViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReaderViewModel.swift; sourceTree = "<group>"; };
 		C71152E3739086864C775BAD /* TelegramService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TelegramService.swift; sourceTree = "<group>"; };
+		CF3B2B5163CEC194310BDB52 /* RSSServiceProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RSSServiceProtocol.swift; sourceTree = "<group>"; };
 		D7BE72D2BB2114777355537A /* AuthView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthView.swift; sourceTree = "<group>"; };
 		D96276AA212848BA72A0C080 /* WatchedChannel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchedChannel.swift; sourceTree = "<group>"; };
+		DB51BD0CA2971B30A64FA5A3 /* RSSFeedSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RSSFeedSource.swift; sourceTree = "<group>"; };
 		E0AE99C1735D942F3A4D9CC9 /* KeychainSecureStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainSecureStorage.swift; sourceTree = "<group>"; };
+		E288AC7CBE89879B9595FDC3 /* RSSFeedsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RSSFeedsViewModel.swift; sourceTree = "<group>"; };
 		E3007D8B05FB2F1A58BC48FF /* MainViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainViewModel.swift; sourceTree = "<group>"; };
 		EC970152CB92BE8BDB99FB50 /* Telega.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Telega.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		F3F8FA5DA780E2D5E45E28F5 /* SelectableTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectableTextView.swift; sourceTree = "<group>"; };
 		FCAC04741232F2A8E830AF0B /* ChannelsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChannelsViewModel.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -93,6 +117,7 @@
 			children = (
 				B5BF1C241B36CAF18DD4FD2C /* Models */,
 				3CBD611B2CA1C4F2B9A7F411 /* Utilities */,
+				62D1931A1E2CFBC39F315583 /* Views */,
 			);
 			path = Shared;
 			sourceTree = "<group>";
@@ -103,6 +128,24 @@
 				B37243C6E5D8E4599F2F9792 /* AppContainer.swift */,
 			);
 			path = DI;
+			sourceTree = "<group>";
+		};
+		0731E86CAD5E5E0AC7054BCF /* RSSService */ = {
+			isa = PBXGroup;
+			children = (
+				33449E483EEF47FB7BBD1BB6 /* RSSService.swift */,
+				CF3B2B5163CEC194310BDB52 /* RSSServiceProtocol.swift */,
+			);
+			path = RSSService;
+			sourceTree = "<group>";
+		};
+		07C519D575C715CB6D628AFA /* ReaderService */ = {
+			isa = PBXGroup;
+			children = (
+				990CF66C4D9E0CC64E06AA22 /* ReaderService.swift */,
+				656CCBDA1EBD9E74249C7270 /* ReaderServiceProtocol.swift */,
+			);
+			path = ReaderService;
 			sourceTree = "<group>";
 		};
 		07DA6C5BEE3D544B08E0496D = {
@@ -142,6 +185,7 @@
 		3CBD611B2CA1C4F2B9A7F411 /* Utilities */ = {
 			isa = PBXGroup;
 			children = (
+				94BAD433FE5B4A0948B18C3B /* AppTheme.swift */,
 				BE6A38E0E87DEA42F430AEF3 /* L10n.swift */,
 			);
 			path = Utilities;
@@ -154,6 +198,16 @@
 				645E5C9F01FC4243B3EAC54C /* AuthViewModel.swift */,
 			);
 			path = Auth;
+			sourceTree = "<group>";
+		};
+		59EB233E5382A840CAA7B085 /* Reader */ = {
+			isa = PBXGroup;
+			children = (
+				7FD4B86701150CCAE635063F /* ReaderArticle.swift */,
+				6B4508F1A141833EA6A0046E /* ReaderView.swift */,
+				BF00ABF8169A62F4E1322A71 /* ReaderViewModel.swift */,
+			);
+			path = Reader;
 			sourceTree = "<group>";
 		};
 		606C386BC07B674829AB2015 /* App */ = {
@@ -172,6 +226,14 @@
 			path = App;
 			sourceTree = "<group>";
 		};
+		62D1931A1E2CFBC39F315583 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				F3F8FA5DA780E2D5E45E28F5 /* SelectableTextView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
 		72F9E454B7D08DEF476B671B /* MenuBar */ = {
 			isa = PBXGroup;
 			children = (
@@ -187,6 +249,8 @@
 				4DABCA130267C17BA39B2DF9 /* Auth */,
 				8B69F4006975AFADD1034C77 /* Channels */,
 				ECD1FB4BF5F6ECE0E1CF49B7 /* Feed */,
+				59EB233E5382A840CAA7B085 /* Reader */,
+				B041E5C514FC3B3EBFFD69D1 /* RSS */,
 				B661E073E76629252468D11B /* Services */,
 				02B337FDD858AC27377FCAA8 /* Shared */,
 				332A5C6AAB054973A9523AD5 /* Viewer */,
@@ -228,12 +292,22 @@
 			path = Routing;
 			sourceTree = "<group>";
 		};
+		B041E5C514FC3B3EBFFD69D1 /* RSS */ = {
+			isa = PBXGroup;
+			children = (
+				E288AC7CBE89879B9595FDC3 /* RSSFeedsViewModel.swift */,
+			);
+			path = RSS;
+			sourceTree = "<group>";
+		};
 		B5BF1C241B36CAF18DD4FD2C /* Models */ = {
 			isa = PBXGroup;
 			children = (
 				65AE1B0D5EC03A01A2456409 /* AppSettings.swift */,
+				DB51BD0CA2971B30A64FA5A3 /* RSSFeedSource.swift */,
 				66AEB74C7F2F72145209AF81 /* UnreadPost.swift */,
 				D96276AA212848BA72A0C080 /* WatchedChannel.swift */,
+				4CC2727A9E5F04DD3EE9C341 /* WindowFrameState.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -242,6 +316,8 @@
 			isa = PBXGroup;
 			children = (
 				1B8CB86F28D0724F4DF663CC /* NotificationService */,
+				07C519D575C715CB6D628AFA /* ReaderService */,
+				0731E86CAD5E5E0AC7054BCF /* RSSService */,
 				8B9EE4851B9F2D3494D3100E /* SecureStorage */,
 				E5F2EFA3482F1F812E6525D4 /* StateStore */,
 				ED6687718B2DEB1524DEB3D6 /* TelegramService */,
@@ -345,6 +421,7 @@
 				D5E86E42E9F3A86532A2C5E1 /* AppContainer.swift in Sources */,
 				E816A7839C965E87E32CF91C /* AppRoute.swift in Sources */,
 				D0878E57B1625AF78696155D /* AppSettings.swift in Sources */,
+				F23DF7DA34298B41FB55E27E /* AppTheme.swift in Sources */,
 				77CB35B0CF59F2396944463A /* AuthView.swift in Sources */,
 				F7BE6423EED4421320B25F62 /* AuthViewModel.swift in Sources */,
 				6283CAF9862123EC30424634 /* ChannelsManagementView.swift in Sources */,
@@ -361,7 +438,17 @@
 				3F0EC81BE2788C1ED943570C /* MenuBarContentView.swift in Sources */,
 				99764CE6C488DB4EA9303637 /* NotificationServiceProtocol.swift in Sources */,
 				814B47428CDA861390A906FD /* PostViewerView.swift in Sources */,
+				BE95FC6DA2B8AA26B9BB6E8F /* RSSFeedSource.swift in Sources */,
+				E5D8D59FD0E4B5404B8D13C0 /* RSSFeedsViewModel.swift in Sources */,
+				97B3293ACEE24A1CA65CB6A6 /* RSSService.swift in Sources */,
+				FB8645B5946839794C64076C /* RSSServiceProtocol.swift in Sources */,
+				3C1C45FEB26160CAC917F5FA /* ReaderArticle.swift in Sources */,
+				201E7EA039B4791A7198EB6D /* ReaderService.swift in Sources */,
+				F701F2B660E2B14F0694CC9C /* ReaderServiceProtocol.swift in Sources */,
+				2E1BD6400325BBFBD9CD92BA /* ReaderView.swift in Sources */,
+				1024F6C4CBDFF074B247A888 /* ReaderViewModel.swift in Sources */,
 				A87F1EE66B99C0B659E5C728 /* SecureStorageProtocol.swift in Sources */,
+				CA5312642039AE3087517262 /* SelectableTextView.swift in Sources */,
 				BDE10DAB46739EEA1D69818E /* SettingsView.swift in Sources */,
 				05BD0CA5796530972EC230C8 /* StateStoreProtocol.swift in Sources */,
 				BF6F8EF66749A56D45DF0573 /* TDLibClient.swift in Sources */,
@@ -373,6 +460,7 @@
 				C485486681E2A2900852A867 /* UnreadPost.swift in Sources */,
 				A0CC457F0D09DCCECE254654 /* ViewerViewModel.swift in Sources */,
 				7528AD3C73D395FD8BF5753B /* WatchedChannel.swift in Sources */,
+				D684FFDDEF50CE8D8A726003 /* WindowFrameState.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -502,7 +590,10 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
+				COPY_PHASE_STRIP = YES;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = "";
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = NO;
@@ -513,10 +604,12 @@
 				);
 				LOCALIZATION_PREFERS_STRING_CATALOGS = NO;
 				MACOSX_DEPLOYMENT_TARGET = 15.0;
-				MARKETING_VERSION = 0.1.0;
+				MARKETING_VERSION = 0.8.4;
 				PRODUCT_BUNDLE_IDENTIFIER = com.codex.Telega;
 				PRODUCT_NAME = Telega;
 				SDKROOT = macosx;
+				STRIP_INSTALLED_PRODUCT = YES;
+				STRIP_SWIFT_SYMBOLS = YES;
 				SUPPORTS_MACCATALYST = NO;
 				SWIFT_VERSION = 6.0;
 			};
@@ -539,7 +632,7 @@
 				);
 				LOCALIZATION_PREFERS_STRING_CATALOGS = NO;
 				MACOSX_DEPLOYMENT_TARGET = 15.0;
-				MARKETING_VERSION = 0.1.0;
+				MARKETING_VERSION = 0.8.4;
 				PRODUCT_BUNDLE_IDENTIFIER = com.codex.Telega;
 				PRODUCT_NAME = Telega;
 				SDKROOT = macosx;

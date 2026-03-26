@@ -6,6 +6,7 @@ struct SettingsView: View {
     let onSaveCredentials: () -> Void
     let onLogout: () -> Void
     let onClose: () -> Void
+    @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
@@ -47,7 +48,6 @@ struct SettingsView: View {
         }
         .padding(28)
         .frame(width: 520)
-        .background(.ultraThinMaterial)
+        .background(AppTheme.surfaceFill(for: colorScheme))
     }
 }
-

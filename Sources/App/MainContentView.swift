@@ -3,6 +3,7 @@ import AppKit
 
 struct MainContentView: View {
     @ObservedObject var viewModel: MainViewModel
+    @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
         ZStack {
@@ -26,45 +27,6 @@ struct MainContentView: View {
                 NSApp.keyWindow?.performClose(nil)
             }
         }
-        .toolbar {
-            ToolbarItemGroup(placement: .automatic) {
-                Button {
-                    withAnimation(.snappy(duration: 0.25)) {
-                        viewModel.isSidebarPresented = true
-                    }
-                } label: {
-                    Image(systemName: "plus")
-                }
-                .help(L10n.tr("sidebar.addChannel"))
-
-                Text(viewModel.connectionLabel)
-                    .font(.caption.weight(.semibold))
-                    .foregroundStyle(.secondary)
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 6)
-                    .background(Color.white.opacity(0.72), in: Capsule(style: .continuous))
-                    .overlay(
-                        Capsule(style: .continuous)
-                            .strokeBorder(Color.black.opacity(0.04), lineWidth: 1)
-                    )
-
-                Button {
-                    Task {
-                        await viewModel.refreshSelectedChannel()
-                    }
-                } label: {
-                    Image(systemName: "arrow.clockwise")
-                }
-                .help(L10n.tr("feed.refresh"))
-
-                Button {
-                    viewModel.openSettings()
-                } label: {
-                    Image(systemName: "gearshape")
-                }
-                .help(L10n.tr("menu.settings"))
-            }
-        }
         .sheet(isPresented: $viewModel.showingSettings) {
             SettingsView(
                 authViewModel: viewModel.authViewModel,
@@ -80,41 +42,11 @@ struct MainContentView: View {
     }
 
     private var appBackground: some View {
-        ZStack {
-            LinearGradient(
-                colors: [
-                    Color(red: 0.97, green: 0.95, blue: 0.92),
-                    Color(red: 0.94, green: 0.92, blue: 0.89),
-                    Color(red: 0.92, green: 0.90, blue: 0.87),
-                ],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
-
-            RadialGradient(
-                colors: [
-                    Color.white.opacity(0.72),
-                    .clear
-                ],
-                center: .topTrailing,
-                startRadius: 20,
-                endRadius: 520
-            )
-            .blendMode(.screen)
-            .offset(x: -180, y: -160)
-
-            RadialGradient(
-                colors: [
-                    Color(red: 0.98, green: 0.90, blue: 0.80).opacity(0.52),
-                    .clear
-                ],
-                center: .bottomLeading,
-                startRadius: 20,
-                endRadius: 540
-            )
-            .blendMode(.screen)
-            .offset(x: 180, y: 140)
-        }
+        LinearGradient(
+            colors: AppTheme.windowGradientColors(for: colorScheme),
+            startPoint: .topLeading,
+            endPoint: .bottomTrailing
+        )
         .ignoresSafeArea()
     }
 
@@ -122,17 +54,14 @@ struct MainContentView: View {
     private var content: some View {
         if case .ready = viewModel.authViewModel.state {
             VStack(spacing: 10) {
-                HSplitView {
-                    unreadColumn
-                        .frame(
-                            minWidth: max(260, viewModel.unreadColumnWidth - 45),
-                            idealWidth: viewModel.unreadColumnWidth,
-                            maxWidth: min(390, viewModel.unreadColumnWidth + 55)
-                        )
-
-                    detailColumn
-                        .frame(minWidth: 700, idealWidth: 980, maxWidth: .infinity)
-                }
+                AppSplitView(
+                    initialLeadingWidth: viewModel.unreadColumnWidth,
+                    leadingMinWidth: 240,
+                    onLeadingWidthChange: viewModel.updateUnreadColumnWidth,
+                    leadingContent: unreadColumn,
+                    trailingMinWidth: 520,
+                    trailingContent: detailColumn
+                )
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
         } else {
@@ -160,6 +89,7 @@ struct MainContentView: View {
         HStack(alignment: .top, spacing: 0) {
             ChannelsManagementView(
                 viewModel: viewModel.channelsViewModel,
+                rssViewModel: viewModel.rssFeedsViewModel,
                 onAdd: {
                     viewModel.addChannel()
                 },
@@ -169,6 +99,15 @@ struct MainContentView: View {
                 onSelect: { chatID in
                     viewModel.selectChannel(chatID)
                 },
+                onAddRSS: {
+                    viewModel.addRSSFeed()
+                },
+                onRemoveRSS: {
+                    viewModel.removeSelectedRSSFeed()
+                },
+                onSelectRSS: { feedID in
+                    viewModel.selectRSSFeed(feedID)
+                },
                 onClose: {
                     withAnimation(.snappy(duration: 0.25)) {
                         viewModel.isSidebarPresented = false
@@ -176,13 +115,13 @@ struct MainContentView: View {
                 }
             )
             .frame(width: 362, alignment: .topLeading)
-            .background(Color.white.opacity(0.72))
+            .background(AppTheme.drawerFill(for: colorScheme))
             .overlay(
                 RoundedRectangle(cornerRadius: 30, style: .continuous)
-                    .strokeBorder(Color.white.opacity(0.82), lineWidth: 1)
+                    .strokeBorder(AppTheme.drawerStroke(for: colorScheme), lineWidth: 1)
             )
             .clipShape(RoundedRectangle(cornerRadius: 30, style: .continuous))
-            .shadow(color: .black.opacity(0.12), radius: 26, x: 8, y: 18)
+            .shadow(color: AppTheme.drawerShadow(for: colorScheme), radius: 26, x: 8, y: 18)
             .padding(.leading, 18)
             .padding(.top, 12)
 
@@ -202,24 +141,21 @@ struct MainContentView: View {
             onSelectionChange: viewModel.selectUnreadPost,
             onSwipeRight: viewModel.toggleReadState
         )
-        .background(
-            GeometryReader { proxy in
-                Color.clear
-                    .preference(key: UnreadColumnWidthKey.self, value: proxy.size.width)
-            }
-        )
-        .onPreferenceChange(UnreadColumnWidthKey.self) { width in
-            viewModel.updateUnreadColumnWidth(width)
-        }
     }
 
     @ViewBuilder
     private var detailColumn: some View {
-        if let post = viewModel.viewerPresentedPost {
+        if viewModel.detailPresentation == .reader {
+            ReaderView(
+                viewModel: viewModel.readerViewModel,
+                onBack: viewModel.closeReader
+            )
+        } else if let post = viewModel.viewerPresentedPost {
             PostViewerView(
                 post: post,
                 viewModel: viewModel.viewerViewModel,
-                onClose: viewModel.closeViewer
+                onClose: viewModel.closeViewer,
+                onOpenReader: { viewModel.openReader(for: post) }
             )
         } else {
             Color.clear
@@ -228,11 +164,149 @@ struct MainContentView: View {
     }
 }
 
-private struct UnreadColumnWidthKey: PreferenceKey {
-    static let defaultValue: CGFloat = 0
+private struct AppSplitView<Leading: View, Trailing: View>: NSViewControllerRepresentable {
+    let initialLeadingWidth: CGFloat
+    let leadingMinWidth: CGFloat
+    let onLeadingWidthChange: (CGFloat) -> Void
+    let leadingContent: Leading
+    let trailingMinWidth: CGFloat
+    let trailingContent: Trailing
 
-    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
-        value = nextValue()
+    func makeNSViewController(context: Context) -> SplitViewController<Leading, Trailing> {
+        let controller = SplitViewController(
+            leadingContent: leadingContent,
+            trailingContent: trailingContent
+        )
+        controller.leadingMinWidth = leadingMinWidth
+        controller.trailingMinWidth = trailingMinWidth
+        controller.onLeadingWidthChange = { width in
+            let normalized = max(leadingMinWidth, width.rounded())
+            onLeadingWidthChange(normalized)
+        }
+        controller.desiredLeadingWidth = initialLeadingWidth
+        return controller
+    }
+
+    func updateNSViewController(_ nsViewController: SplitViewController<Leading, Trailing>, context: Context) {
+        nsViewController.leadingMinWidth = leadingMinWidth
+        nsViewController.trailingMinWidth = trailingMinWidth
+        nsViewController.leadingHostingController.rootView = leadingContent
+        nsViewController.trailingHostingController.rootView = trailingContent
+        nsViewController.updateDesiredLeadingWidth(initialLeadingWidth)
+        nsViewController.applyDesiredWidthIfNeeded()
+    }
+}
+
+    private final class SplitViewController<Leading: View, Trailing: View>: NSSplitViewController {
+    let leadingHostingController: NSHostingController<Leading>
+    let trailingHostingController: NSHostingController<Trailing>
+
+    var leadingMinWidth: CGFloat = 240 {
+        didSet {
+            splitViewItems.first?.minimumThickness = leadingMinWidth
+        }
+    }
+
+    var trailingMinWidth: CGFloat = 520 {
+        didSet {
+            splitViewItems.last?.minimumThickness = trailingMinWidth
+        }
+    }
+
+    var desiredLeadingWidth: CGFloat = 300
+    var onLeadingWidthChange: ((CGFloat) -> Void)?
+    private var didApplyInitialWidth = false
+    private var isAcceptingWidthPersistence = false
+    private var lastReportedLeadingWidth: CGFloat?
+
+    init(leadingContent: Leading, trailingContent: Trailing) {
+        self.leadingHostingController = NSHostingController(rootView: leadingContent)
+        self.trailingHostingController = NSHostingController(rootView: trailingContent)
+        super.init(nibName: nil, bundle: nil)
+        splitView.isVertical = true
+        splitView.dividerStyle = .thin
+        splitView.delegate = self
+        addSplitViewItem(NSSplitViewItem(viewController: leadingHostingController))
+        addSplitViewItem(NSSplitViewItem(viewController: trailingHostingController))
+        splitViewItems.first?.canCollapse = false
+        splitViewItems.last?.canCollapse = false
+        splitViewItems.first?.minimumThickness = leadingMinWidth
+        splitViewItems.last?.minimumThickness = trailingMinWidth
+    }
+
+    @available(*, unavailable)
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    override func viewDidAppear() {
+        super.viewDidAppear()
+        applyDesiredWidthIfNeeded()
+    }
+
+    override func viewDidLayout() {
+        super.viewDidLayout()
+        applyDesiredWidthIfNeeded()
+    }
+
+    func applyDesiredWidthIfNeeded() {
+        guard view.bounds.width > 0 else {
+            return
+        }
+
+        guard didApplyInitialWidth == false else {
+            return
+        }
+
+        let maxLeadingWidth = max(leadingMinWidth, view.bounds.width - trailingMinWidth - splitView.dividerThickness)
+        let clampedWidth = max(leadingMinWidth, min(desiredLeadingWidth, maxLeadingWidth))
+        splitView.setPosition(clampedWidth, ofDividerAt: 0)
+        didApplyInitialWidth = true
+        if isAcceptingWidthPersistence == false {
+            DispatchQueue.main.async { [weak self] in
+                self?.isAcceptingWidthPersistence = true
+            }
+        }
+    }
+
+    func updateDesiredLeadingWidth(_ width: CGFloat) {
+        guard didApplyInitialWidth == false else {
+            return
+        }
+
+        desiredLeadingWidth = width
+    }
+
+    override func splitViewDidResizeSubviews(_ notification: Notification) {
+        guard didApplyInitialWidth else {
+            return
+        }
+
+        reportLeadingWidthIfNeeded(force: false)
+    }
+
+    @objc func splitViewDidEndLiveResize(_ notification: Notification) {
+        guard didApplyInitialWidth else {
+            return
+        }
+
+        reportLeadingWidthIfNeeded(force: true)
+    }
+
+    private func reportLeadingWidthIfNeeded(force: Bool) {
+        guard isAcceptingWidthPersistence || force == false else {
+            return
+        }
+
+        view.layoutSubtreeIfNeeded()
+        let width = splitView.subviews.first?.frame.width ?? desiredLeadingWidth
+        let normalized = max(leadingMinWidth, width.rounded())
+        guard force || lastReportedLeadingWidth.map({ abs($0 - normalized) > 1 }) ?? true else {
+            return
+        }
+
+        lastReportedLeadingWidth = normalized
+        onLeadingWidthChange?(normalized)
     }
 }
 

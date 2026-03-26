@@ -74,6 +74,9 @@ final class ChannelsViewModel: ObservableObject {
     }
 
     func registerIncoming(_ post: UnreadPost) -> WatchedChannel? {
+        guard post.sourceKind == .telegram else {
+            return nil
+        }
         guard let index = channels.firstIndex(where: { $0.chatID == post.chatID }) else {
             return nil
         }

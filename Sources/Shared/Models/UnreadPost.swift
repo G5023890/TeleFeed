@@ -1,37 +1,159 @@
 import Foundation
 
+enum UnreadPostSourceKind: String, Codable, Hashable {
+    case telegram
+    case rss
+}
+
 enum TelegramMediaKind: String, Hashable, Codable {
     case photo
     case video
 }
 
-struct TelegramMediaDescriptor: Hashable {
+struct TelegramMediaDescriptor: Hashable, Codable {
     let fileID: Int32
     let kind: TelegramMediaKind
 }
 
 struct UnreadPostIdentity: Hashable, Codable {
-    let chatID: Int64
+    let sourceKind: UnreadPostSourceKind
+    let sourceIdentifier: String
     let messageID: Int64
+
+    init(sourceKind: UnreadPostSourceKind, sourceIdentifier: String, messageID: Int64) {
+        self.sourceKind = sourceKind
+        self.sourceIdentifier = sourceIdentifier
+        self.messageID = messageID
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case sourceKind
+        case sourceIdentifier
+        case chatID
+        case messageID
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+
+        if let sourceKind = try container.decodeIfPresent(UnreadPostSourceKind.self, forKey: .sourceKind),
+           let sourceIdentifier = try container.decodeIfPresent(String.self, forKey: .sourceIdentifier) {
+            self.sourceKind = sourceKind
+            self.sourceIdentifier = sourceIdentifier
+            self.messageID = try container.decode(Int64.self, forKey: .messageID)
+            return
+        }
+
+        let chatID = try container.decode(Int64.self, forKey: .chatID)
+        self.sourceKind = .telegram
+        self.sourceIdentifier = String(chatID)
+        self.messageID = try container.decode(Int64.self, forKey: .messageID)
+    }
+
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(sourceKind, forKey: .sourceKind)
+        try container.encode(sourceIdentifier, forKey: .sourceIdentifier)
+        try container.encode(messageID, forKey: .messageID)
+        if sourceKind == .telegram, let chatID = Int64(sourceIdentifier) {
+            try container.encode(chatID, forKey: .chatID)
+        }
+    }
 }
 
-enum TelegramPostContent: Hashable {
+enum TelegramPostContent: Hashable, Codable {
     case text(body: String)
     case photo(caption: String, media: TelegramMediaDescriptor)
     case video(caption: String, media: TelegramMediaDescriptor, duration: Int)
     case unsupported(summary: String)
+
+    private enum CodingKeys: String, CodingKey {
+        case kind
+        case body
+        case caption
+        case media
+        case duration
+        case summary
+    }
+
+    private enum Kind: String, Codable {
+        case text
+        case photo
+        case video
+        case unsupported
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        switch try container.decode(Kind.self, forKey: .kind) {
+        case .text:
+            self = .text(body: try container.decode(String.self, forKey: .body))
+        case .photo:
+            self = .photo(
+                caption: try container.decode(String.self, forKey: .caption),
+                media: try container.decode(TelegramMediaDescriptor.self, forKey: .media)
+            )
+        case .video:
+            self = .video(
+                caption: try container.decode(String.self, forKey: .caption),
+                media: try container.decode(TelegramMediaDescriptor.self, forKey: .media),
+                duration: try container.decode(Int.self, forKey: .duration)
+            )
+        case .unsupported:
+            self = .unsupported(summary: try container.decode(String.self, forKey: .summary))
+        }
+    }
+
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        switch self {
+        case .text(let body):
+            try container.encode(Kind.text, forKey: .kind)
+            try container.encode(body, forKey: .body)
+        case .photo(let caption, let media):
+            try container.encode(Kind.photo, forKey: .kind)
+            try container.encode(caption, forKey: .caption)
+            try container.encode(media, forKey: .media)
+        case .video(let caption, let media, let duration):
+            try container.encode(Kind.video, forKey: .kind)
+            try container.encode(caption, forKey: .caption)
+            try container.encode(media, forKey: .media)
+            try container.encode(duration, forKey: .duration)
+        case .unsupported(let summary):
+            try container.encode(Kind.unsupported, forKey: .kind)
+            try container.encode(summary, forKey: .summary)
+        }
+    }
 }
 
-struct UnreadPost: Hashable, Identifiable {
+struct UnreadPost: Hashable, Identifiable, Codable {
+    let sourceKind: UnreadPostSourceKind
+    let sourceIdentifier: String
     let chatID: Int64
     let messageID: Int64
     let channelTitle: String
     let author: String?
     let date: Date
+    let articleURL: URL?
     let content: TelegramPostContent
 
-    var id: UnreadPostIdentity { UnreadPostIdentity(chatID: chatID, messageID: messageID) }
+    private enum CodingKeys: String, CodingKey {
+        case sourceKind
+        case sourceIdentifier
+        case chatID
+        case messageID
+        case channelTitle
+        case author
+        case date
+        case articleURL
+        case content
+    }
+
+    var id: UnreadPostIdentity {
+        UnreadPostIdentity(sourceKind: sourceKind, sourceIdentifier: sourceIdentifier, messageID: messageID)
+    }
     var globalID: UnreadPostIdentity { id }
+    var isRSS: Bool { sourceKind == .rss }
 
     var summary: String {
         switch content {
@@ -44,6 +166,73 @@ struct UnreadPost: Hashable, Identifiable {
         case .unsupported(let summary):
             return summary
         }
+    }
+
+    var titleOrFallback: String {
+        switch content {
+        case .text(let body):
+            return body.split(separator: "\n").first.map(String.init) ?? summary
+        case .photo(let caption, _):
+            return caption.isEmpty ? summary : caption
+        case .video(let caption, _, _):
+            return caption.isEmpty ? summary : caption
+        case .unsupported(let summary):
+            return summary
+        }
+    }
+
+    init(
+        sourceKind: UnreadPostSourceKind,
+        sourceIdentifier: String,
+        chatID: Int64,
+        messageID: Int64,
+        channelTitle: String,
+        author: String?,
+        date: Date,
+        articleURL: URL? = nil,
+        content: TelegramPostContent
+    ) {
+        self.sourceKind = sourceKind
+        self.sourceIdentifier = sourceIdentifier
+        self.chatID = chatID
+        self.messageID = messageID
+        self.channelTitle = channelTitle
+        self.author = author
+        self.date = date
+        self.articleURL = articleURL
+        self.content = content
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        let chatID = try container.decode(Int64.self, forKey: .chatID)
+        let messageID = try container.decode(Int64.self, forKey: .messageID)
+        self.sourceKind = try container.decodeIfPresent(UnreadPostSourceKind.self, forKey: .sourceKind) ?? .telegram
+        if let sourceIdentifier = try container.decodeIfPresent(String.self, forKey: .sourceIdentifier) {
+            self.sourceIdentifier = sourceIdentifier
+        } else {
+            self.sourceIdentifier = String(chatID)
+        }
+        self.chatID = chatID
+        self.messageID = messageID
+        self.channelTitle = try container.decode(String.self, forKey: .channelTitle)
+        self.author = try container.decodeIfPresent(String.self, forKey: .author)
+        self.date = try container.decode(Date.self, forKey: .date)
+        self.articleURL = try container.decodeIfPresent(URL.self, forKey: .articleURL)
+        self.content = try container.decode(TelegramPostContent.self, forKey: .content)
+    }
+
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(sourceKind, forKey: .sourceKind)
+        try container.encode(sourceIdentifier, forKey: .sourceIdentifier)
+        try container.encode(chatID, forKey: .chatID)
+        try container.encode(messageID, forKey: .messageID)
+        try container.encode(channelTitle, forKey: .channelTitle)
+        try container.encodeIfPresent(author, forKey: .author)
+        try container.encode(date, forKey: .date)
+        try container.encodeIfPresent(articleURL, forKey: .articleURL)
+        try container.encode(content, forKey: .content)
     }
 
     var mediaDescriptor: TelegramMediaDescriptor? {
@@ -59,11 +248,14 @@ struct UnreadPost: Hashable, Identifiable {
 
     func updatingChannelTitle(_ title: String) -> UnreadPost {
         UnreadPost(
+            sourceKind: sourceKind,
+            sourceIdentifier: sourceIdentifier,
             chatID: chatID,
             messageID: messageID,
             channelTitle: title,
             author: author,
             date: date,
+            articleURL: articleURL,
             content: content
         )
     }

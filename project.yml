@@ -33,7 +33,7 @@ targets:
         SWIFT_VERSION: 6.0
         CODE_SIGN_STYLE: Automatic
         DEVELOPMENT_TEAM: ""
-        MARKETING_VERSION: 0.1.0
+        MARKETING_VERSION: 0.8.4
         CURRENT_PROJECT_VERSION: 1
         LOCALIZATION_PREFERS_STRING_CATALOGS: NO
         SUPPORTS_MACCATALYST: NO
@@ -41,3 +41,10 @@ targets:
         LD_RUNPATH_SEARCH_PATHS:
           - $(inherited)
           - "@executable_path/../Frameworks"
+      configs:
+        Release:
+          COPY_PHASE_STRIP: YES
+          DEAD_CODE_STRIPPING: YES
+          DEBUG_INFORMATION_FORMAT: dwarf-with-dsym
+          STRIP_INSTALLED_PRODUCT: YES
+          STRIP_SWIFT_SYMBOLS: YES

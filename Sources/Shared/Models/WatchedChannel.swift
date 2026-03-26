@@ -54,6 +54,13 @@ struct WatchedChannel: Codable, Hashable, Identifiable {
 struct PersistedAppState: Codable {
     var settings = AppSettings()
     var watchedChannels: [WatchedChannel] = []
+    var rssFeeds: [RSSFeedSource] = []
     var selectedChannelID: Int64? = nil
+    var selectedRSSFeedID: String? = nil
+    var feedDisplayMode: FeedViewModel.DisplayMode? = nil
     var unreadColumnWidth: Double? = nil
+    var windowFrame: WindowFrameState? = nil
+    var recentFeedPosts: [UnreadPost] = []
+    var readPostIDs: [UnreadPostIdentity] = []
+    var readPostRetentionDates: [UnreadPostIdentity: Date] = [:]
 }

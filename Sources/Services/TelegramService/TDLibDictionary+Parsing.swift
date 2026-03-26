@@ -95,13 +95,17 @@ enum TelegramParsing {
         let author = object.string("author_signature")
         let channelTitle = object.string("chat_title") ?? fallbackChannelTitle
         let parsedContent = parseContent(from: content)
+        let articleURL = extractArticleURL(from: parsedContent)
         guard case .unsupported = parsedContent else {
             return UnreadPost(
+                sourceKind: .telegram,
+                sourceIdentifier: String(chatID),
                 chatID: chatID,
                 messageID: messageID,
                 channelTitle: channelTitle,
                 author: author?.isEmpty == true ? nil : author,
                 date: Date(timeIntervalSince1970: TimeInterval(timestamp)),
+                articleURL: articleURL,
                 content: parsedContent
             )
         }
@@ -203,5 +207,31 @@ enum TelegramParsing {
         default:
             return .unsupported(summary: L10n.tr("feed.unsupported"))
         }
+    }
+
+    private static func extractArticleURL(from content: TelegramPostContent) -> URL? {
+        let text: String
+        switch content {
+        case .text(let body):
+            text = body
+        case .photo(let caption, _):
+            text = caption
+        case .video(let caption, _, _):
+            text = caption
+        case .unsupported(let summary):
+            text = summary
+        }
+
+        let range = NSRange(text.startIndex..<text.endIndex, in: text)
+        guard
+            let detector = try? NSDataDetector(types: NSTextCheckingResult.CheckingType.link.rawValue),
+            let match = detector.firstMatch(in: text, options: [], range: range),
+            let url = match.url,
+            ["http", "https"].contains(url.scheme?.lowercased() ?? "")
+        else {
+            return nil
+        }
+
+        return url
     }
 }

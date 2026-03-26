@@ -6,6 +6,8 @@ final class AppContainer {
     let stateStore: StateStoreProtocol
     let notificationService: NotificationServiceProtocol
     let telegramService: TelegramServiceProtocol
+    let rssService: RSSServiceProtocol
+    let readerService: ReaderServiceProtocol
     let mainViewModel: MainViewModel
 
     init() {
@@ -13,16 +15,21 @@ final class AppContainer {
         let stateStore = FileAppStateStore()
         let notificationService = LocalNotificationService()
         let telegramService = TelegramService(secureStorage: secureStorage)
+        let rssService = RSSService()
+        let readerService = ReaderService()
 
         self.secureStorage = secureStorage
         self.stateStore = stateStore
         self.notificationService = notificationService
         self.telegramService = telegramService
+        self.rssService = rssService
+        self.readerService = readerService
         self.mainViewModel = MainViewModel(
             stateStore: stateStore,
             telegramService: telegramService,
-            notificationService: notificationService
+            rssService: rssService,
+            notificationService: notificationService,
+            readerService: readerService
         )
     }
 }
-
