@@ -27,18 +27,22 @@ struct MainContentView: View {
                 NSApp.keyWindow?.performClose(nil)
             }
         }
-        .sheet(isPresented: $viewModel.showingSettings) {
-            SettingsView(
-                authViewModel: viewModel.authViewModel,
-                launchAtLoginEnabled: Binding(
-                    get: { viewModel.settings.launchAtLoginEnabled },
-                    set: { viewModel.updateLaunchAtLogin($0) }
-                ),
-                onSaveCredentials: viewModel.saveCredentials,
-                onLogout: viewModel.logout,
-                onClose: viewModel.closeSettings
-            )
-        }
+            .sheet(isPresented: $viewModel.showingSettings) {
+                SettingsView(
+                    authViewModel: viewModel.authViewModel,
+                    launchAtLoginEnabled: Binding(
+                        get: { viewModel.settings.launchAtLoginEnabled },
+                        set: { viewModel.updateLaunchAtLogin($0) }
+                    ),
+                    typography: Binding(
+                        get: { viewModel.settings.typography },
+                        set: { viewModel.updateTypography($0) }
+                    ),
+                    onSaveCredentials: viewModel.saveCredentials,
+                    onLogout: viewModel.logout,
+                    onClose: viewModel.closeSettings
+                )
+            }
     }
 
     private var appBackground: some View {
@@ -55,9 +59,7 @@ struct MainContentView: View {
         if case .ready = viewModel.authViewModel.state {
             VStack(spacing: 10) {
                 AppSplitView(
-                    initialLeadingWidth: viewModel.unreadColumnWidth,
                     leadingMinWidth: 240,
-                    onLeadingWidthChange: viewModel.updateUnreadColumnWidth,
                     leadingContent: unreadColumn,
                     trailingMinWidth: 520,
                     trailingContent: detailColumn
@@ -134,6 +136,7 @@ struct MainContentView: View {
     private var unreadColumn: some View {
         FeedListView(
             viewModel: viewModel.feedViewModel,
+            settings: viewModel.settings,
             selectedPostID: Binding(
                 get: { viewModel.selectedUnreadPostID },
                 set: { viewModel.selectedUnreadPostID = $0 }
@@ -148,12 +151,14 @@ struct MainContentView: View {
         if viewModel.detailPresentation == .reader {
             ReaderView(
                 viewModel: viewModel.readerViewModel,
+                settings: viewModel.settings,
                 onBack: viewModel.closeReader
             )
         } else if let post = viewModel.viewerPresentedPost {
             PostViewerView(
                 post: post,
                 viewModel: viewModel.viewerViewModel,
+                settings: viewModel.settings,
                 onClose: viewModel.closeViewer,
                 onOpenReader: { viewModel.openReader(for: post) }
             )
@@ -165,9 +170,7 @@ struct MainContentView: View {
 }
 
 private struct AppSplitView<Leading: View, Trailing: View>: NSViewControllerRepresentable {
-    let initialLeadingWidth: CGFloat
     let leadingMinWidth: CGFloat
-    let onLeadingWidthChange: (CGFloat) -> Void
     let leadingContent: Leading
     let trailingMinWidth: CGFloat
     let trailingContent: Trailing
@@ -179,11 +182,6 @@ private struct AppSplitView<Leading: View, Trailing: View>: NSViewControllerRepr
         )
         controller.leadingMinWidth = leadingMinWidth
         controller.trailingMinWidth = trailingMinWidth
-        controller.onLeadingWidthChange = { width in
-            let normalized = max(leadingMinWidth, width.rounded())
-            onLeadingWidthChange(normalized)
-        }
-        controller.desiredLeadingWidth = initialLeadingWidth
         return controller
     }
 
@@ -192,7 +190,6 @@ private struct AppSplitView<Leading: View, Trailing: View>: NSViewControllerRepr
         nsViewController.trailingMinWidth = trailingMinWidth
         nsViewController.leadingHostingController.rootView = leadingContent
         nsViewController.trailingHostingController.rootView = trailingContent
-        nsViewController.updateDesiredLeadingWidth(initialLeadingWidth)
         nsViewController.applyDesiredWidthIfNeeded()
     }
 }
@@ -213,11 +210,8 @@ private struct AppSplitView<Leading: View, Trailing: View>: NSViewControllerRepr
         }
     }
 
-    var desiredLeadingWidth: CGFloat = 300
-    var onLeadingWidthChange: ((CGFloat) -> Void)?
     private var didApplyInitialWidth = false
-    private var isAcceptingWidthPersistence = false
-    private var lastReportedLeadingWidth: CGFloat?
+    private let fixedLeadingWidth: CGFloat = 420
 
     init(leadingContent: Leading, trailingContent: Trailing) {
         self.leadingHostingController = NSHostingController(rootView: leadingContent)
@@ -247,6 +241,7 @@ private struct AppSplitView<Leading: View, Trailing: View>: NSViewControllerRepr
     override func viewDidLayout() {
         super.viewDidLayout()
         applyDesiredWidthIfNeeded()
+        enforceFixedLeadingWidthIfNeeded()
     }
 
     func applyDesiredWidthIfNeeded() {
@@ -259,54 +254,29 @@ private struct AppSplitView<Leading: View, Trailing: View>: NSViewControllerRepr
         }
 
         let maxLeadingWidth = max(leadingMinWidth, view.bounds.width - trailingMinWidth - splitView.dividerThickness)
-        let clampedWidth = max(leadingMinWidth, min(desiredLeadingWidth, maxLeadingWidth))
+        let clampedWidth = max(leadingMinWidth, min(fixedLeadingWidth, maxLeadingWidth))
         splitView.setPosition(clampedWidth, ofDividerAt: 0)
         didApplyInitialWidth = true
-        if isAcceptingWidthPersistence == false {
-            DispatchQueue.main.async { [weak self] in
-                self?.isAcceptingWidthPersistence = true
-            }
-        }
     }
 
-    func updateDesiredLeadingWidth(_ width: CGFloat) {
-        guard didApplyInitialWidth == false else {
+    private func enforceFixedLeadingWidthIfNeeded() {
+        guard view.bounds.width > 0, didApplyInitialWidth else {
             return
         }
 
-        desiredLeadingWidth = width
+        let maxLeadingWidth = max(leadingMinWidth, view.bounds.width - trailingMinWidth - splitView.dividerThickness)
+        let clampedWidth = max(leadingMinWidth, min(fixedLeadingWidth, maxLeadingWidth))
+        let currentWidth = splitView.subviews.first?.frame.width ?? clampedWidth
+        guard abs(currentWidth - clampedWidth) > 1 else {
+            return
+        }
+
+        splitView.setPosition(clampedWidth, ofDividerAt: 0)
     }
-
-    override func splitViewDidResizeSubviews(_ notification: Notification) {
-        guard didApplyInitialWidth else {
-            return
-        }
-
-        reportLeadingWidthIfNeeded(force: false)
-    }
-
-    @objc func splitViewDidEndLiveResize(_ notification: Notification) {
-        guard didApplyInitialWidth else {
-            return
-        }
-
-        reportLeadingWidthIfNeeded(force: true)
-    }
-
-    private func reportLeadingWidthIfNeeded(force: Bool) {
-        guard isAcceptingWidthPersistence || force == false else {
-            return
-        }
-
-        view.layoutSubtreeIfNeeded()
-        let width = splitView.subviews.first?.frame.width ?? desiredLeadingWidth
-        let normalized = max(leadingMinWidth, width.rounded())
-        guard force || lastReportedLeadingWidth.map({ abs($0 - normalized) > 1 }) ?? true else {
-            return
-        }
-
-        lastReportedLeadingWidth = normalized
-        onLeadingWidthChange?(normalized)
+    
+    override func splitView(_ splitView: NSSplitView, constrainSplitPosition proposedPosition: CGFloat, ofSubviewAt dividerIndex: Int) -> CGFloat {
+        let maxLeadingWidth = max(leadingMinWidth, splitView.bounds.width - trailingMinWidth - splitView.dividerThickness)
+        return max(leadingMinWidth, min(fixedLeadingWidth, maxLeadingWidth))
     }
 }
 

@@ -3,6 +3,7 @@ import SwiftUI
 
 struct ReaderView: View {
     @ObservedObject var viewModel: ReaderViewModel
+    let settings: AppSettings
     let onBack: () -> Void
     @Environment(\.colorScheme) private var colorScheme
 
@@ -17,7 +18,7 @@ struct ReaderView: View {
                 case .failed(let message):
                     errorState(message: message)
                 case .loaded:
-                    if let article = viewModel.currentArticle {
+                    if let article = viewModel.displayedArticle {
                         articleBody(article)
                     } else {
                         loadingState
@@ -38,7 +39,7 @@ struct ReaderView: View {
                     onBack()
                 } label: {
                     Image(systemName: "chevron.left")
-                        .font(.system(size: 15, weight: .semibold))
+                        .font(.system(size: CGFloat(settings.typography.readerMeta), weight: .semibold))
                         .frame(width: 42, height: 42)
                 }
                 .buttonStyle(NavBackButtonStyle(colorScheme: colorScheme))
@@ -49,48 +50,96 @@ struct ReaderView: View {
 
             VStack(alignment: .leading, spacing: 10) {
                 Text(viewModel.currentPost?.channelTitle ?? L10n.tr("reader.title"))
-                    .font(.system(size: 16, weight: .semibold, design: .rounded))
+                    .font(.system(size: CGFloat(settings.typography.readerChannelTitle), weight: .semibold, design: .rounded))
                     .foregroundStyle(.secondary)
                     .lineLimit(2)
 
-                Text(viewModel.currentArticle?.title ?? viewModel.currentPost?.titleOrFallback ?? L10n.tr("reader.title"))
-                    .font(.system(size: 22, weight: .bold, design: .rounded))
+                Text(viewModel.displayedArticle?.title ?? viewModel.currentPost?.titleOrFallback ?? L10n.tr("reader.title"))
+                    .font(.system(size: CGFloat(settings.typography.readerTitle), weight: .bold, design: .rounded))
                     .foregroundStyle(.primary)
                     .lineLimit(4)
                     .fixedSize(horizontal: false, vertical: true)
 
-                HStack(spacing: 8) {
+                HStack(alignment: .center, spacing: 8) {
                     if let post = viewModel.currentPost {
-                        Text(post.date.formatted(date: .abbreviated, time: .shortened))
-                            .font(.caption.weight(.semibold))
-                            .foregroundStyle(.secondary)
-                            .padding(.horizontal, 10)
-                            .padding(.vertical, 6)
-                            .background(AppTheme.readerChipFill(for: colorScheme), in: Capsule(style: .continuous))
-                            .overlay(
-                                Capsule(style: .continuous)
-                                    .strokeBorder(AppTheme.readerChipStroke(for: colorScheme), lineWidth: 1)
-                            )
+                        dateChip(post.date.formatted(date: .abbreviated, time: .shortened))
 
                         if let author = post.author, author.isEmpty == false {
-                            Text(author)
-                                .font(.caption.weight(.semibold))
-                                .foregroundStyle(.secondary)
-                                .padding(.horizontal, 10)
-                                .padding(.vertical, 6)
-                                .background(AppTheme.readerChipFill(for: colorScheme), in: Capsule(style: .continuous))
-                                .overlay(
-                                    Capsule(style: .continuous)
-                                        .strokeBorder(AppTheme.readerChipStroke(for: colorScheme), lineWidth: 1)
-                                )
+                            dateChip(author)
                         }
+
+                        Spacer(minLength: 0)
+
+                        safariButton
+                        translateButton
                     }
+                }
+
+                if let translationError = viewModel.translationErrorMessage {
+                    Text(translationError)
+                        .font(.system(size: CGFloat(settings.typography.readerMeta), weight: .semibold, design: .rounded))
+                        .foregroundStyle(.red)
+                }
+
+                if let safariError = viewModel.safariErrorMessage {
+                    Text(safariError)
+                        .font(.system(size: CGFloat(settings.typography.readerMeta), weight: .semibold, design: .rounded))
+                        .foregroundStyle(.red)
                 }
             }
 
             Divider()
                 .overlay(AppTheme.separatorColor(for: colorScheme))
         }
+    }
+
+    private func dateChip(_ text: String) -> some View {
+        Text(text)
+            .font(.system(size: CGFloat(settings.typography.readerMeta), weight: .semibold, design: .rounded))
+            .foregroundStyle(.secondary)
+            .padding(.horizontal, 10)
+            .padding(.vertical, 6)
+            .background(AppTheme.readerChipFill(for: colorScheme), in: Capsule(style: .continuous))
+            .overlay(
+                Capsule(style: .continuous)
+                    .strokeBorder(AppTheme.readerChipStroke(for: colorScheme), lineWidth: 1)
+            )
+    }
+
+    private var translateButton: some View {
+        Button {
+            viewModel.toggleTranslation()
+        } label: {
+            if viewModel.translationState == .loading {
+                HStack(spacing: 6) {
+                    ProgressView()
+                        .controlSize(.small)
+                    Text(viewModel.translationButtonTitle)
+                }
+            } else {
+                Text(viewModel.translationButtonTitle)
+            }
+        }
+        .buttonStyle(.plain)
+        .font(.system(size: CGFloat(settings.typography.readerMeta), weight: .semibold, design: .rounded))
+        .foregroundStyle(.primary)
+        .disabled(viewModel.canTranslate == false && viewModel.translationState != .translated)
+    }
+
+    private var safariButton: some View {
+        Button {
+            viewModel.openInSafari()
+        } label: {
+            HStack(spacing: 5) {
+                Image(systemName: "safari")
+                Text(viewModel.safariOpenButtonTitle)
+            }
+        }
+        .buttonStyle(.plain)
+        .font(.system(size: CGFloat(settings.typography.readerMeta), weight: .semibold, design: .rounded))
+        .foregroundStyle(.primary)
+        .disabled(viewModel.canOpenInSafari == false)
+        .help(L10n.tr("reader.openSafari"))
     }
 
     private var loadingState: some View {
@@ -104,13 +153,13 @@ struct ReaderView: View {
     private func errorState(message: String) -> some View {
         VStack(alignment: .leading, spacing: 12) {
             Text(L10n.tr("reader.error"))
-                .font(.system(size: 16, weight: .semibold, design: .rounded))
+                .font(.system(size: CGFloat(settings.typography.readerChannelTitle), weight: .semibold, design: .rounded))
             Text(message)
-                .font(.system(size: 15, weight: .regular, design: .rounded))
+                .font(.system(size: CGFloat(settings.typography.readerBody), weight: .regular, design: .rounded))
                 .foregroundStyle(.secondary)
                 .textSelection(.enabled)
             Text(L10n.tr("reader.hint"))
-                .font(.system(size: 13, weight: .regular, design: .rounded))
+                .font(.system(size: CGFloat(settings.typography.readerMeta), weight: .regular, design: .rounded))
                 .foregroundStyle(.secondary)
         }
         .frame(maxWidth: 760, alignment: .leading)
@@ -142,7 +191,7 @@ struct ReaderView: View {
                 if article.blocks.isEmpty {
                     readableTextBlock(
                         article.body,
-                        fontSize: 18,
+                        fontSize: CGFloat(settings.typography.readerBody),
                         weight: .regular,
                         lineSpacing: 6
                     )
@@ -169,7 +218,7 @@ struct ReaderView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
 
         case .paragraph(let text):
-            readableTextBlock(text, fontSize: 18, weight: .regular, lineSpacing: 6)
+            readableTextBlock(text, fontSize: CGFloat(settings.typography.readerBody), weight: .regular, lineSpacing: 6)
 
         case .quote(let text):
             HStack(alignment: .top, spacing: 12) {
@@ -178,7 +227,7 @@ struct ReaderView: View {
                     .frame(width: 4)
                     .padding(.top, 4)
 
-                readableTextBlock(text, fontSize: 17, weight: .regular, lineSpacing: 6)
+                readableTextBlock(text, fontSize: CGFloat(settings.typography.readerQuote), weight: .regular, lineSpacing: 6)
                     .foregroundStyle(.secondary)
             }
             .padding(16)
@@ -193,17 +242,17 @@ struct ReaderView: View {
                 ForEach(Array(items.enumerated()), id: \.offset) { index, item in
                     HStack(alignment: .top, spacing: 10) {
                         Text(ordered ? "\(index + 1)." : "•")
-                            .font(.system(size: 17, weight: .semibold, design: .rounded))
+                            .font(.system(size: CGFloat(settings.typography.readerListBullet), weight: .semibold, design: .rounded))
                             .foregroundStyle(.secondary)
                             .frame(width: 22, alignment: .trailing)
 
-                        readableTextBlock(item, fontSize: 18, weight: .regular, lineSpacing: 6)
+                        readableTextBlock(item, fontSize: CGFloat(settings.typography.readerBody), weight: .regular, lineSpacing: 6)
                     }
                 }
             }
 
         case .code(let text):
-            readableTextBlock(text, fontSize: 15, weight: .regular, lineSpacing: 4)
+            readableTextBlock(text, fontSize: CGFloat(settings.typography.readerCode), weight: .regular, lineSpacing: 4)
                 .fontDesign(.monospaced)
                 .padding(14)
                 .background(AppTheme.readerChipFill(for: colorScheme), in: RoundedRectangle(cornerRadius: 16, style: .continuous))
@@ -238,17 +287,17 @@ struct ReaderView: View {
     private func headingFont(for level: Int) -> Font {
         switch level {
         case 1:
-            return .system(size: 28, weight: .bold, design: .rounded)
+            return .system(size: CGFloat(settings.typography.readerHeading1), weight: .bold, design: .rounded)
         case 2:
-            return .system(size: 24, weight: .bold, design: .rounded)
+            return .system(size: CGFloat(settings.typography.readerHeading2), weight: .bold, design: .rounded)
         case 3:
-            return .system(size: 21, weight: .semibold, design: .rounded)
+            return .system(size: CGFloat(settings.typography.readerHeading3), weight: .semibold, design: .rounded)
         case 4:
-            return .system(size: 19, weight: .semibold, design: .rounded)
+            return .system(size: CGFloat(settings.typography.readerHeading4), weight: .semibold, design: .rounded)
         case 5, 6:
-            return .system(size: 17, weight: .semibold, design: .rounded)
+            return .system(size: CGFloat(settings.typography.readerHeading5), weight: .semibold, design: .rounded)
         default:
-            return .system(size: 21, weight: .bold, design: .rounded)
+            return .system(size: CGFloat(settings.typography.readerHeading6), weight: .bold, design: .rounded)
         }
     }
 }

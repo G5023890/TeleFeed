@@ -46,5 +46,9 @@ protocol TelegramServiceProtocol: AnyObject {
     func syncWatchedChannels(_ channels: [WatchedChannel]) async
     func fetchUnreadPosts(for channel: WatchedChannel, limit: Int) async throws -> [UnreadPost]
     func markPostAsRead(_ post: UnreadPost) async throws
-    func downloadMedia(for descriptor: TelegramMediaDescriptor) async throws -> URL
+    func downloadMedia(
+        for descriptor: TelegramMediaDescriptor,
+        chatID: Int64?,
+        messageID: Int64?
+    ) async throws -> URL
 }

@@ -24,7 +24,7 @@ enum ReaderServiceError: LocalizedError {
 final class ReaderService: ReaderServiceProtocol, @unchecked Sendable {
     private static let logger = Logger(subsystem: "com.codex.Telega", category: "ReaderService")
     private let session: URLSession
-    private let userAgent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 15_0) AppleWebKit/605.1.15 (KHTML, like Gecko) Telega/1.0 Safari/605.1.15"
+    private let userAgent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 15_0) AppleWebKit/605.1.15 (KHTML, like Gecko) TeleFeed/1.0 Safari/605.1.15"
 
     init(session: URLSession = .shared) {
         self.session = session
@@ -55,7 +55,7 @@ final class ReaderService: ReaderServiceProtocol, @unchecked Sendable {
         let metadata = Self.extractMetadata(from: html)
         let sourceHTML = Self.extractPrimaryHTML(from: html) ?? html
         let blocks = Self.extractBlocks(from: sourceHTML)
-        let body = Self.composePlainText(from: blocks)
+        let body = blocks.isEmpty ? Self.renderText(from: sourceHTML) : Self.composePlainText(from: blocks)
         let normalizedBody = body.trimmingCharacters(in: .whitespacesAndNewlines)
         guard normalizedBody.isEmpty == false else {
             throw ReaderServiceError.emptyArticle
@@ -112,7 +112,7 @@ final class ReaderService: ReaderServiceProtocol, @unchecked Sendable {
     }
 
     private static func extractBlocks(from html: String) -> [ReaderArticle.Block] {
-        let workingHTML = prepareHTMLForExtraction(html)
+        let workingHTML = prepareHTMLForExtraction(pruneBoilerplateSections(html))
         let patterns: [(String, ReaderArticle.Block)] = [
             (#"<h1\b[^>]*>(.*?)</h1>"#, .heading("", level: 1)),
             (#"<h2\b[^>]*>(.*?)</h2>"#, .heading("", level: 2)),
@@ -136,22 +136,25 @@ final class ReaderService: ReaderServiceProtocol, @unchecked Sendable {
                 return text.isEmpty ? nil : .heading(text, level: level)
             case .paragraph:
                 let text = normalizeParagraphText(from: match.content)
-                return text.isEmpty ? nil : .paragraph(text)
+                guard text.isEmpty == false else { return nil }
+                return isBoilerplateParagraph(text) ? nil : .paragraph(text)
             case .quote:
                 let text = normalizeParagraphText(from: match.content)
-                return text.isEmpty ? nil : .quote(text)
+                guard text.isEmpty == false else { return nil }
+                return isBoilerplateParagraph(text) ? nil : .quote(text)
             case .code:
                 let text = normalizeCodeText(from: match.content)
                 return text.isEmpty ? nil : .code(text)
             case .list(_, let ordered):
                 let items = extractListItems(from: match.content)
-                return items.isEmpty ? nil : .list(items: items, ordered: ordered)
+                let filteredItems = items.filter { isBoilerplateParagraph($0) == false }
+                return filteredItems.isEmpty ? nil : .list(items: filteredItems, ordered: ordered)
             case .separator:
                 return .separator
             }
         }
 
-        return coalesceBlocks(blocks)
+        return trimTrailingBoilerplateBlocks(coalesceBlocks(blocks))
     }
 
     private static func composePlainText(from blocks: [ReaderArticle.Block]) -> String {
@@ -199,6 +202,23 @@ final class ReaderService: ReaderServiceProtocol, @unchecked Sendable {
             .replacingOccurrences(of: #"(?m)^[ \t]+|[ \t]+$"#, with: "", options: .regularExpression)
             .replacingOccurrences(of: #"\n{3,}"#, with: "\n\n", options: .regularExpression)
             .trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    private static func pruneBoilerplateSections(_ html: String) -> String {
+        let patterns = [
+            #"<(aside|div|section|nav)\b[^>]*(?:class|id|data-testid)=["'][^"']*(?:subscribe|subscription|newsletter|related|recommended|share|social|comments?|promo|advert|ad[-_]|cookie|follow|breadcrumb|sidebar|post[-_ ]?nav|more[-_ ]from|you[-_ ]may[-_ ]also[-_ ]like|read[-_ ]more)[^"']*["'][^>]*>.*?</\1>"#,
+            #"<(div|section)\b[^>]*(?:class|id|data-testid)=["'][^"']*(?:subscribe|subscription|newsletter|related|recommended|share|social|comments?|promo|advert|ad[-_]|cookie|follow|breadcrumb|sidebar|post[-_ ]?nav|more[-_ ]from|you[-_ ]may[-_ ]also[-_ ]like|read[-_ ]more)[^"']*["'][^>]*>.*?</\1>"#,
+            #"<div\b[^>]*role=["'](?:navigation|complementary|contentinfo)["'][^>]*>.*?</div>"#,
+            #"<section\b[^>]*role=["'](?:navigation|complementary|contentinfo)["'][^>]*>.*?</section>"#,
+            #"<footer\b[^>]*>.*?</footer>"#,
+            #"<header\b[^>]*>.*?</header>"#
+        ]
+
+        var result = html
+        for pattern in patterns {
+            result = result.replacingOccurrences(of: pattern, with: "", options: .regularExpression)
+        }
+        return result
     }
 
     private static func prepareHTMLForExtraction(_ html: String) -> String {
@@ -290,6 +310,69 @@ final class ReaderService: ReaderServiceProtocol, @unchecked Sendable {
         return result
     }
 
+    private static func trimTrailingBoilerplateBlocks(_ blocks: [ReaderArticle.Block]) -> [ReaderArticle.Block] {
+        var trimmed: [ReaderArticle.Block] = []
+        for block in blocks {
+            if shouldStopAtBoilerplate(block) {
+                break
+            }
+            trimmed.append(block)
+        }
+        return trimmed
+    }
+
+    private static func shouldStopAtBoilerplate(_ block: ReaderArticle.Block) -> Bool {
+        switch block {
+        case .heading(let text, _):
+            return isBoilerplateHeading(text)
+        case .paragraph(let text), .quote(let text), .code(let text):
+            return isBoilerplateParagraph(text) && text.split { $0.isWhitespace }.count <= 30
+        case .list(let items, _):
+            let joined = items.joined(separator: " ")
+            return isBoilerplateParagraph(joined)
+        case .separator:
+            return false
+        }
+    }
+
+    private static func isBoilerplateHeading(_ text: String) -> Bool {
+        let lowercased = text.lowercased()
+        let signals = [
+            "related", "recommended", "more from", "you may also like",
+            "subscribe", "sign up", "newsletter", "share", "sharing",
+            "comments", "continue reading", "read more", "follow us",
+            "подпис", "поделиться", "похожие", "рекомендуем", "читайте также",
+            "комментар", "подпиш"
+        ]
+        return signals.contains { lowercased.contains($0) }
+    }
+
+    private static func isBoilerplateParagraph(_ text: String) -> Bool {
+        let lowercased = text.lowercased()
+        let wordCount = text.split { $0.isWhitespace }.count
+        let signals = [
+            "subscribe", "subscription", "newsletter", "sign up", "share", "sharing",
+            "related", "recommended", "comments", "cookie", "privacy policy",
+            "more from", "you may also like", "follow us", "read more",
+            "подпис", "поделиться", "рекоменд", "похожие", "комментар",
+            "читайте также", "смотреть также", "реклама", "спонсор", "подпиш"
+        ]
+
+        if signals.contains(where: { lowercased.contains($0) }) {
+            return true
+        }
+
+        if wordCount <= 4 {
+            let shortPrompts = [
+                "share", "subscribe", "related", "recommended", "more", "follow",
+                "подпис", "поделиться", "похожие", "рекоменд", "читайте"
+            ]
+            return shortPrompts.contains { lowercased.contains($0) }
+        }
+
+        return false
+    }
+
     private static func stripHTML(from htmlFragment: String) -> String {
         let stripped = htmlFragment.replacingOccurrences(of: #"(?is)<[^>]+>"#, with: " ", options: .regularExpression)
         return normalizeText(stripped)
@@ -326,8 +409,8 @@ final class ReaderService: ReaderServiceProtocol, @unchecked Sendable {
         let patterns = [
             #"<article\b[^>]*>(.*?)</article>"#,
             #"<main\b[^>]*>(.*?)</main>"#,
-            #"<div\b(?=[^>]*(?:class|id|role|itemprop)=["'][^"']*(?:article|article-body|articlebody|content|post|story|entry|read|reader|body|main)[^"']*["'])[^>]*>(.*?)</div>"#,
-            #"<section\b(?=[^>]*(?:class|id|role|itemprop)=["'][^"']*(?:article|article-body|articlebody|content|post|story|entry|read|reader|body|main)[^"']*["'])[^>]*>(.*?)</section>"#,
+            #"<div\b(?=[^>]*(?:class|id|role|itemprop)=["'][^"']*(?:article|article-body|articlebody|article-content|entry-content|post-content|content-body|content|post|story|entry|reader|body|main|markdown-body|text-body|rich-text)[^"']*["'])[^>]*>(.*?)</div>"#,
+            #"<section\b(?=[^>]*(?:class|id|role|itemprop)=["'][^"']*(?:article|article-body|articlebody|article-content|entry-content|post-content|content-body|content|post|story|entry|reader|body|main|markdown-body|text-body|rich-text)[^"']*["'])[^>]*>(.*?)</section>"#,
             #"<body\b[^>]*>(.*?)</body>"#
         ]
 
@@ -362,18 +445,24 @@ final class ReaderService: ReaderServiceProtocol, @unchecked Sendable {
     }
 
     private static func articleScore(for html: String) -> Int {
-        let text = normalizeText(stripHTML(from: sanitizeForScoring(html)))
+        let cleanedHTML = pruneBoilerplateSections(sanitizeForScoring(html))
+        let text = normalizeText(stripHTML(from: cleanedHTML))
         guard text.isEmpty == false else {
             return 0
         }
 
         let wordCount = text.split { $0.isWhitespace }.count
-        let paragraphCount = html.components(separatedBy: #"</p>"#).count - 1
+        let paragraphCount = cleanedHTML.components(separatedBy: #"<p\b"#).count - 1
+        let headingCount = cleanedHTML.components(separatedBy: #"<h[1-6]\b"#).count - 1
+        let listCount = cleanedHTML.components(separatedBy: #"<li\b"#).count - 1
+        let imageCount = cleanedHTML.components(separatedBy: #"<img\b"#).count - 1
+        let linkCount = cleanedHTML.components(separatedBy: #"<a\b"#).count - 1
         let lineBreakCount = text.components(separatedBy: .newlines).count - 1
-        let blockBonus = max(paragraphCount, lineBreakCount) * 20
+        let blockBonus = paragraphCount * 35 + headingCount * 18 + listCount * 10 + imageCount * 8 + max(lineBreakCount, 0) * 8
         let punctuationBonus = text.filter { ".!?".contains($0) }.count * 2
-        let boilerplatePenalty = boilerplatePenalty(for: text)
-        return wordCount * 10 + blockBonus + punctuationBonus - boilerplatePenalty
+        let boilerplatePenalty = boilerplatePenalty(for: text) + linkCount * 8
+        let shortArticlePenalty = wordCount < 80 ? (80 - wordCount) * 6 : 0
+        return wordCount * 10 + blockBonus + punctuationBonus - boilerplatePenalty - shortArticlePenalty
     }
 
     private static func sanitizeForScoring(_ html: String) -> String {
@@ -399,7 +488,21 @@ final class ReaderService: ReaderServiceProtocol, @unchecked Sendable {
             ("privacy policy", 120),
             ("terms of service", 120),
             ("all rights reserved", 120),
-            ("follow us", 90)
+            ("follow us", 90),
+            ("подпис", 100),
+            ("поделиться", 80),
+            ("рекоменд", 70),
+            ("похожие", 70),
+            ("читайте также", 90),
+            ("смотрите также", 90),
+            ("комментар", 80),
+            ("реклама", 120),
+            ("спонсор", 90),
+            ("подпиш", 100),
+            ("share this", 80),
+            ("related articles", 90),
+            ("more stories", 90),
+            ("recommended reading", 90)
         ]
 
         return signals.reduce(0) { partial, signal in

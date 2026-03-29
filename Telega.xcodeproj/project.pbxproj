@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		037120BC29EE31CE1F36E96F /* TranslationServiceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07FCF28A44943C9C0056E91E /* TranslationServiceProtocol.swift */; };
 		05BD0CA5796530972EC230C8 /* StateStoreProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 287950C7BF26153A8C7C10A1 /* StateStoreProtocol.swift */; };
 		08ECA2DA89B552D0A5F11ADE /* TelegramService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C71152E3739086864C775BAD /* TelegramService.swift */; };
 		1024F6C4CBDFF074B247A888 /* ReaderViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF00ABF8169A62F4E1322A71 /* ReaderViewModel.swift */; };
@@ -22,8 +23,10 @@
 		6801B198C927E72F18F4256B /* LocalNotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 884260647CE1A5AB6EE996FB /* LocalNotificationService.swift */; };
 		73E21F251657727914DD7FC4 /* FeedViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1211C302EE5DB64D0372DCD5 /* FeedViewModel.swift */; };
 		7528AD3C73D395FD8BF5753B /* WatchedChannel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D96276AA212848BA72A0C080 /* WatchedChannel.swift */; };
+		76AFB9DB4434618B6213775C /* TranslationState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0EC6EE0428C4668B916ED2F6 /* TranslationState.swift */; };
 		77CB35B0CF59F2396944463A /* AuthView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7BE72D2BB2114777355537A /* AuthView.swift */; };
 		814B47428CDA861390A906FD /* PostViewerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC2CEE32344622B651A66E9E /* PostViewerView.swift */; };
+		8F71C41FFB3864B8ACB51DDE /* TranslationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3464DA99796ACBAF777D28F4 /* TranslationService.swift */; };
 		97B3293ACEE24A1CA65CB6A6 /* RSSService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 33449E483EEF47FB7BBD1BB6 /* RSSService.swift */; };
 		99764CE6C488DB4EA9303637 /* NotificationServiceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = A6D75EEBA61613E02E1AC0CB /* NotificationServiceProtocol.swift */; };
 		9F2EDD0CC50E8F68EA714301 /* FeedListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B76346F8E869DED11279469 /* FeedListView.swift */; };
@@ -56,11 +59,14 @@
 /* Begin PBXFileReference section */
 		012E5BB2EF9F459A7A4125EA /* ViewerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewerViewModel.swift; sourceTree = "<group>"; };
 		051CC4E6ECCBF333C9826998 /* TelegaApplication.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TelegaApplication.swift; sourceTree = "<group>"; };
+		07FCF28A44943C9C0056E91E /* TranslationServiceProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranslationServiceProtocol.swift; sourceTree = "<group>"; };
+		0EC6EE0428C4668B916ED2F6 /* TranslationState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranslationState.swift; sourceTree = "<group>"; };
 		1211C302EE5DB64D0372DCD5 /* FeedViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedViewModel.swift; sourceTree = "<group>"; };
 		1FB21D387C9D130DBE17F5BD /* SecureStorageProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecureStorageProtocol.swift; sourceTree = "<group>"; };
 		24FCC31DC264561196C0DB04 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		287950C7BF26153A8C7C10A1 /* StateStoreProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StateStoreProtocol.swift; sourceTree = "<group>"; };
 		33449E483EEF47FB7BBD1BB6 /* RSSService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RSSService.swift; sourceTree = "<group>"; };
+		3464DA99796ACBAF777D28F4 /* TranslationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranslationService.swift; sourceTree = "<group>"; };
 		37EEB01AF28261B21C554A8C /* MainContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainContentView.swift; sourceTree = "<group>"; };
 		3D306A0C94BE0416ECB3ED8A /* FileAppStateStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileAppStateStore.swift; sourceTree = "<group>"; };
 		45F38CB68E341194EAD9EC12 /* AppRoute.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppRoute.swift; sourceTree = "<group>"; };
@@ -305,6 +311,7 @@
 			children = (
 				65AE1B0D5EC03A01A2456409 /* AppSettings.swift */,
 				DB51BD0CA2971B30A64FA5A3 /* RSSFeedSource.swift */,
+				0EC6EE0428C4668B916ED2F6 /* TranslationState.swift */,
 				66AEB74C7F2F72145209AF81 /* UnreadPost.swift */,
 				D96276AA212848BA72A0C080 /* WatchedChannel.swift */,
 				4CC2727A9E5F04DD3EE9C341 /* WindowFrameState.swift */,
@@ -321,6 +328,7 @@
 				8B9EE4851B9F2D3494D3100E /* SecureStorage */,
 				E5F2EFA3482F1F812E6525D4 /* StateStore */,
 				ED6687718B2DEB1524DEB3D6 /* TelegramService */,
+				FEE5C89B00DC32F5A9768261 /* TranslationService */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -352,6 +360,15 @@
 				B3F3DFB6A2D25791B703DD50 /* TelegramServiceProtocol.swift */,
 			);
 			path = TelegramService;
+			sourceTree = "<group>";
+		};
+		FEE5C89B00DC32F5A9768261 /* TranslationService */ = {
+			isa = PBXGroup;
+			children = (
+				3464DA99796ACBAF777D28F4 /* TranslationService.swift */,
+				07FCF28A44943C9C0056E91E /* TranslationServiceProtocol.swift */,
+			);
+			path = TranslationService;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -457,6 +474,9 @@
 				328AF28789A9CEE151BCEA13 /* TelegaApplication.swift in Sources */,
 				08ECA2DA89B552D0A5F11ADE /* TelegramService.swift in Sources */,
 				4BD2C84375ACE3AAE5FD5444 /* TelegramServiceProtocol.swift in Sources */,
+				8F71C41FFB3864B8ACB51DDE /* TranslationService.swift in Sources */,
+				037120BC29EE31CE1F36E96F /* TranslationServiceProtocol.swift in Sources */,
+				76AFB9DB4434618B6213775C /* TranslationState.swift in Sources */,
 				C485486681E2A2900852A867 /* UnreadPost.swift in Sources */,
 				A0CC457F0D09DCCECE254654 /* ViewerViewModel.swift in Sources */,
 				7528AD3C73D395FD8BF5753B /* WatchedChannel.swift in Sources */,
@@ -606,7 +626,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 15.0;
 				MARKETING_VERSION = 0.8.4;
 				PRODUCT_BUNDLE_IDENTIFIER = com.codex.Telega;
-				PRODUCT_NAME = Telega;
+				PRODUCT_NAME = TeleFeed;
 				SDKROOT = macosx;
 				STRIP_INSTALLED_PRODUCT = YES;
 				STRIP_SWIFT_SYMBOLS = YES;
@@ -634,7 +654,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 15.0;
 				MARKETING_VERSION = 0.8.4;
 				PRODUCT_BUNDLE_IDENTIFIER = com.codex.Telega;
-				PRODUCT_NAME = Telega;
+				PRODUCT_NAME = TeleFeed;
 				SDKROOT = macosx;
 				SUPPORTS_MACCATALYST = NO;
 				SWIFT_VERSION = 6.0;

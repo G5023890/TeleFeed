@@ -128,7 +128,8 @@ final class AppRuntime: ObservableObject {
     }
 
     func openSettings() {
-        container.mainViewModel.openSettings()
+        NSApp.activate(ignoringOtherApps: true)
+        NSApp.sendAction(Selector(("showSettingsWindow:")), to: nil, from: nil)
     }
 
     func openAddChannel() {
@@ -210,6 +211,7 @@ final class MenuBarStatusItemController: NSObject {
         button.imageScaling = .scaleProportionallyDown
         let image = bundledMenuBarImage()
         image.size = NSSize(width: 18, height: 18)
+        image.isTemplate = true
         button.image = image
         button.title = ""
         button.toolTip = L10n.tr("app.title")
@@ -326,7 +328,7 @@ final class MenuBarStatusItemController: NSObject {
             return image
         }
 
-        let fallback = NSImage(systemSymbolName: "eye.circle", accessibilityDescription: "Telega") ?? NSImage()
+        let fallback = NSImage(systemSymbolName: "eye.circle", accessibilityDescription: "TeleFeed") ?? NSImage()
         fallback.isTemplate = true
         return fallback
     }

@@ -4,11 +4,13 @@ set -euo pipefail
 PROJECT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$PROJECT_DIR"
 
-APP_NAME="${APP_NAME:-Telega}"
+APP_NAME="${APP_NAME:-TeleFeed}"
 BUNDLE_ID="${BUNDLE_ID:-com.codex.Telega}"
 SCHEME="${SCHEME:-Telega}"
 CONFIGURATION="${CONFIGURATION:-Release}"
 INSTALL_DIR="${INSTALL_DIR:-/Applications/${APP_NAME}.app}"
+LEGACY_APP_NAME="${LEGACY_APP_NAME:-Telega}"
+LEGACY_INSTALL_DIR="${LEGACY_INSTALL_DIR:-/Applications/${LEGACY_APP_NAME}.app}"
 LAUNCH_AFTER_INSTALL="${LAUNCH_AFTER_INSTALL:-1}"
 DIST_DIR="${DIST_DIR:-$PROJECT_DIR/dist}"
 APP_DIST_PATH="${APP_DIST_PATH:-$DIST_DIR/${APP_NAME}.app}"
@@ -129,6 +131,9 @@ fi
 
 APP_STAGE="$STAGING_ROOT/${APP_NAME}.app"
 rm -rf "$APP_STAGE" "$APP_DIST_PATH" "$INSTALL_DIR"
+if [[ "$LEGACY_INSTALL_DIR" != "$INSTALL_DIR" ]]; then
+  rm -rf "$LEGACY_INSTALL_DIR"
+fi
 /usr/bin/ditto --norsrc "$BUILT_APP" "$APP_STAGE"
 /usr/bin/ditto --norsrc "$APP_STAGE" "$APP_DIST_PATH"
 /usr/bin/ditto --norsrc "$APP_STAGE" "$INSTALL_DIR"

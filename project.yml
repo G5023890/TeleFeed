@@ -26,7 +26,7 @@ targets:
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.codex.Telega
-        PRODUCT_NAME: Telega
+        PRODUCT_NAME: TeleFeed
         INFOPLIST_FILE: Config/Telega-Info.plist
         GENERATE_INFOPLIST_FILE: NO
         MACOSX_DEPLOYMENT_TARGET: 15.0

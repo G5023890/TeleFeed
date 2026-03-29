@@ -2,10 +2,12 @@ import SwiftUI
 
 struct FeedListView: View {
     @ObservedObject var viewModel: FeedViewModel
+    let settings: AppSettings
     @Binding var selectedPostID: UnreadPostIdentity?
     let onSelectionChange: (UnreadPostIdentity?) -> Void
     let onSwipeRight: (UnreadPost) -> Void
     @Environment(\.colorScheme) private var colorScheme
+    @State private var previousVisiblePosts: [UnreadPost] = []
 
     var body: some View {
         let visiblePosts = viewModel.visiblePosts
@@ -40,14 +42,10 @@ struct FeedListView: View {
                     .background(Color.clear)
                     .onChange(of: selectedPostID) { _, newValue in
                         onSelectionChange(newValue)
-                        guard let newValue else {
-                            return
-                        }
-                        withAnimation(.snappy(duration: 0.2)) {
-                            proxy.scrollTo(newValue, anchor: .top)
-                        }
                     }
-                    .onMoveCommand(perform: moveSelection)
+                    .onMoveCommand { direction in
+                        moveSelection(direction, proxy: proxy)
+                    }
                     .onAppear {
                         syncSelection(in: proxy, visiblePosts: visiblePosts)
                     }
@@ -62,7 +60,7 @@ struct FeedListView: View {
 
             if let errorMessage = viewModel.errorMessage {
                 Text(errorMessage)
-                    .font(.callout)
+                    .font(.system(size: CGFloat(settings.typography.feedBody), weight: .regular, design: .rounded))
                     .foregroundStyle(.red)
             }
         }
@@ -73,7 +71,7 @@ struct FeedListView: View {
         VStack(alignment: .leading, spacing: 8) {
             header
             Text(viewModel.displayMode == .unread ? L10n.tr("feed.emptyUnread") : L10n.tr("feed.empty"))
-                .font(.system(size: 13, weight: .regular, design: .rounded))
+                .font(.system(size: CGFloat(settings.typography.feedBody), weight: .regular, design: .rounded))
                 .foregroundStyle(.secondary)
                 .padding(.top, 8)
             Spacer()
@@ -85,7 +83,7 @@ struct FeedListView: View {
         HStack(alignment: .top, spacing: 10) {
             VStack(alignment: .leading, spacing: 8) {
                 Text(L10n.tr("feed.title"))
-                    .font(.system(size: 19, weight: .semibold, design: .rounded))
+                    .font(.system(size: CGFloat(settings.typography.feedHeaderTitle), weight: .semibold, design: .rounded))
                 filterControl
             }
 
@@ -147,13 +145,13 @@ struct FeedListView: View {
         Button(action: action) {
             HStack(spacing: 8) {
                 Text(title)
-                    .font(.system(size: 12.5, weight: .semibold, design: .rounded))
+                    .font(.system(size: CGFloat(settings.typography.feedFilter), weight: .semibold, design: .rounded))
                     .lineLimit(1)
                     .minimumScaleFactor(0.85)
 
                 if let badge {
                     Text(badgeLabel(for: badge))
-                        .font(.system(size: 11, weight: .semibold, design: .rounded))
+                        .font(.system(size: CGFloat(settings.typography.feedDate), weight: .semibold, design: .rounded))
                         .foregroundStyle(.secondary)
                         .padding(.horizontal, 7)
                         .padding(.vertical, 3)
@@ -188,28 +186,28 @@ struct FeedListView: View {
 
         VStack(alignment: .leading, spacing: parts.body == nil ? 4 : 5) {
             Text(parts.title)
-                .font(.system(size: 12, weight: isUnread ? .bold : .semibold, design: .rounded))
+                .font(.system(size: CGFloat(settings.typography.feedTitle), weight: isUnread ? .bold : .semibold, design: .rounded))
                 .foregroundStyle(isUnread ? .primary : .secondary)
                 .lineLimit(2)
                 .multilineTextAlignment(.leading)
                 .frame(maxWidth: .infinity, alignment: .leading)
 
             Text(parts.source)
-                .font(.system(size: 10, weight: .regular, design: .rounded))
+                .font(.system(size: CGFloat(settings.typography.feedSource), weight: .regular, design: .rounded))
                 .foregroundStyle(.secondary)
                 .lineLimit(1)
                 .multilineTextAlignment(.leading)
 
             if let body = parts.body {
                 Text(body)
-                    .font(.system(size: 12, weight: .regular, design: .rounded))
+                    .font(.system(size: CGFloat(settings.typography.feedBody), weight: .regular, design: .rounded))
                     .foregroundStyle(.primary)
                     .multilineTextAlignment(.leading)
                     .lineLimit(3)
             }
 
             Text(post.date.formatted(date: .abbreviated, time: .shortened))
-                .font(.system(size: 10, weight: .regular, design: .rounded))
+                .font(.system(size: CGFloat(settings.typography.feedDate), weight: .regular, design: .rounded))
                 .foregroundStyle(.secondary)
                 .padding(.top, 1)
         }
@@ -271,7 +269,7 @@ struct FeedListView: View {
         )
     }
 
-    private func moveSelection(_ direction: MoveCommandDirection) {
+    private func moveSelection(_ direction: MoveCommandDirection, proxy: ScrollViewProxy) {
         let posts = viewModel.visiblePosts
         guard posts.isEmpty == false else {
             return
@@ -295,39 +293,51 @@ struct FeedListView: View {
             return
         }
 
-        selectedPostID = posts[nextIndex].id
+        let nextPostID = posts[nextIndex].id
+        selectedPostID = nextPostID
+
+        DispatchQueue.main.async {
+            withAnimation(.snappy(duration: 0.2)) {
+                proxy.scrollTo(nextPostID, anchor: .center)
+            }
+        }
     }
 
     private func syncSelection(in proxy: ScrollViewProxy, visiblePosts: [UnreadPost]) {
         guard visiblePosts.isEmpty == false else {
             selectedPostID = nil
             onSelectionChange(nil)
+            previousVisiblePosts = visiblePosts
             return
         }
 
-        if let selectedPostID,
-           visiblePosts.contains(where: { $0.id == selectedPostID }) {
-            DispatchQueue.main.async {
-                proxy.scrollTo(selectedPostID, anchor: .top)
-            }
+        if let currentSelectedPostID = selectedPostID,
+           visiblePosts.contains(where: { $0.id == currentSelectedPostID }) {
+            previousVisiblePosts = visiblePosts
+            return
+        }
+
+        if let currentSelectedPostID = selectedPostID,
+           let previousIndex = previousVisiblePosts.firstIndex(where: { $0.id == currentSelectedPostID }) {
+            let fallbackIndex = min(previousIndex, visiblePosts.count - 1)
+            let fallbackPost = visiblePosts[fallbackIndex]
+            selectedPostID = fallbackPost.id
+            onSelectionChange(fallbackPost.id)
+            previousVisiblePosts = visiblePosts
             return
         }
 
         if let preferredPost = preferredInitialPostID(in: visiblePosts) {
             selectedPostID = preferredPost.id
             onSelectionChange(preferredPost.id)
-            DispatchQueue.main.async {
-                proxy.scrollTo(preferredPost.id, anchor: .top)
-            }
         }
+
+        previousVisiblePosts = visiblePosts
     }
 
     private func preferredInitialPostID(in posts: [UnreadPost]) -> UnreadPost? {
-        if let preferredRSSPost = posts.reversed().first(where: { $0.sourceKind == .rss && viewModel.isUnread($0) }) {
-            return preferredRSSPost
-        }
-        if let firstUnreadPost = posts.first(where: { viewModel.isUnread($0) }) {
-            return firstUnreadPost
+        if let oldestUnreadPost = posts.last(where: { viewModel.isUnread($0) }) {
+            return oldestUnreadPost
         }
         return posts.first
     }

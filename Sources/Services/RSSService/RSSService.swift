@@ -4,7 +4,7 @@ import OSLog
 final class RSSService: RSSServiceProtocol, @unchecked Sendable {
     private static let logger = Logger(subsystem: "com.codex.Telega", category: "RSSService")
     private let session: URLSession
-    private let userAgent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 15_0) AppleWebKit/605.1.15 (KHTML, like Gecko) Telega/1.0 Safari/605.1.15"
+    private let userAgent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 15_0) AppleWebKit/605.1.15 (KHTML, like Gecko) TeleFeed/1.0 Safari/605.1.15"
 
     init(session: URLSession = .shared) {
         self.session = session
@@ -97,6 +97,7 @@ final class RSSService: RSSServiceProtocol, @unchecked Sendable {
                 channelTitle: feed.title,
                 author: item.author.isEmpty ? nil : item.author,
                 date: item.date,
+                hasPublicationDate: item.hasPublicationDate,
                 articleURL: item.link,
                 content: .text(body: item.body)
             )
@@ -132,6 +133,7 @@ private struct RSSParsedItem {
     let body: String
     let author: String
     let date: Date
+    let hasPublicationDate: Bool
     let link: URL?
 }
 
@@ -303,6 +305,7 @@ private struct RSSDraftItem {
 
     func makeItem() -> RSSParsedItem? {
         let title = title?.trimmingCharacters(in: .whitespacesAndNewlines)
+        let publicationDate = date
         let combinedBody = [title, body?.trimmingCharacters(in: .whitespacesAndNewlines)]
             .compactMap { $0 }
             .filter { $0.isEmpty == false }
@@ -312,7 +315,7 @@ private struct RSSDraftItem {
             ?? title
         // If a feed omits or mangles the timestamp, keep the item visible instead of
         // dropping it immediately via retention pruning.
-        let date = date ?? Date()
+        let date = publicationDate ?? Date()
         guard let identifier, identifier.isEmpty == false else {
             return nil
         }
@@ -323,6 +326,7 @@ private struct RSSDraftItem {
             body: combinedBody.isEmpty ? identifier : combinedBody,
             author: author?.trimmingCharacters(in: .whitespacesAndNewlines) ?? "",
             date: date,
+            hasPublicationDate: publicationDate != nil,
             link: normalizedURL(from: link)
         )
     }

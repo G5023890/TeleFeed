@@ -367,18 +367,40 @@ final class TelegramService: TelegramServiceProtocol {
         ])
     }
 
-    func downloadMedia(for descriptor: TelegramMediaDescriptor) async throws -> URL {
+    func downloadMedia(
+        for descriptor: TelegramMediaDescriptor,
+        chatID: Int64?,
+        messageID: Int64?
+    ) async throws -> URL {
         guard client != nil else {
             throw TelegramServiceError.tdlibUnavailable
         }
 
+        let chatID = descriptor.chatID ?? chatID
+        let messageID = descriptor.messageID ?? messageID
+
+        do {
+            return try await downloadMediaFile(with: descriptor.fileID)
+        } catch {
+            guard let refreshedDescriptor = try? await refreshMediaDescriptor(
+                for: descriptor,
+                chatID: chatID,
+                messageID: messageID
+            ) else {
+                throw error
+            }
+            return try await downloadMediaFile(with: refreshedDescriptor.fileID)
+        }
+    }
+
+    private func downloadMediaFile(with fileID: Int32) async throws -> URL {
         return try await withCheckedThrowingContinuation { continuation in
-            pendingFileDownloads[descriptor.fileID] = continuation
+            pendingFileDownloads[fileID] = continuation
             Task {
                 do {
                     let response = try await self.sendRequest([
                         "@type": "downloadFile",
-                        "file_id": descriptor.fileID,
+                        "file_id": fileID,
                         "priority": 16,
                         "offset": 0,
                         "limit": 0,
@@ -387,18 +409,49 @@ final class TelegramService: TelegramServiceProtocol {
 
                     if let url = TelegramParsing.extractDownloadedFileURL(from: response) {
                         await MainActor.run {
-                            self.pendingFileDownloads.removeValue(forKey: descriptor.fileID)
+                            self.pendingFileDownloads.removeValue(forKey: fileID)
                             continuation.resume(returning: url)
                         }
                     }
                 } catch {
                     await MainActor.run {
-                        self.pendingFileDownloads.removeValue(forKey: descriptor.fileID)
+                        self.pendingFileDownloads.removeValue(forKey: fileID)
                         continuation.resume(throwing: error)
                     }
                 }
             }
         }
+    }
+
+    private func refreshMediaDescriptor(
+        for descriptor: TelegramMediaDescriptor,
+        chatID: Int64?,
+        messageID: Int64?
+    ) async throws -> TelegramMediaDescriptor {
+        guard let chatID, let messageID else {
+            throw TelegramServiceError.mediaUnavailable
+        }
+
+        guard client != nil else {
+            throw TelegramServiceError.tdlibUnavailable
+        }
+
+        let response = try await sendRequest([
+            "@type": "getMessage",
+            "chat_id": chatID,
+            "message_id": messageID,
+        ])
+
+        let message = response.dictionary("message") ?? response
+        guard
+            let post = TelegramParsing.parseUnreadPost(from: message, fallbackChannelTitle: ""),
+            let refreshedDescriptor = post.mediaDescriptor,
+            refreshedDescriptor.kind == descriptor.kind
+        else {
+            throw TelegramServiceError.mediaUnavailable
+        }
+
+        return refreshedDescriptor
     }
 
     private func handle(update: TDLibObject) async {

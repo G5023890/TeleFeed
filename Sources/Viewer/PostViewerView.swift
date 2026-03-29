@@ -5,6 +5,7 @@ import SwiftUI
 struct PostViewerView: View {
     let post: UnreadPost
     @ObservedObject var viewModel: ViewerViewModel
+    let settings: AppSettings
     let onClose: () -> Void
     let onOpenReader: (() -> Void)?
     @Environment(\.colorScheme) private var colorScheme
@@ -17,7 +18,7 @@ struct PostViewerView: View {
                 VStack(alignment: .leading, spacing: 22) {
                     header
 
-                    content(for: post)
+                    content(for: viewModel.displayContent(for: post))
                         .frame(maxWidth: .infinity, alignment: .leading)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -56,7 +57,7 @@ struct PostViewerView: View {
                     onClose()
                 } label: {
                     Image(systemName: "chevron.left")
-                        .font(.system(size: 15, weight: .semibold))
+                        .font(.system(size: CGFloat(settings.typography.viewerMeta), weight: .semibold))
                         .frame(width: 42, height: 42)
                 }
                 .buttonStyle(NavBackButtonStyle(colorScheme: colorScheme))
@@ -67,7 +68,7 @@ struct PostViewerView: View {
 
             VStack(alignment: .leading, spacing: 10) {
                 Text(post.channelTitle)
-                    .font(.system(size: 16, weight: .semibold, design: .rounded))
+                    .font(.system(size: CGFloat(settings.typography.viewerChannelTitle), weight: .semibold, design: .rounded))
                     .foregroundStyle(.secondary)
                     .lineLimit(2)
 
@@ -76,7 +77,7 @@ struct PostViewerView: View {
                         onOpenReader()
                     } label: {
                         Text(post.titleOrFallback)
-                            .font(.system(size: 22, weight: .bold, design: .rounded))
+                            .font(.system(size: CGFloat(settings.typography.viewerTitle), weight: .bold, design: .rounded))
                             .foregroundStyle(.primary)
                             .lineLimit(4)
                             .fixedSize(horizontal: false, vertical: true)
@@ -87,36 +88,28 @@ struct PostViewerView: View {
                     .help(L10n.tr("reader.open"))
                 } else {
                     Text(post.titleOrFallback)
-                        .font(.system(size: 22, weight: .bold, design: .rounded))
+                        .font(.system(size: CGFloat(settings.typography.viewerTitle), weight: .bold, design: .rounded))
                         .foregroundStyle(.primary)
                         .lineLimit(4)
                         .fixedSize(horizontal: false, vertical: true)
                 }
 
-                HStack(spacing: 8) {
-                        Text(post.date.formatted(date: .abbreviated, time: .shortened))
-                            .font(.caption.weight(.semibold))
-                            .foregroundStyle(.secondary)
-                            .padding(.horizontal, 10)
-                            .padding(.vertical, 6)
-                            .background(AppTheme.readerChipFill(for: colorScheme), in: Capsule(style: .continuous))
-                            .overlay(
-                                Capsule(style: .continuous)
-                                    .strokeBorder(AppTheme.readerChipStroke(for: colorScheme), lineWidth: 1)
-                            )
+                HStack(alignment: .center, spacing: 8) {
+                    dateChip(post.date.formatted(date: .abbreviated, time: .shortened))
 
                     if let author = post.author, author.isEmpty == false {
-                            Text(author)
-                                .font(.caption.weight(.semibold))
-                                .foregroundStyle(.secondary)
-                                .padding(.horizontal, 10)
-                                .padding(.vertical, 6)
-                                .background(AppTheme.readerChipFill(for: colorScheme), in: Capsule(style: .continuous))
-                                .overlay(
-                                    Capsule(style: .continuous)
-                                        .strokeBorder(AppTheme.readerChipStroke(for: colorScheme), lineWidth: 1)
-                                )
+                        dateChip(author)
                     }
+
+                    Spacer(minLength: 0)
+
+                    translateButton
+                }
+
+                if let translationError = viewModel.translationErrorMessage {
+                    Text(translationError)
+                        .font(.system(size: CGFloat(settings.typography.viewerMeta), weight: .semibold, design: .rounded))
+                        .foregroundStyle(.red)
                 }
             }
 
@@ -126,12 +119,46 @@ struct PostViewerView: View {
     }
 
     @ViewBuilder
-    private func content(for post: UnreadPost) -> some View {
-        switch post.content {
+    private func dateChip(_ text: String) -> some View {
+        Text(text)
+            .font(.system(size: CGFloat(settings.typography.viewerMeta), weight: .semibold, design: .rounded))
+            .foregroundStyle(.secondary)
+            .padding(.horizontal, 10)
+            .padding(.vertical, 6)
+            .background(AppTheme.readerChipFill(for: colorScheme), in: Capsule(style: .continuous))
+            .overlay(
+                Capsule(style: .continuous)
+                    .strokeBorder(AppTheme.readerChipStroke(for: colorScheme), lineWidth: 1)
+            )
+    }
+
+    private var translateButton: some View {
+        Button {
+            viewModel.toggleTranslation(for: post)
+        } label: {
+            if viewModel.translationState == .loading {
+                HStack(spacing: 6) {
+                    ProgressView()
+                        .controlSize(.small)
+                    Text(viewModel.translationButtonTitle)
+                }
+            } else {
+                Text(viewModel.translationButtonTitle)
+            }
+        }
+        .buttonStyle(.plain)
+        .font(.system(size: CGFloat(settings.typography.viewerMeta), weight: .semibold, design: .rounded))
+        .foregroundStyle(.primary)
+        .disabled(viewModel.translationState == .loading)
+    }
+
+    @ViewBuilder
+    private func content(for content: TelegramPostContent) -> some View {
+        switch content {
         case .text(let body):
             SelectableTextView(
                 text: body,
-                font: .systemFont(ofSize: 18, weight: .regular),
+                font: .systemFont(ofSize: CGFloat(settings.typography.viewerBody), weight: .regular),
                 textColor: .labelColor,
                 lineSpacing: 4,
                 maximumWidth: 760
@@ -167,19 +194,23 @@ struct PostViewerView: View {
                             .frame(maxWidth: 760)
                             .frame(minHeight: 360)
 
-                        Button {
-                            viewModel.playVideo()
-                        } label: {
-                            HStack(spacing: 8) {
-                                Image(systemName: "play.fill")
-                                Text("Play")
+                        if viewModel.isVideoPlaying == false {
+                            Button {
+                                viewModel.playVideo()
+                            } label: {
+                                HStack(spacing: 8) {
+                                    Image(systemName: "play.fill")
+                                    Text("Play")
+                                }
+                                .font(.system(size: CGFloat(settings.typography.viewerMeta), weight: .semibold, design: .rounded))
+                                .padding(.horizontal, 16)
+                                .padding(.vertical, 10)
                             }
-                            .font(.system(size: 14, weight: .semibold, design: .rounded))
-                            .padding(.horizontal, 16)
-                            .padding(.vertical, 10)
+                            .buttonStyle(VideoPlayOverlayButtonStyle(colorScheme: colorScheme))
                         }
-                        .buttonStyle(VideoPlayButtonStyle(colorScheme: colorScheme))
                     }
+                    .frame(maxWidth: 760)
+                    .frame(minHeight: 360)
                     .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
                     .shadow(color: .black.opacity(0.12), radius: 18, x: 0, y: 10)
                 } else {
@@ -201,7 +232,7 @@ struct PostViewerView: View {
             if caption.isEmpty == false {
                 SelectableTextView(
                     text: caption,
-                    font: .systemFont(ofSize: 15, weight: .regular),
+                    font: .systemFont(ofSize: CGFloat(settings.typography.viewerCaption), weight: .regular),
                     textColor: .labelColor,
                     maximumWidth: 760
                 )
@@ -280,23 +311,59 @@ private struct NavBackButtonStyle: ButtonStyle {
 private struct NativeVideoPlayerView: NSViewRepresentable {
     let player: AVPlayer
 
-    func makeNSView(context: Context) -> AVPlayerView {
-        let view = AVPlayerView()
-        view.controlsStyle = .floating
-        view.showsFullScreenToggleButton = true
-        view.videoGravity = .resizeAspect
+    func makeNSView(context: Context) -> PlayerLayerView {
+        let view = PlayerLayerView()
         view.player = player
         return view
     }
 
-    func updateNSView(_ nsView: AVPlayerView, context: Context) {
+    func updateNSView(_ nsView: PlayerLayerView, context: Context) {
         if nsView.player !== player {
             nsView.player = player
         }
     }
 }
 
-private struct VideoPlayButtonStyle: ButtonStyle {
+private final class PlayerLayerView: NSView {
+    override init(frame frameRect: NSRect) {
+        super.init(frame: frameRect)
+        wantsLayer = true
+    }
+
+    required init?(coder: NSCoder) {
+        super.init(coder: coder)
+        wantsLayer = true
+    }
+
+    override func makeBackingLayer() -> CALayer {
+        let layer = AVPlayerLayer()
+        layer.videoGravity = .resizeAspect
+        return layer
+    }
+
+    override func layout() {
+        super.layout()
+        layer?.frame = bounds
+    }
+
+    var player: AVPlayer? {
+        get {
+            (layer as? AVPlayerLayer)?.player
+        }
+        set {
+            wantsLayer = true
+            if layer == nil {
+                layer = makeBackingLayer()
+            }
+            if let playerLayer = layer as? AVPlayerLayer {
+                playerLayer.player = newValue
+                playerLayer.videoGravity = .resizeAspect
+            }
+        }
+    }
+}
+
+private struct VideoPlayOverlayButtonStyle: ButtonStyle {
     let colorScheme: ColorScheme
 
     func makeBody(configuration: Configuration) -> some View {
@@ -310,7 +377,7 @@ private struct VideoPlayButtonStyle: ButtonStyle {
                 Capsule(style: .continuous)
                     .strokeBorder(AppTheme.readerChipStroke(for: colorScheme), lineWidth: 1)
             )
-            .shadow(color: colorScheme == .dark ? .black.opacity(0.25) : .black.opacity(0.08), radius: 10, x: 0, y: 4)
+            .shadow(color: colorScheme == .dark ? .black.opacity(0.25) : .black.opacity(0.10), radius: 10, x: 0, y: 4)
             .scaleEffect(configuration.isPressed ? 0.97 : 1)
     }
 }

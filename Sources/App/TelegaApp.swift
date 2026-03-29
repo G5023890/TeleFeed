@@ -7,7 +7,30 @@ struct TelegaApp: App {
 
     var body: some Scene {
         Settings {
-            EmptyView()
+            SettingsRootView(viewModel: appDelegate.runtime.container.mainViewModel)
         }
+    }
+}
+
+private struct SettingsRootView: View {
+    @ObservedObject var viewModel: MainViewModel
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        SettingsView(
+            authViewModel: viewModel.authViewModel,
+            launchAtLoginEnabled: Binding(
+                get: { viewModel.settings.launchAtLoginEnabled },
+                set: { viewModel.updateLaunchAtLogin($0) }
+            ),
+            typography: Binding(
+                get: { viewModel.settings.typography },
+                set: { viewModel.updateTypography($0) }
+            ),
+            onSaveCredentials: viewModel.saveCredentials,
+            onLogout: viewModel.logout,
+            onClose: { dismiss() }
+        )
+        .frame(minWidth: 560, minHeight: 720)
     }
 }

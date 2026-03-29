@@ -94,7 +94,7 @@ enum TelegramParsing {
 
         let author = object.string("author_signature")
         let channelTitle = object.string("chat_title") ?? fallbackChannelTitle
-        let parsedContent = parseContent(from: content)
+        let parsedContent = parseContent(from: content, chatID: chatID, messageID: messageID)
         let articleURL = extractArticleURL(from: parsedContent)
         guard case .unsupported = parsedContent else {
             return UnreadPost(
@@ -105,6 +105,7 @@ enum TelegramParsing {
                 channelTitle: channelTitle,
                 author: author?.isEmpty == true ? nil : author,
                 date: Date(timeIntervalSince1970: TimeInterval(timestamp)),
+                hasPublicationDate: true,
                 articleURL: articleURL,
                 content: parsedContent
             )
@@ -160,7 +161,7 @@ enum TelegramParsing {
         return URL(fileURLWithPath: path)
     }
 
-    private static func parseContent(from object: TDLibObject) -> TelegramPostContent {
+    private static func parseContent(from object: TDLibObject, chatID: Int64, messageID: Int64) -> TelegramPostContent {
         switch object.tdType {
         case "messageText":
             let body = object.dictionary("text")?.string("text") ?? ""
@@ -184,7 +185,10 @@ enum TelegramParsing {
                 }.first
 
                 if let fileID {
-                    return .photo(caption: caption, media: TelegramMediaDescriptor(fileID: fileID, kind: .photo))
+                    return .photo(
+                        caption: caption,
+                        media: TelegramMediaDescriptor(fileID: fileID, kind: .photo, chatID: chatID, messageID: messageID)
+                    )
                 }
             }
             return .unsupported(summary: caption.isEmpty ? L10n.tr("feed.unsupported") : caption)
@@ -198,7 +202,7 @@ enum TelegramParsing {
             {
                 return .video(
                     caption: caption,
-                    media: TelegramMediaDescriptor(fileID: fileID, kind: .video),
+                    media: TelegramMediaDescriptor(fileID: fileID, kind: .video, chatID: chatID, messageID: messageID),
                     duration: Int(video.int32("duration") ?? 0)
                 )
             }

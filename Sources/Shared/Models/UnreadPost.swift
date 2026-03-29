@@ -13,6 +13,38 @@ enum TelegramMediaKind: String, Hashable, Codable {
 struct TelegramMediaDescriptor: Hashable, Codable {
     let fileID: Int32
     let kind: TelegramMediaKind
+    let chatID: Int64?
+    let messageID: Int64?
+
+    init(fileID: Int32, kind: TelegramMediaKind, chatID: Int64? = nil, messageID: Int64? = nil) {
+        self.fileID = fileID
+        self.kind = kind
+        self.chatID = chatID
+        self.messageID = messageID
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case fileID
+        case kind
+        case chatID
+        case messageID
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        fileID = try container.decode(Int32.self, forKey: .fileID)
+        kind = try container.decode(TelegramMediaKind.self, forKey: .kind)
+        chatID = try container.decodeIfPresent(Int64.self, forKey: .chatID)
+        messageID = try container.decodeIfPresent(Int64.self, forKey: .messageID)
+    }
+
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(fileID, forKey: .fileID)
+        try container.encode(kind, forKey: .kind)
+        try container.encodeIfPresent(chatID, forKey: .chatID)
+        try container.encodeIfPresent(messageID, forKey: .messageID)
+    }
 }
 
 struct UnreadPostIdentity: Hashable, Codable {
@@ -134,6 +166,7 @@ struct UnreadPost: Hashable, Identifiable, Codable {
     let channelTitle: String
     let author: String?
     let date: Date
+    let hasPublicationDate: Bool
     let articleURL: URL?
     let content: TelegramPostContent
 
@@ -145,6 +178,7 @@ struct UnreadPost: Hashable, Identifiable, Codable {
         case channelTitle
         case author
         case date
+        case hasPublicationDate
         case articleURL
         case content
     }
@@ -189,6 +223,7 @@ struct UnreadPost: Hashable, Identifiable, Codable {
         channelTitle: String,
         author: String?,
         date: Date,
+        hasPublicationDate: Bool = true,
         articleURL: URL? = nil,
         content: TelegramPostContent
     ) {
@@ -199,6 +234,7 @@ struct UnreadPost: Hashable, Identifiable, Codable {
         self.channelTitle = channelTitle
         self.author = author
         self.date = date
+        self.hasPublicationDate = hasPublicationDate
         self.articleURL = articleURL
         self.content = content
     }
@@ -218,6 +254,7 @@ struct UnreadPost: Hashable, Identifiable, Codable {
         self.channelTitle = try container.decode(String.self, forKey: .channelTitle)
         self.author = try container.decodeIfPresent(String.self, forKey: .author)
         self.date = try container.decode(Date.self, forKey: .date)
+        self.hasPublicationDate = try container.decodeIfPresent(Bool.self, forKey: .hasPublicationDate) ?? true
         self.articleURL = try container.decodeIfPresent(URL.self, forKey: .articleURL)
         self.content = try container.decode(TelegramPostContent.self, forKey: .content)
     }
@@ -231,6 +268,7 @@ struct UnreadPost: Hashable, Identifiable, Codable {
         try container.encode(channelTitle, forKey: .channelTitle)
         try container.encodeIfPresent(author, forKey: .author)
         try container.encode(date, forKey: .date)
+        try container.encode(hasPublicationDate, forKey: .hasPublicationDate)
         try container.encodeIfPresent(articleURL, forKey: .articleURL)
         try container.encode(content, forKey: .content)
     }
@@ -255,6 +293,7 @@ struct UnreadPost: Hashable, Identifiable, Codable {
             channelTitle: title,
             author: author,
             date: date,
+            hasPublicationDate: hasPublicationDate,
             articleURL: articleURL,
             content: content
         )

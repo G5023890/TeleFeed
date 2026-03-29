@@ -5,12 +5,13 @@ import OSLog
 @MainActor
 final class MainViewModel: ObservableObject {
     private static let logger = Logger(subsystem: "com.codex.Telega", category: "MainViewModel")
+    private static let defaultUnreadColumnWidth: CGFloat = 420
 
     @Published var authViewModel: AuthViewModel
     @Published var channelsViewModel: ChannelsViewModel
     @Published var rssFeedsViewModel: RSSFeedsViewModel
     @Published var feedViewModel = FeedViewModel()
-    @Published var viewerViewModel = ViewerViewModel()
+    @Published var viewerViewModel: ViewerViewModel
     @Published var settings: AppSettings
     @Published var showingSettings = false
     @Published var connectionStatus: TelegramConnectionStatus = .offline
@@ -28,11 +29,9 @@ final class MainViewModel: ObservableObject {
     private let rssService: RSSServiceProtocol
     private let notificationService: NotificationServiceProtocol
     private let readFeedRetentionInterval: TimeInterval = 24 * 60 * 60
-    private let unreadFeedRetentionInterval: TimeInterval = 7 * 24 * 60 * 60
     private let rssPollingInterval: TimeInterval = 10 * 60
     private var channelNavigationStates: [Int64: ChannelUnreadState] = [:]
     private var sessionFeedPosts: [UnreadPostIdentity: UnreadPost] = [:]
-    private var readPostRetentionDates: [UnreadPostIdentity: Date] = [:]
     private var rssPollingTask: Task<Void, Never>?
     private var isRefreshingTelegramSources = false
     private var isRefreshingRSSFeeds = false
@@ -43,18 +42,22 @@ final class MainViewModel: ObservableObject {
         telegramService: TelegramServiceProtocol,
         rssService: RSSServiceProtocol,
         notificationService: NotificationServiceProtocol,
-        readerService: ReaderServiceProtocol
+        readerService: ReaderServiceProtocol,
+        translationService: TranslationServiceProtocol
     ) {
         let state = stateStore.load()
         self.stateStore = stateStore
         self.telegramService = telegramService
         self.rssService = rssService
         self.notificationService = notificationService
-        self.readerViewModel = ReaderViewModel(readerService: readerService)
+        self.viewerViewModel = ViewerViewModel(translationService: translationService)
+        self.readerViewModel = ReaderViewModel(
+            readerService: readerService,
+            translationService: translationService
+        )
         self.settings = state.settings
-        self.unreadColumnWidth = CGFloat(state.unreadColumnWidth ?? 300)
+        self.unreadColumnWidth = Self.defaultUnreadColumnWidth
         self.windowFrame = state.windowFrame
-        Self.logger.debug("Loaded unread column width: \(self.unreadColumnWidth, privacy: .public)")
         self.authViewModel = AuthViewModel()
         self.channelsViewModel = ChannelsViewModel(
             channels: state.watchedChannels,
@@ -73,18 +76,10 @@ final class MainViewModel: ObservableObject {
         let retainedPosts = Self.sortedSessionPosts(Self.prunedSessionPosts(
             state.recentFeedPosts,
             readIDs: Set(state.readPostIDs),
-            readRetentionDates: state.readPostRetentionDates,
-            readRetentionInterval: readFeedRetentionInterval,
-            unreadRetentionInterval: unreadFeedRetentionInterval
+            readRetentionInterval: readFeedRetentionInterval
         ))
-        let retainedPostIDs = Set(retainedPosts.map(\.id))
         self.sessionFeedPosts = Dictionary(uniqueKeysWithValues: retainedPosts.map { ($0.id, $0) })
-        self.feedViewModel.readPostIDs = Set(state.readPostIDs.filter { retainedPostIDs.contains($0) })
-        var retainedReadRetentionDates = state.readPostRetentionDates.filter { retainedPostIDs.contains($0.key) }
-        for readID in self.feedViewModel.readPostIDs where retainedReadRetentionDates[readID] == nil {
-            retainedReadRetentionDates[readID] = Date()
-        }
-        self.readPostRetentionDates = retainedReadRetentionDates
+        self.feedViewModel.readPostIDs = Set(state.readPostIDs)
         self.feedViewModel.setPosts(retainedPosts)
         self.selectedUnreadPostID = Self.initialSelectionID(
             from: retainedPosts,
@@ -247,6 +242,9 @@ final class MainViewModel: ObservableObject {
             return
         }
 
+        if feedViewModel.isUnread(post) {
+            markPostAsRead(post)
+        }
         detailPresentation = .reader
         readerViewModel.open(post: post)
     }
@@ -256,7 +254,6 @@ final class MainViewModel: ObservableObject {
             markPostAsRead(post)
         } else {
             feedViewModel.markUnread(identity: post.id)
-            readPostRetentionDates.removeValue(forKey: post.id)
             persistState()
         }
     }
@@ -306,7 +303,6 @@ final class MainViewModel: ObservableObject {
             notificationService.removeNotification(chatID: post.chatID, messageID: post.messageID)
         }
         feedViewModel.markRead(identity: post.id)
-        readPostRetentionDates[post.id] = Date()
         updateNavigationState(for: post.chatID) { state in
             state.unreadPosts.removeAll { $0.messageID == post.messageID }
             state.lastViewedPost = post
@@ -321,7 +317,6 @@ final class MainViewModel: ObservableObject {
                 }
                 await MainActor.run {
                     self.feedViewModel.markRead(identity: post.id)
-                    self.readPostRetentionDates[post.id] = Date()
                     self.persistState()
                 }
             } catch {
@@ -397,7 +392,6 @@ final class MainViewModel: ObservableObject {
                 selectedUnreadPostID = nil
                 channelNavigationStates.removeAll()
                 sessionFeedPosts.removeAll()
-                readPostRetentionDates.removeAll()
                 showingSettings = false
                 persistState()
             } catch {
@@ -413,14 +407,8 @@ final class MainViewModel: ObservableObject {
         persistState()
     }
 
-    func updateUnreadColumnWidth(_ width: CGFloat) {
-        let normalizedWidth = max(240, width.rounded())
-        guard abs(unreadColumnWidth - normalizedWidth) > 1 else {
-            return
-        }
-
-        unreadColumnWidth = normalizedWidth
-        Self.logger.debug("Updating unread column width: \(normalizedWidth, privacy: .public)")
+    func updateTypography(_ typography: TypographySettings) {
+        settings.typography = typography
         persistState()
     }
 
@@ -643,15 +631,7 @@ final class MainViewModel: ObservableObject {
             return
         }
 
-        if let preferredRSSPost = Self.preferredRSSSelectionID(from: allPosts, readIDs: feedViewModel.readPostIDs),
-           let post = allPosts.first(where: { $0.id == preferredRSSPost })
-        {
-            selectedUnreadPostID = post.id
-            present(post, updateSelection: true)
-            return
-        }
-
-        if let firstUnreadPost = allPosts.first(where: { feedViewModel.isUnread($0) }) {
+        if let firstUnreadPost = allPosts.last(where: { feedViewModel.isUnread($0) }) {
             selectedUnreadPostID = firstUnreadPost.id
             present(firstUnreadPost, updateSelection: true)
             return
@@ -676,6 +656,9 @@ final class MainViewModel: ObservableObject {
         readerViewModel.dismiss()
         viewerPresentedPost = post
         viewerViewModel.present(post: post, telegramService: telegramService)
+        if feedViewModel.isUnread(post) {
+            markPostAsRead(post)
+        }
         updateNavigationState(for: post.chatID) { state in
             state.lastViewedPost = post
         }
@@ -714,8 +697,6 @@ final class MainViewModel: ObservableObject {
         let retainedPosts = sessionFeedPosts.values.filter { isSupported($0) && isWithinRetention($0) }
         let retainedIDs = Set(retainedPosts.map(\.id))
         sessionFeedPosts = Dictionary(uniqueKeysWithValues: retainedPosts.map { ($0.id, $0) })
-        feedViewModel.readPostIDs = feedViewModel.readPostIDs.intersection(retainedIDs)
-        readPostRetentionDates = readPostRetentionDates.filter { retainedIDs.contains($0.key) }
 
         if let selectedUnreadPostID, retainedIDs.contains(selectedUnreadPostID) == false {
             self.selectedUnreadPostID = nil
@@ -729,7 +710,6 @@ final class MainViewModel: ObservableObject {
     private func removeSessionPosts(for chatID: Int64) {
         sessionFeedPosts = sessionFeedPosts.filter { $0.value.sourceKind != .telegram || $0.value.chatID != chatID }
         feedViewModel.readPostIDs = Set(feedViewModel.readPostIDs.filter { $0.sourceKind != .telegram || $0.sourceIdentifier != String(chatID) })
-        readPostRetentionDates = readPostRetentionDates.filter { $0.key.sourceKind != .telegram || $0.key.sourceIdentifier != String(chatID) }
         if selectedUnreadPostID?.sourceKind == .telegram,
            selectedUnreadPostID?.sourceIdentifier == String(chatID) {
             selectedUnreadPostID = nil
@@ -744,7 +724,6 @@ final class MainViewModel: ObservableObject {
         let identifier = feed.id
         sessionFeedPosts = sessionFeedPosts.filter { $0.value.sourceKind != .rss || $0.value.sourceIdentifier != identifier }
         feedViewModel.readPostIDs = Set(feedViewModel.readPostIDs.filter { $0.sourceKind != .rss || $0.sourceIdentifier != identifier })
-        readPostRetentionDates = readPostRetentionDates.filter { $0.key.sourceKind != .rss || $0.key.sourceIdentifier != identifier }
         if selectedUnreadPostID?.sourceKind == .rss,
            selectedUnreadPostID?.sourceIdentifier == identifier {
             selectedUnreadPostID = nil
@@ -769,7 +748,6 @@ final class MainViewModel: ObservableObject {
     private func persistState() {
         do {
             pruneSessionPosts()
-            Self.logger.debug("Persisting unread column width: \(self.unreadColumnWidth, privacy: .public)")
             try stateStore.save(PersistedAppState(
                 settings: settings,
                 watchedChannels: channelsViewModel.channels,
@@ -789,7 +767,7 @@ final class MainViewModel: ObservableObject {
                     }
                     return lhs.sourceIdentifier > rhs.sourceIdentifier
                 },
-                readPostRetentionDates: readPostRetentionDates.filter { feedViewModel.readPostIDs.contains($0.key) }
+                readPostRetentionDates: [:]
             ))
         } catch {
             authViewModel.errorMessage = error.localizedDescription
@@ -805,7 +783,6 @@ final class MainViewModel: ObservableObject {
             viewerPresentedPost = nil
             viewerViewModel.dismiss()
             sessionFeedPosts.removeAll()
-            readPostRetentionDates.removeAll()
             persistState()
             return
         }
@@ -928,29 +905,31 @@ final class MainViewModel: ObservableObject {
     }
 
     private func isWithinRetention(_ post: UnreadPost) -> Bool {
-        let retentionInterval = feedViewModel.readPostIDs.contains(post.id)
-            ? readFeedRetentionInterval
-            : unreadFeedRetentionInterval
-        let referenceDate = retentionReferenceDate(for: post)
-        return referenceDate >= Date().addingTimeInterval(-retentionInterval)
+        guard isSupported(post) else {
+            return false
+        }
+
+        guard feedViewModel.readPostIDs.contains(post.id) else {
+            return true
+        }
+
+        guard post.hasPublicationDate else {
+            return true
+        }
+
+        return post.date >= Date().addingTimeInterval(-readFeedRetentionInterval)
     }
 
     private static func prunedSessionPosts(
         _ posts: [UnreadPost],
         readIDs: Set<UnreadPostIdentity>,
-        readRetentionDates: [UnreadPostIdentity: Date],
-        readRetentionInterval: TimeInterval,
-        unreadRetentionInterval: TimeInterval
+        readRetentionInterval: TimeInterval
     ) -> [UnreadPost] {
-        let unreadCutoff = Date().addingTimeInterval(-unreadRetentionInterval)
         return posts.filter {
-            let referenceDate = readIDs.contains($0.id)
-                ? (readRetentionDates[$0.id] ?? Date())
-                : $0.date
-            let cutoff = readIDs.contains($0.id)
-                ? Date().addingTimeInterval(-readRetentionInterval)
-                : unreadCutoff
-            guard referenceDate >= cutoff else {
+            guard $0.sourceKind == .telegram || $0.sourceKind == .rss else {
+                return false
+            }
+            if readIDs.contains($0.id), $0.hasPublicationDate, $0.date < Date().addingTimeInterval(-readRetentionInterval) {
                 return false
             }
             if case .unsupported = $0.content {
@@ -958,13 +937,6 @@ final class MainViewModel: ObservableObject {
             }
             return true
         }
-    }
-
-    private func retentionReferenceDate(for post: UnreadPost) -> Date {
-        if feedViewModel.readPostIDs.contains(post.id) {
-            return readPostRetentionDates[post.id] ?? Date()
-        }
-        return post.date
     }
 
     private static func sortedSessionPosts(_ posts: [UnreadPost]) -> [UnreadPost] {
@@ -986,21 +958,10 @@ final class MainViewModel: ObservableObject {
         from posts: [UnreadPost],
         readIDs: Set<UnreadPostIdentity>
     ) -> UnreadPostIdentity? {
-        if let preferredRSSPost = preferredRSSSelectionID(from: posts, readIDs: readIDs) {
-            return preferredRSSPost
-        }
-
-        if let readPost = posts.first(where: { readIDs.contains($0.id) }) {
-            return readPost.id
+        if let firstUnreadPost = posts.last(where: { readIDs.contains($0.id) == false }) {
+            return firstUnreadPost.id
         }
         return posts.first?.id
-    }
-
-    private static func preferredRSSSelectionID(
-        from posts: [UnreadPost],
-        readIDs: Set<UnreadPostIdentity>
-    ) -> UnreadPostIdentity? {
-        posts.reversed().first(where: { $0.sourceKind == .rss && readIDs.contains($0.id) == false })?.id
     }
 
     private func syncLaunchAtLogin() {
