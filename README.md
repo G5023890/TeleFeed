@@ -1,6 +1,6 @@
 # TeleFeed
 
-Telega is a native macOS menu bar watcher for public Telegram channels. It uses Swift, SwiftUI, AppKit, and the TDLib JSON interface to deliver a read-only, notification-first workflow for unread channel posts.
+Telega is a native macOS menu bar watcher for public Telegram channels and RSS feeds. It uses Swift, SwiftUI, AppKit, and the TDLib JSON interface to deliver a read-only, notification-first workflow for unread channel posts and feed items.
 
 ## Overview
 
