@@ -28,6 +28,11 @@ enum TelegramServiceError: LocalizedError {
 final class TelegramService: TelegramServiceProtocol {
     var onEvent: ((TelegramEvent) -> Void)?
 
+    private enum StorageDirectoryName {
+        static let current = "TeleFeed"
+        static let legacy = "Telega"
+    }
+
     private enum SecureStorageKey {
         static let apiID = "telegram.api-id"
         static let apiHash = "telegram.api-hash"
@@ -36,7 +41,7 @@ final class TelegramService: TelegramServiceProtocol {
 
     private let secureStorage: SecureStorageProtocol
     private let fileManager: FileManager
-    private let logger = Logger(subsystem: "com.codex.Telega", category: "TelegramService")
+    private let logger = Logger(subsystem: "com.codex.TeleFeed", category: "TelegramService")
     private var client: TDLibClient?
     private var clientGeneration = 0
     private var currentCredentials: TelegramCredentials?
@@ -766,17 +771,23 @@ final class TelegramService: TelegramServiceProtocol {
 
     private func ensureDirectory(named name: String, inCaches: Bool = false) throws -> URL {
         let baseDirectory = fileManager.urls(for: inCaches ? .cachesDirectory : .applicationSupportDirectory, in: .userDomainMask)[0]
-        let directory = baseDirectory.appendingPathComponent("Telega", isDirectory: true).appendingPathComponent(name, isDirectory: true)
+        migrateLegacyBaseDirectoryIfNeeded(inCaches: inCaches)
+        let directory = baseDirectory
+            .appendingPathComponent(StorageDirectoryName.current, isDirectory: true)
+            .appendingPathComponent(name, isDirectory: true)
         try fileManager.createDirectory(at: directory, withIntermediateDirectories: true)
         return directory
     }
 
     private func cleanTemporaryMediaCache() {
+        migrateLegacyBaseDirectoryIfNeeded(inCaches: true)
         guard let caches = fileManager.urls(for: .cachesDirectory, in: .userDomainMask).first else {
             return
         }
 
-        let directory = caches.appendingPathComponent("Telega", isDirectory: true).appendingPathComponent("TDLibTempMedia", isDirectory: true)
+        let directory = caches
+            .appendingPathComponent(StorageDirectoryName.current, isDirectory: true)
+            .appendingPathComponent("TDLibTempMedia", isDirectory: true)
         guard let children = try? fileManager.contentsOfDirectory(at: directory, includingPropertiesForKeys: nil) else {
             return
         }
@@ -787,12 +798,30 @@ final class TelegramService: TelegramServiceProtocol {
     }
 
     private func cleanTDLibState() {
+        migrateLegacyBaseDirectoryIfNeeded(inCaches: false)
         guard let appSupport = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first else {
             return
         }
 
-        let directory = appSupport.appendingPathComponent("Telega", isDirectory: true).appendingPathComponent("TDLibState", isDirectory: true)
+        let directory = appSupport
+            .appendingPathComponent(StorageDirectoryName.current, isDirectory: true)
+            .appendingPathComponent("TDLibState", isDirectory: true)
         try? fileManager.removeItem(at: directory)
+    }
+
+    private func migrateLegacyBaseDirectoryIfNeeded(inCaches: Bool) {
+        let baseDirectory = fileManager.urls(for: inCaches ? .cachesDirectory : .applicationSupportDirectory, in: .userDomainMask)[0]
+        let currentDirectory = baseDirectory.appendingPathComponent(StorageDirectoryName.current, isDirectory: true)
+        let legacyDirectory = baseDirectory.appendingPathComponent(StorageDirectoryName.legacy, isDirectory: true)
+
+        guard
+            fileManager.fileExists(atPath: legacyDirectory.path),
+            fileManager.fileExists(atPath: currentDirectory.path) == false
+        else {
+            return
+        }
+
+        try? fileManager.moveItem(at: legacyDirectory, to: currentDirectory)
     }
 
     private func deserialize(_ string: String) -> TDLibObject? {
@@ -874,7 +903,7 @@ final class TelegramService: TelegramServiceProtocol {
 
     private func emitDebug(_ message: String) {
         logger.notice("\(message, privacy: .public)")
-        print("[Telega] \(message)")
+        print("[TeleFeed] \(message)")
         onEvent?(.debug(message))
     }
 

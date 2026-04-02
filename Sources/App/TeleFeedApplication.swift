@@ -335,7 +335,7 @@ final class MenuBarStatusItemController: NSObject {
 }
 
 @MainActor
-final class TelegaAppDelegate: NSObject, NSApplicationDelegate {
+final class TeleFeedAppDelegate: NSObject, NSApplicationDelegate {
     let runtime = AppRuntime()
     private var menuBarController: MenuBarStatusItemController?
     private let mainMenu = NSMenu()

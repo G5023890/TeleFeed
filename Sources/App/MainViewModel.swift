@@ -4,7 +4,7 @@ import OSLog
 
 @MainActor
 final class MainViewModel: ObservableObject {
-    private static let logger = Logger(subsystem: "com.codex.Telega", category: "MainViewModel")
+    private static let logger = Logger(subsystem: "com.codex.TeleFeed", category: "MainViewModel")
     private static let defaultUnreadColumnWidth: CGFloat = 420
 
     @Published var authViewModel: AuthViewModel

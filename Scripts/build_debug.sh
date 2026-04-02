@@ -3,5 +3,5 @@ set -euo pipefail
 
 cd "$(dirname "$0")/.."
 xcodegen generate
-xcodebuild -project Telega.xcodeproj -scheme Telega -configuration Debug -destination platform=macOS build
+xcodebuild -project TeleFeed.xcodeproj -scheme TeleFeed -configuration Debug -destination platform=macOS build
 

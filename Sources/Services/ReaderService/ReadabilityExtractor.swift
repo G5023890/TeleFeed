@@ -49,7 +49,7 @@ enum ReadabilityExtractorError: LocalizedError {
 }
 
 final class ReadabilityExtractor: NSObject {
-    private static let logger = Logger(subsystem: "com.codex.Telega", category: "ReadabilityExtractor")
+    private static let logger = Logger(subsystem: "com.codex.TeleFeed", category: "ReadabilityExtractor")
 
     private let userAgent: String
     private var continuation: CheckedContinuation<ReadabilityExtractionResult, Error>?

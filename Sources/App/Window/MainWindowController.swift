@@ -4,13 +4,13 @@ import OSLog
 
 @MainActor
 final class MainWindowController: NSWindowController {
-    fileprivate static let logger = Logger(subsystem: "com.codex.Telega", category: "MainWindowController")
+    fileprivate static let logger = Logger(subsystem: "com.codex.TeleFeed", category: "MainWindowController")
 
     var onPersistWindowFrame: ((WindowFrameState?) -> Void)?
 
     init<Content: View>(rootView: Content, initialFrame: WindowFrameState? = nil) {
         let hostingController = NSHostingController(rootView: rootView)
-        let window = TelegaWindow(contentViewController: hostingController)
+        let window = TeleFeedWindow(contentViewController: hostingController)
         window.title = L10n.tr("app.title")
         window.setContentSize(NSSize(width: 1480, height: 920))
         window.minSize = NSSize(width: 1180, height: 760)
@@ -56,7 +56,7 @@ final class MainWindowController: NSWindowController {
     }
 }
 
-private final class TelegaWindow: NSWindow {
+private final class TeleFeedWindow: NSWindow {
     override func performKeyEquivalent(with event: NSEvent) -> Bool {
         guard event.modifierFlags.contains(.command) else {
             return super.performKeyEquivalent(with: event)

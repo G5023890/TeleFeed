@@ -2,7 +2,7 @@ import Foundation
 import OSLog
 
 final class RSSService: RSSServiceProtocol, @unchecked Sendable {
-    private static let logger = Logger(subsystem: "com.codex.Telega", category: "RSSService")
+    private static let logger = Logger(subsystem: "com.codex.TeleFeed", category: "RSSService")
     private let session: URLSession
     private let userAgent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 15_0) AppleWebKit/605.1.15 (KHTML, like Gecko) TeleFeed/1.0 Safari/605.1.15"
 

@@ -1,0 +1,727 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		0A1A29BA824111F0AD1F443C /* UnreadPost.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE471ECD18DB0EF8FCA5AC83 /* UnreadPost.swift */; };
+		0FB37305D1A85D061F780904 /* PostViewerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DBE356F1F7B2D928BC3CFBC /* PostViewerView.swift */; };
+		11B2F8A7A25251ECF766BAD8 /* AppSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C6BDC544B46AA7CCBDA2FDE /* AppSettings.swift */; };
+		15EAF20352FE439BC11C9C10 /* TeleFeedApplication.swift in Sources */ = {isa = PBXBuildFile; fileRef = B78CD489A67F8E001DD76B0A /* TeleFeedApplication.swift */; };
+		17621AA3503A23D47F3F8ED6 /* RSSService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C98D7329344328305E7D64F8 /* RSSService.swift */; };
+		1B28317E570301F9B05997EE /* ReadabilitySource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 696528D7DEEA146E9AF8E531 /* ReadabilitySource.swift */; };
+		20AF1E0B8E0DCC43F8332793 /* ReaderHTMLTemplate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1600CCD43549BE3010037BA /* ReaderHTMLTemplate.swift */; };
+		23A5B436DED4920D86CC6A86 /* AppContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE2628F7A465B730A9EA4084 /* AppContainer.swift */; };
+		2DD030AB8101014E627D2E97 /* ChannelsManagementView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7753332B8A8A5BB0FEB8A964 /* ChannelsManagementView.swift */; };
+		39588215D694B785F6B41EA0 /* ReaderWebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A382CF3099F62F0074862BE /* ReaderWebView.swift */; };
+		3DEA5554351133D7B99544D9 /* MainWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51F0EA736D3B34FC759072C1 /* MainWindowController.swift */; };
+		3E7A8954877D082343067579 /* TranslationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B982540D4E8F45BD780EA72 /* TranslationService.swift */; };
+		40BC9F7628EBF43E8A3D2F38 /* MenuBarContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7E4EA3028E1876B87676AEC8 /* MenuBarContentView.swift */; };
+		5B4BE215F94273D9F13CB5B6 /* TDLibClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8400C314588FBD41E3431D49 /* TDLibClient.swift */; };
+		624E464D02415A6B4287F147 /* L10n.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A629401DA34A1E82EC3E8F0 /* L10n.swift */; };
+		62CF60FD386E1CE4714F4EAB /* KeychainSecureStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 480D44A80D716191EA721E66 /* KeychainSecureStorage.swift */; };
+		63177622BA1E52A8185001C0 /* TelegramService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50069F665BDA81A83065E98A /* TelegramService.swift */; };
+		6AE5CAA7D20DD037E7983440 /* SecureStorageProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = F377BEEB5FBAFE6EAD8DDE72 /* SecureStorageProtocol.swift */; };
+		6F6BB8D553FEBAE805FA1A22 /* ChannelsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA2E43889461AA00EA31FFAF /* ChannelsViewModel.swift */; };
+		6FCF3F1DFD3BC72A6B52B5E1 /* FeedListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65D680A41A607A219C39539B /* FeedListView.swift */; };
+		763C13DBF23EC3A4DA27801E /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FDC820DB6509ABB876EF5067 /* SettingsView.swift */; };
+		76EC18B37567D5249CB514DF /* TelegramServiceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBC05721423F48B40EA34944 /* TelegramServiceProtocol.swift */; };
+		7ABC7674F596F7DB9828A34B /* NotificationServiceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B3A5B4BCE8F7FE95400C418 /* NotificationServiceProtocol.swift */; };
+		7AFCC85C8E5CC864664AB2C4 /* AppTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = C184D0FEC69E50ECBF9B8BD9 /* AppTheme.swift */; };
+		7EBFEC257F0FE90D0D974A66 /* RSSServiceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54D85559F64518D8E9F31751 /* RSSServiceProtocol.swift */; };
+		8091193E0C6E853C2CD4C500 /* TranslationServiceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B4C0153BA2C8F7C9F9FD41D /* TranslationServiceProtocol.swift */; };
+		889C713A0F5FEBB7F633C0BA /* FileAppStateStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E8CB80CB34C800F5F0F7B37 /* FileAppStateStore.swift */; };
+		8DD48F5E9E31484D79E7A5F6 /* ReaderServiceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB97651D0137C1B788F191A4 /* ReaderServiceProtocol.swift */; };
+		94205CEEDCF8A9A13C8801E6 /* ReaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E01C071B26CE764DB3169651 /* ReaderView.swift */; };
+		9CF56695B0EF15249C8F795D /* TeleFeedApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3EA9BDC71F6129EE7C98CE7 /* TeleFeedApp.swift */; };
+		9D01F6C2F3D48F9EC3D71EFF /* StateStoreProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CA97BB23E39543CCA54AFBE /* StateStoreProtocol.swift */; };
+		9E38F15D38B9AFFAEEDCD7C0 /* ReadabilityExtractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35BDA2F872828226E407572F /* ReadabilityExtractor.swift */; };
+		A5823619706D6FC92EA61317 /* RSSFeedSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = D275461E5515768D14FA7466 /* RSSFeedSource.swift */; };
+		A78200475123656C46B4AD4B /* ReaderViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11707C4C9CAC49AD6E5B566A /* ReaderViewModel.swift */; };
+		AA5FAFDB5B6D9378179961F3 /* TDLibDictionary+Parsing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36987BA50AA5480D67169C5D /* TDLibDictionary+Parsing.swift */; };
+		AB15AFDC46A929334841D5A7 /* MainViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F044F52606255FB8F1972D12 /* MainViewModel.swift */; };
+		ACEF3249C7B52E0F2F686582 /* TranslationState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 278019C11D479A7459BD6640 /* TranslationState.swift */; };
+		B3B5108EE619D6FE6A0696F5 /* FeedViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F5A0DDE2BB66A27DA7D1FEC /* FeedViewModel.swift */; };
+		B5FC7C5EFF8A9B20BEDF2DA1 /* WindowFrameState.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0807DA65099569570213613 /* WindowFrameState.swift */; };
+		B71B3A4804B65023E2F40A11 /* AuthViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55EA84DDA3E30ECAA7E39226 /* AuthViewModel.swift */; };
+		C2913E8180D3A40E7D063763 /* ReaderArticle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51545A518675D6C1588ADECD /* ReaderArticle.swift */; };
+		D057DB0CE659A58E8561986E /* WatchedChannel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 888EF0BCA1A395DB291A2D10 /* WatchedChannel.swift */; };
+		D12869B6B5A5F0D989384B53 /* RSSFeedsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0941110630866FBB2FC6AF1 /* RSSFeedsViewModel.swift */; };
+		D4CD2C5A05992740CD77B2FD /* ReaderFallbackPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2092EB6E92EC84FC9A2FB81 /* ReaderFallbackPolicy.swift */; };
+		D8EE40962EEBA8C599B99361 /* AppRoute.swift in Sources */ = {isa = PBXBuildFile; fileRef = 493D86B3505ACDE738D236BE /* AppRoute.swift */; };
+		DCE6005E4840685B991BF330 /* AuthView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40D5D8E9D616100C74913782 /* AuthView.swift */; };
+		DE79CF0EB6526546C202C5B1 /* LocalNotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BC815AC3CF2EC9253D546D0 /* LocalNotificationService.swift */; };
+		E05197E0EB43A7A96E553904 /* ViewerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94127635310969C62CD35211 /* ViewerViewModel.swift */; };
+		E39E3D75F5B3451EABB6C651 /* SelectableTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39FA2E9F1E47B96BBF273700 /* SelectableTextView.swift */; };
+		E637DACADD0C31B5B80A5320 /* TDLibFramework in Frameworks */ = {isa = PBXBuildFile; productRef = FE6A37A4D806E51E026D10CC /* TDLibFramework */; };
+		EB743B375A282B0987254696 /* MainContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBC676C39F9B42CF055BA0B8 /* MainContentView.swift */; };
+		F14F66D4EF3BDC4AD1E97AB7 /* ReaderService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0C3C3052EC4903DAD5B7B11 /* ReaderService.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		0B3A5B4BCE8F7FE95400C418 /* NotificationServiceProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationServiceProtocol.swift; sourceTree = "<group>"; };
+		11707C4C9CAC49AD6E5B566A /* ReaderViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReaderViewModel.swift; sourceTree = "<group>"; };
+		1DBE356F1F7B2D928BC3CFBC /* PostViewerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostViewerView.swift; sourceTree = "<group>"; };
+		1F5A0DDE2BB66A27DA7D1FEC /* FeedViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedViewModel.swift; sourceTree = "<group>"; };
+		278019C11D479A7459BD6640 /* TranslationState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranslationState.swift; sourceTree = "<group>"; };
+		2A382CF3099F62F0074862BE /* ReaderWebView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReaderWebView.swift; sourceTree = "<group>"; };
+		2B982540D4E8F45BD780EA72 /* TranslationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranslationService.swift; sourceTree = "<group>"; };
+		35BDA2F872828226E407572F /* ReadabilityExtractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadabilityExtractor.swift; sourceTree = "<group>"; };
+		36987BA50AA5480D67169C5D /* TDLibDictionary+Parsing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TDLibDictionary+Parsing.swift"; sourceTree = "<group>"; };
+		39FA2E9F1E47B96BBF273700 /* SelectableTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectableTextView.swift; sourceTree = "<group>"; };
+		3C6BDC544B46AA7CCBDA2FDE /* AppSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSettings.swift; sourceTree = "<group>"; };
+		40D5D8E9D616100C74913782 /* AuthView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthView.swift; sourceTree = "<group>"; };
+		480D44A80D716191EA721E66 /* KeychainSecureStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainSecureStorage.swift; sourceTree = "<group>"; };
+		493D86B3505ACDE738D236BE /* AppRoute.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppRoute.swift; sourceTree = "<group>"; };
+		4A629401DA34A1E82EC3E8F0 /* L10n.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = L10n.swift; sourceTree = "<group>"; };
+		50069F665BDA81A83065E98A /* TelegramService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TelegramService.swift; sourceTree = "<group>"; };
+		51545A518675D6C1588ADECD /* ReaderArticle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReaderArticle.swift; sourceTree = "<group>"; };
+		51F0EA736D3B34FC759072C1 /* MainWindowController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainWindowController.swift; sourceTree = "<group>"; };
+		54D85559F64518D8E9F31751 /* RSSServiceProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RSSServiceProtocol.swift; sourceTree = "<group>"; };
+		55EA84DDA3E30ECAA7E39226 /* AuthViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthViewModel.swift; sourceTree = "<group>"; };
+		5B4C0153BA2C8F7C9F9FD41D /* TranslationServiceProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranslationServiceProtocol.swift; sourceTree = "<group>"; };
+		65D680A41A607A219C39539B /* FeedListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedListView.swift; sourceTree = "<group>"; };
+		696528D7DEEA146E9AF8E531 /* ReadabilitySource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadabilitySource.swift; sourceTree = "<group>"; };
+		7753332B8A8A5BB0FEB8A964 /* ChannelsManagementView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChannelsManagementView.swift; sourceTree = "<group>"; };
+		7E4EA3028E1876B87676AEC8 /* MenuBarContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarContentView.swift; sourceTree = "<group>"; };
+		8400C314588FBD41E3431D49 /* TDLibClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TDLibClient.swift; sourceTree = "<group>"; };
+		888EF0BCA1A395DB291A2D10 /* WatchedChannel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchedChannel.swift; sourceTree = "<group>"; };
+		8CA97BB23E39543CCA54AFBE /* StateStoreProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StateStoreProtocol.swift; sourceTree = "<group>"; };
+		8E8CB80CB34C800F5F0F7B37 /* FileAppStateStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileAppStateStore.swift; sourceTree = "<group>"; };
+		94127635310969C62CD35211 /* ViewerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewerViewModel.swift; sourceTree = "<group>"; };
+		9BC815AC3CF2EC9253D546D0 /* LocalNotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalNotificationService.swift; sourceTree = "<group>"; };
+		B0941110630866FBB2FC6AF1 /* RSSFeedsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RSSFeedsViewModel.swift; sourceTree = "<group>"; };
+		B30F653FDC3CDC06BFD48796 /* TeleFeed.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TeleFeed.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		B78CD489A67F8E001DD76B0A /* TeleFeedApplication.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TeleFeedApplication.swift; sourceTree = "<group>"; };
+		BBC05721423F48B40EA34944 /* TelegramServiceProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TelegramServiceProtocol.swift; sourceTree = "<group>"; };
+		C184D0FEC69E50ECBF9B8BD9 /* AppTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTheme.swift; sourceTree = "<group>"; };
+		C2092EB6E92EC84FC9A2FB81 /* ReaderFallbackPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReaderFallbackPolicy.swift; sourceTree = "<group>"; };
+		C98D7329344328305E7D64F8 /* RSSService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RSSService.swift; sourceTree = "<group>"; };
+		CE2628F7A465B730A9EA4084 /* AppContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppContainer.swift; sourceTree = "<group>"; };
+		D275461E5515768D14FA7466 /* RSSFeedSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RSSFeedSource.swift; sourceTree = "<group>"; };
+		DB97651D0137C1B788F191A4 /* ReaderServiceProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReaderServiceProtocol.swift; sourceTree = "<group>"; };
+		DBC676C39F9B42CF055BA0B8 /* MainContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainContentView.swift; sourceTree = "<group>"; };
+		E01C071B26CE764DB3169651 /* ReaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReaderView.swift; sourceTree = "<group>"; };
+		E0807DA65099569570213613 /* WindowFrameState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WindowFrameState.swift; sourceTree = "<group>"; };
+		E0C3C3052EC4903DAD5B7B11 /* ReaderService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReaderService.swift; sourceTree = "<group>"; };
+		E3EA9BDC71F6129EE7C98CE7 /* TeleFeedApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TeleFeedApp.swift; sourceTree = "<group>"; };
+		F044F52606255FB8F1972D12 /* MainViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainViewModel.swift; sourceTree = "<group>"; };
+		F1600CCD43549BE3010037BA /* ReaderHTMLTemplate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReaderHTMLTemplate.swift; sourceTree = "<group>"; };
+		F377BEEB5FBAFE6EAD8DDE72 /* SecureStorageProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecureStorageProtocol.swift; sourceTree = "<group>"; };
+		FA2E43889461AA00EA31FFAF /* ChannelsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChannelsViewModel.swift; sourceTree = "<group>"; };
+		FDC820DB6509ABB876EF5067 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		FE471ECD18DB0EF8FCA5AC83 /* UnreadPost.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnreadPost.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		DCB3DAD11E0BE19B98C346C9 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E637DACADD0C31B5B80A5320 /* TDLibFramework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		017BAF1736E9F4C9D66A2C08 /* NotificationService */ = {
+			isa = PBXGroup;
+			children = (
+				9BC815AC3CF2EC9253D546D0 /* LocalNotificationService.swift */,
+				0B3A5B4BCE8F7FE95400C418 /* NotificationServiceProtocol.swift */,
+			);
+			path = NotificationService;
+			sourceTree = "<group>";
+		};
+		1FAFC68F226273B04110F743 /* StateStore */ = {
+			isa = PBXGroup;
+			children = (
+				8E8CB80CB34C800F5F0F7B37 /* FileAppStateStore.swift */,
+				8CA97BB23E39543CCA54AFBE /* StateStoreProtocol.swift */,
+			);
+			path = StateStore;
+			sourceTree = "<group>";
+		};
+		3109E1919C09F9566EA8D3FF /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				B30F653FDC3CDC06BFD48796 /* TeleFeed.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		39B9F35DA892B9BF8AD6E142 /* RSSService */ = {
+			isa = PBXGroup;
+			children = (
+				C98D7329344328305E7D64F8 /* RSSService.swift */,
+				54D85559F64518D8E9F31751 /* RSSServiceProtocol.swift */,
+			);
+			path = RSSService;
+			sourceTree = "<group>";
+		};
+		4003D25DAD2234634D852DEF /* Utilities */ = {
+			isa = PBXGroup;
+			children = (
+				C184D0FEC69E50ECBF9B8BD9 /* AppTheme.swift */,
+				4A629401DA34A1E82EC3E8F0 /* L10n.swift */,
+			);
+			path = Utilities;
+			sourceTree = "<group>";
+		};
+		439FFA6A23635254ACD7FFC1 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				39FA2E9F1E47B96BBF273700 /* SelectableTextView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		59AD0FABB5C2FAADCA23E2A4 = {
+			isa = PBXGroup;
+			children = (
+				93496DF722BC50AE7B6E348E /* Sources */,
+				3109E1919C09F9566EA8D3FF /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		64EB72A341EABA7B71DCF0E5 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				017BAF1736E9F4C9D66A2C08 /* NotificationService */,
+				6745E111EB09A192C1888297 /* ReaderService */,
+				39B9F35DA892B9BF8AD6E142 /* RSSService */,
+				716B46EB5FF9F2E96B22374D /* SecureStorage */,
+				1FAFC68F226273B04110F743 /* StateStore */,
+				A0DB5249D2241D406746B925 /* TelegramService */,
+				777A0C538C8878F566DFCF43 /* TranslationService */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		6745E111EB09A192C1888297 /* ReaderService */ = {
+			isa = PBXGroup;
+			children = (
+				35BDA2F872828226E407572F /* ReadabilityExtractor.swift */,
+				E0C3C3052EC4903DAD5B7B11 /* ReaderService.swift */,
+				DB97651D0137C1B788F191A4 /* ReaderServiceProtocol.swift */,
+			);
+			path = ReaderService;
+			sourceTree = "<group>";
+		};
+		716B46EB5FF9F2E96B22374D /* SecureStorage */ = {
+			isa = PBXGroup;
+			children = (
+				480D44A80D716191EA721E66 /* KeychainSecureStorage.swift */,
+				F377BEEB5FBAFE6EAD8DDE72 /* SecureStorageProtocol.swift */,
+			);
+			path = SecureStorage;
+			sourceTree = "<group>";
+		};
+		777A0C538C8878F566DFCF43 /* TranslationService */ = {
+			isa = PBXGroup;
+			children = (
+				2B982540D4E8F45BD780EA72 /* TranslationService.swift */,
+				5B4C0153BA2C8F7C9F9FD41D /* TranslationServiceProtocol.swift */,
+			);
+			path = TranslationService;
+			sourceTree = "<group>";
+		};
+		79B6586B5F462F10AC83CBEF /* RSS */ = {
+			isa = PBXGroup;
+			children = (
+				B0941110630866FBB2FC6AF1 /* RSSFeedsViewModel.swift */,
+			);
+			path = RSS;
+			sourceTree = "<group>";
+		};
+		80AABD1E8FFC99AD2C78E0B9 /* Window */ = {
+			isa = PBXGroup;
+			children = (
+				51F0EA736D3B34FC759072C1 /* MainWindowController.swift */,
+			);
+			path = Window;
+			sourceTree = "<group>";
+		};
+		8257F895D0BFC912FD7E175A /* Routing */ = {
+			isa = PBXGroup;
+			children = (
+				493D86B3505ACDE738D236BE /* AppRoute.swift */,
+			);
+			path = Routing;
+			sourceTree = "<group>";
+		};
+		8525651395137BCCD666B52B /* Shared */ = {
+			isa = PBXGroup;
+			children = (
+				9F32C727155752B7BE6E7C1D /* Models */,
+				4003D25DAD2234634D852DEF /* Utilities */,
+				439FFA6A23635254ACD7FFC1 /* Views */,
+			);
+			path = Shared;
+			sourceTree = "<group>";
+		};
+		93496DF722BC50AE7B6E348E /* Sources */ = {
+			isa = PBXGroup;
+			children = (
+				C2727C154E389653F9F756F2 /* App */,
+				C70D3E489623C0FDCBE15C87 /* Auth */,
+				F9A3DCDC0BF8A88CEE1A9AD5 /* Channels */,
+				9D0C99B06A6EE13A125ECCB9 /* Feed */,
+				A0D406DB686FB61E4CD5FD88 /* Reader */,
+				79B6586B5F462F10AC83CBEF /* RSS */,
+				64EB72A341EABA7B71DCF0E5 /* Services */,
+				8525651395137BCCD666B52B /* Shared */,
+				E889D9BDFE5885AF772566EB /* Viewer */,
+			);
+			path = Sources;
+			sourceTree = "<group>";
+		};
+		9D0C99B06A6EE13A125ECCB9 /* Feed */ = {
+			isa = PBXGroup;
+			children = (
+				65D680A41A607A219C39539B /* FeedListView.swift */,
+				1F5A0DDE2BB66A27DA7D1FEC /* FeedViewModel.swift */,
+			);
+			path = Feed;
+			sourceTree = "<group>";
+		};
+		9F32C727155752B7BE6E7C1D /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				3C6BDC544B46AA7CCBDA2FDE /* AppSettings.swift */,
+				D275461E5515768D14FA7466 /* RSSFeedSource.swift */,
+				278019C11D479A7459BD6640 /* TranslationState.swift */,
+				FE471ECD18DB0EF8FCA5AC83 /* UnreadPost.swift */,
+				888EF0BCA1A395DB291A2D10 /* WatchedChannel.swift */,
+				E0807DA65099569570213613 /* WindowFrameState.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		A0D406DB686FB61E4CD5FD88 /* Reader */ = {
+			isa = PBXGroup;
+			children = (
+				696528D7DEEA146E9AF8E531 /* ReadabilitySource.swift */,
+				51545A518675D6C1588ADECD /* ReaderArticle.swift */,
+				C2092EB6E92EC84FC9A2FB81 /* ReaderFallbackPolicy.swift */,
+				F1600CCD43549BE3010037BA /* ReaderHTMLTemplate.swift */,
+				E01C071B26CE764DB3169651 /* ReaderView.swift */,
+				11707C4C9CAC49AD6E5B566A /* ReaderViewModel.swift */,
+				2A382CF3099F62F0074862BE /* ReaderWebView.swift */,
+			);
+			path = Reader;
+			sourceTree = "<group>";
+		};
+		A0DB5249D2241D406746B925 /* TelegramService */ = {
+			isa = PBXGroup;
+			children = (
+				8400C314588FBD41E3431D49 /* TDLibClient.swift */,
+				36987BA50AA5480D67169C5D /* TDLibDictionary+Parsing.swift */,
+				50069F665BDA81A83065E98A /* TelegramService.swift */,
+				BBC05721423F48B40EA34944 /* TelegramServiceProtocol.swift */,
+			);
+			path = TelegramService;
+			sourceTree = "<group>";
+		};
+		AE25FCE19CDFDBBF0DC28FD6 /* MenuBar */ = {
+			isa = PBXGroup;
+			children = (
+				7E4EA3028E1876B87676AEC8 /* MenuBarContentView.swift */,
+			);
+			path = MenuBar;
+			sourceTree = "<group>";
+		};
+		C2727C154E389653F9F756F2 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				DBC676C39F9B42CF055BA0B8 /* MainContentView.swift */,
+				F044F52606255FB8F1972D12 /* MainViewModel.swift */,
+				FDC820DB6509ABB876EF5067 /* SettingsView.swift */,
+				E3EA9BDC71F6129EE7C98CE7 /* TeleFeedApp.swift */,
+				B78CD489A67F8E001DD76B0A /* TeleFeedApplication.swift */,
+				F33AF8843150492C096A6A9F /* DI */,
+				AE25FCE19CDFDBBF0DC28FD6 /* MenuBar */,
+				8257F895D0BFC912FD7E175A /* Routing */,
+				80AABD1E8FFC99AD2C78E0B9 /* Window */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		C70D3E489623C0FDCBE15C87 /* Auth */ = {
+			isa = PBXGroup;
+			children = (
+				40D5D8E9D616100C74913782 /* AuthView.swift */,
+				55EA84DDA3E30ECAA7E39226 /* AuthViewModel.swift */,
+			);
+			path = Auth;
+			sourceTree = "<group>";
+		};
+		E889D9BDFE5885AF772566EB /* Viewer */ = {
+			isa = PBXGroup;
+			children = (
+				1DBE356F1F7B2D928BC3CFBC /* PostViewerView.swift */,
+				94127635310969C62CD35211 /* ViewerViewModel.swift */,
+			);
+			path = Viewer;
+			sourceTree = "<group>";
+		};
+		F33AF8843150492C096A6A9F /* DI */ = {
+			isa = PBXGroup;
+			children = (
+				CE2628F7A465B730A9EA4084 /* AppContainer.swift */,
+			);
+			path = DI;
+			sourceTree = "<group>";
+		};
+		F9A3DCDC0BF8A88CEE1A9AD5 /* Channels */ = {
+			isa = PBXGroup;
+			children = (
+				7753332B8A8A5BB0FEB8A964 /* ChannelsManagementView.swift */,
+				FA2E43889461AA00EA31FFAF /* ChannelsViewModel.swift */,
+			);
+			path = Channels;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		03E6E1BB1993953B493E9D8C /* TeleFeed */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = DDFD1C0ABE59A0EF56FABE86 /* Build configuration list for PBXNativeTarget "TeleFeed" */;
+			buildPhases = (
+				BE11F0087D683BC02370D10E /* Sources */,
+				DCB3DAD11E0BE19B98C346C9 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = TeleFeed;
+			packageProductDependencies = (
+				FE6A37A4D806E51E026D10CC /* TDLibFramework */,
+			);
+			productName = TeleFeed;
+			productReference = B30F653FDC3CDC06BFD48796 /* TeleFeed.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		134BA1CD2623EF8619D2516C /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+					03E6E1BB1993953B493E9D8C = {
+						DevelopmentTeam = "";
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = 7693166A991E0A3339AD1BFE /* Build configuration list for PBXProject "TeleFeed" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = 59AD0FABB5C2FAADCA23E2A4;
+			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				D1554EAB2815F9A792CFD22C /* XCRemoteSwiftPackageReference "TDLibFramework" */,
+			);
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 3109E1919C09F9566EA8D3FF /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				03E6E1BB1993953B493E9D8C /* TeleFeed */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		BE11F0087D683BC02370D10E /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				23A5B436DED4920D86CC6A86 /* AppContainer.swift in Sources */,
+				D8EE40962EEBA8C599B99361 /* AppRoute.swift in Sources */,
+				11B2F8A7A25251ECF766BAD8 /* AppSettings.swift in Sources */,
+				7AFCC85C8E5CC864664AB2C4 /* AppTheme.swift in Sources */,
+				DCE6005E4840685B991BF330 /* AuthView.swift in Sources */,
+				B71B3A4804B65023E2F40A11 /* AuthViewModel.swift in Sources */,
+				2DD030AB8101014E627D2E97 /* ChannelsManagementView.swift in Sources */,
+				6F6BB8D553FEBAE805FA1A22 /* ChannelsViewModel.swift in Sources */,
+				6FCF3F1DFD3BC72A6B52B5E1 /* FeedListView.swift in Sources */,
+				B3B5108EE619D6FE6A0696F5 /* FeedViewModel.swift in Sources */,
+				889C713A0F5FEBB7F633C0BA /* FileAppStateStore.swift in Sources */,
+				62CF60FD386E1CE4714F4EAB /* KeychainSecureStorage.swift in Sources */,
+				624E464D02415A6B4287F147 /* L10n.swift in Sources */,
+				DE79CF0EB6526546C202C5B1 /* LocalNotificationService.swift in Sources */,
+				EB743B375A282B0987254696 /* MainContentView.swift in Sources */,
+				AB15AFDC46A929334841D5A7 /* MainViewModel.swift in Sources */,
+				3DEA5554351133D7B99544D9 /* MainWindowController.swift in Sources */,
+				40BC9F7628EBF43E8A3D2F38 /* MenuBarContentView.swift in Sources */,
+				7ABC7674F596F7DB9828A34B /* NotificationServiceProtocol.swift in Sources */,
+				0FB37305D1A85D061F780904 /* PostViewerView.swift in Sources */,
+				A5823619706D6FC92EA61317 /* RSSFeedSource.swift in Sources */,
+				D12869B6B5A5F0D989384B53 /* RSSFeedsViewModel.swift in Sources */,
+				17621AA3503A23D47F3F8ED6 /* RSSService.swift in Sources */,
+				7EBFEC257F0FE90D0D974A66 /* RSSServiceProtocol.swift in Sources */,
+				9E38F15D38B9AFFAEEDCD7C0 /* ReadabilityExtractor.swift in Sources */,
+				1B28317E570301F9B05997EE /* ReadabilitySource.swift in Sources */,
+				C2913E8180D3A40E7D063763 /* ReaderArticle.swift in Sources */,
+				D4CD2C5A05992740CD77B2FD /* ReaderFallbackPolicy.swift in Sources */,
+				20AF1E0B8E0DCC43F8332793 /* ReaderHTMLTemplate.swift in Sources */,
+				F14F66D4EF3BDC4AD1E97AB7 /* ReaderService.swift in Sources */,
+				8DD48F5E9E31484D79E7A5F6 /* ReaderServiceProtocol.swift in Sources */,
+				94205CEEDCF8A9A13C8801E6 /* ReaderView.swift in Sources */,
+				A78200475123656C46B4AD4B /* ReaderViewModel.swift in Sources */,
+				39588215D694B785F6B41EA0 /* ReaderWebView.swift in Sources */,
+				6AE5CAA7D20DD037E7983440 /* SecureStorageProtocol.swift in Sources */,
+				E39E3D75F5B3451EABB6C651 /* SelectableTextView.swift in Sources */,
+				763C13DBF23EC3A4DA27801E /* SettingsView.swift in Sources */,
+				9D01F6C2F3D48F9EC3D71EFF /* StateStoreProtocol.swift in Sources */,
+				5B4BE215F94273D9F13CB5B6 /* TDLibClient.swift in Sources */,
+				AA5FAFDB5B6D9378179961F3 /* TDLibDictionary+Parsing.swift in Sources */,
+				9CF56695B0EF15249C8F795D /* TeleFeedApp.swift in Sources */,
+				15EAF20352FE439BC11C9C10 /* TeleFeedApplication.swift in Sources */,
+				63177622BA1E52A8185001C0 /* TelegramService.swift in Sources */,
+				76EC18B37567D5249CB514DF /* TelegramServiceProtocol.swift in Sources */,
+				3E7A8954877D082343067579 /* TranslationService.swift in Sources */,
+				8091193E0C6E853C2CD4C500 /* TranslationServiceProtocol.swift in Sources */,
+				ACEF3249C7B52E0F2F686582 /* TranslationState.swift in Sources */,
+				0A1A29BA824111F0AD1F443C /* UnreadPost.swift in Sources */,
+				E05197E0EB43A7A96E553904 /* ViewerViewModel.swift in Sources */,
+				D057DB0CE659A58E8561986E /* WatchedChannel.swift in Sources */,
+				B5FC7C5EFF8A9B20BEDF2DA1 /* WindowFrameState.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		5A3FB85A9CA1A1DBBCC28E32 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = "Config/TeleFeed-Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				LOCALIZATION_PREFERS_STRING_CATALOGS = NO;
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
+				MARKETING_VERSION = 0.8.4;
+				PRODUCT_BUNDLE_IDENTIFIER = com.codex.TeleFeed;
+				PRODUCT_NAME = TeleFeed;
+				SDKROOT = macosx;
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_VERSION = 6.0;
+			};
+			name = Debug;
+		};
+		68019A9AADD9EFEE2B67EB0C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		C29E686E2D83207BEA6D4B1F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		FCF215D6546CA29AA13BEAF3 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				COPY_PHASE_STRIP = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = "";
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = "Config/TeleFeed-Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				LOCALIZATION_PREFERS_STRING_CATALOGS = NO;
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
+				MARKETING_VERSION = 0.8.4;
+				PRODUCT_BUNDLE_IDENTIFIER = com.codex.TeleFeed;
+				PRODUCT_NAME = TeleFeed;
+				SDKROOT = macosx;
+				STRIP_INSTALLED_PRODUCT = YES;
+				STRIP_SWIFT_SYMBOLS = YES;
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_VERSION = 6.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		7693166A991E0A3339AD1BFE /* Build configuration list for PBXProject "TeleFeed" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				68019A9AADD9EFEE2B67EB0C /* Debug */,
+				C29E686E2D83207BEA6D4B1F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		DDFD1C0ABE59A0EF56FABE86 /* Build configuration list for PBXNativeTarget "TeleFeed" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				5A3FB85A9CA1A1DBBCC28E32 /* Debug */,
+				FCF215D6546CA29AA13BEAF3 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		D1554EAB2815F9A792CFD22C /* XCRemoteSwiftPackageReference "TDLibFramework" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Swiftgram/TDLibFramework";
+			requirement = {
+				kind = revision;
+				revision = 9f267f0da0bdc86ebd6b1a2252b966e0c861377f;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		FE6A37A4D806E51E026D10CC /* TDLibFramework */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D1554EAB2815F9A792CFD22C /* XCRemoteSwiftPackageReference "TDLibFramework" */;
+			productName = TDLibFramework;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = 134BA1CD2623EF8619D2516C /* Project object */;
+}

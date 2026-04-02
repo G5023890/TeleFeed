@@ -1,4 +1,4 @@
-name: Telega
+name: TeleFeed
 options:
   createIntermediateGroups: true
 configs:
@@ -9,7 +9,7 @@ packages:
     url: https://github.com/Swiftgram/TDLibFramework
     revision: 9f267f0da0bdc86ebd6b1a2252b966e0c861377f
 targets:
-  Telega:
+  TeleFeed:
     type: application
     platform: macOS
     deploymentTarget: "15.0"
@@ -17,7 +17,7 @@ targets:
       - path: Sources
     resources:
       - path: Resources/Assets
-      - path: Resources/Assets/Telega.xcassets
+      - path: Resources/Assets/TeleFeed.xcassets
       - path: Resources/Localization/en.lproj
       - path: Resources/Localization/ru.lproj
     dependencies:
@@ -25,9 +25,9 @@ targets:
         product: TDLibFramework
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.codex.Telega
+        PRODUCT_BUNDLE_IDENTIFIER: com.codex.TeleFeed
         PRODUCT_NAME: TeleFeed
-        INFOPLIST_FILE: Config/Telega-Info.plist
+        INFOPLIST_FILE: Config/TeleFeed-Info.plist
         GENERATE_INFOPLIST_FILE: NO
         MACOSX_DEPLOYMENT_TARGET: 15.0
         SWIFT_VERSION: 6.0

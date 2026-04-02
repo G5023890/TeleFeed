@@ -2,7 +2,7 @@ import Foundation
 import OSLog
 
 final class TranslationService: TranslationServiceProtocol, @unchecked Sendable {
-    private static let logger = Logger(subsystem: "com.codex.Telega", category: "TranslationService")
+    private static let logger = Logger(subsystem: "com.codex.TeleFeed", category: "TranslationService")
     private let session: URLSession
     private let targetLanguage = "ru"
     private let userAgent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 15_0) AppleWebKit/605.1.15 (KHTML, like Gecko) TeleFeed/1.0 Safari/605.1.15"

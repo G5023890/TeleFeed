@@ -33,6 +33,7 @@ struct ReaderWebView: NSViewRepresentable {
 
     private static let userAgent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 15_0) AppleWebKit/605.1.15 (KHTML, like Gecko) TeleFeed/1.0 Safari/605.1.15"
 
+    @MainActor
     final class Coordinator: NSObject, WKNavigationDelegate, WKUIDelegate {
         var onOpenURL: ((URL) -> Void)?
 
@@ -58,11 +59,10 @@ struct ReaderWebView: NSViewRepresentable {
             webView.loadHTMLString(html, baseURL: baseURL)
         }
 
-        @MainActor
         func webView(
             _ webView: WKWebView,
             decidePolicyFor navigationAction: WKNavigationAction,
-            decisionHandler: @escaping (WKNavigationActionPolicy) -> Void
+            decisionHandler: @escaping @MainActor @Sendable (WKNavigationActionPolicy) -> Void
         ) {
             guard navigationAction.navigationType == .linkActivated,
                   let url = navigationAction.request.url

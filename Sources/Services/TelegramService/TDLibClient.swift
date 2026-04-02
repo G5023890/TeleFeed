@@ -128,7 +128,7 @@ actor TDLibClient {
            let key = pendingResponseOrder.first,
            let continuation = pendingResponses.removeValue(forKey: key) {
             pendingResponseOrder.removeFirst()
-            print("[Telega][TDLibClient] Resumed pending request without @extra: \(object.tdType ?? "unknown")")
+            print("[TeleFeed][TDLibClient] Resumed pending request without @extra: \(object.tdType ?? "unknown")")
             if object.tdType == "error" {
                 continuation.resume(throwing: TDLibError(
                     code: Int(object.int32("code") ?? -1),

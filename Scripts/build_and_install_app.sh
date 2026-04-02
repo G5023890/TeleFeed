@@ -5,11 +5,11 @@ PROJECT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$PROJECT_DIR"
 
 APP_NAME="${APP_NAME:-TeleFeed}"
-BUNDLE_ID="${BUNDLE_ID:-com.codex.Telega}"
-SCHEME="${SCHEME:-Telega}"
+BUNDLE_ID="${BUNDLE_ID:-com.codex.TeleFeed}"
+SCHEME="${SCHEME:-TeleFeed}"
 CONFIGURATION="${CONFIGURATION:-Release}"
 INSTALL_DIR="${INSTALL_DIR:-/Applications/${APP_NAME}.app}"
-LEGACY_APP_NAME="${LEGACY_APP_NAME:-Telega}"
+LEGACY_APP_NAME="${LEGACY_APP_NAME:-TeleFeed}"
 LEGACY_INSTALL_DIR="${LEGACY_INSTALL_DIR:-/Applications/${LEGACY_APP_NAME}.app}"
 LAUNCH_AFTER_INSTALL="${LAUNCH_AFTER_INSTALL:-1}"
 DIST_DIR="${DIST_DIR:-$PROJECT_DIR/dist}"
@@ -112,7 +112,7 @@ xcodegen generate
 
 log "Building into temporary DerivedData outside Documents"
 xcodebuild \
-  -project Telega.xcodeproj \
+  -project TeleFeed.xcodeproj \
   -scheme "$SCHEME" \
   -configuration "$CONFIGURATION" \
   -destination platform=macOS \
@@ -142,15 +142,15 @@ mkdir -p "$INSTALL_DIR/Contents/Resources/Assets/Icons"
 if [[ -f "$PROJECT_DIR/Resources/Assets/Icons/MenuBarIcon.png" ]]; then
   /usr/bin/ditto --norsrc "$PROJECT_DIR/Resources/Assets/Icons/MenuBarIcon.png" "$INSTALL_DIR/Contents/Resources/Assets/Icons/MenuBarIcon.png"
 fi
-if [[ -f "$PROJECT_DIR/Resources/Assets/Icons/Telega.icns" ]]; then
-  /usr/bin/ditto --norsrc "$PROJECT_DIR/Resources/Assets/Icons/Telega.icns" "$INSTALL_DIR/Contents/Resources/Telega.icns"
+if [[ -f "$PROJECT_DIR/Resources/Assets/Icons/TeleFeed.icns" ]]; then
+  /usr/bin/ditto --norsrc "$PROJECT_DIR/Resources/Assets/Icons/TeleFeed.icns" "$INSTALL_DIR/Contents/Resources/TeleFeed.icns"
 fi
 
 /usr/libexec/PlistBuddy -c "Set :CFBundleIdentifier $BUNDLE_ID" "$INSTALL_DIR/Contents/Info.plist" >/dev/null
 if /usr/libexec/PlistBuddy -c "Print :CFBundleIconFile" "$INSTALL_DIR/Contents/Info.plist" >/dev/null 2>&1; then
-  /usr/libexec/PlistBuddy -c "Set :CFBundleIconFile Telega.icns" "$INSTALL_DIR/Contents/Info.plist" >/dev/null
+  /usr/libexec/PlistBuddy -c "Set :CFBundleIconFile TeleFeed.icns" "$INSTALL_DIR/Contents/Info.plist" >/dev/null
 else
-  /usr/libexec/PlistBuddy -c "Add :CFBundleIconFile string Telega.icns" "$INSTALL_DIR/Contents/Info.plist" >/dev/null
+  /usr/libexec/PlistBuddy -c "Add :CFBundleIconFile string TeleFeed.icns" "$INSTALL_DIR/Contents/Info.plist" >/dev/null
 fi
 
 sign_bundle "$INSTALL_DIR"
