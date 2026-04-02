@@ -10,6 +10,7 @@
 		037120BC29EE31CE1F36E96F /* TranslationServiceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07FCF28A44943C9C0056E91E /* TranslationServiceProtocol.swift */; };
 		05BD0CA5796530972EC230C8 /* StateStoreProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 287950C7BF26153A8C7C10A1 /* StateStoreProtocol.swift */; };
 		08ECA2DA89B552D0A5F11ADE /* TelegramService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C71152E3739086864C775BAD /* TelegramService.swift */; };
+		0D93EAF2BCB6761C617CE1A4 /* ReaderWebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4BA8D44F186669E80630921E /* ReaderWebView.swift */; };
 		1024F6C4CBDFF074B247A888 /* ReaderViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF00ABF8169A62F4E1322A71 /* ReaderViewModel.swift */; };
 		201E7EA039B4791A7198EB6D /* ReaderService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 990CF66C4D9E0CC64E06AA22 /* ReaderService.swift */; };
 		2E1BD6400325BBFBD9CD92BA /* ReaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B4508F1A141833EA6A0046E /* ReaderView.swift */; };
@@ -17,15 +18,19 @@
 		3C1C45FEB26160CAC917F5FA /* ReaderArticle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7FD4B86701150CCAE635063F /* ReaderArticle.swift */; };
 		3F0EC81BE2788C1ED943570C /* MenuBarContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89CDC93F26C1A10CD20402F5 /* MenuBarContentView.swift */; };
 		43C98737A352FE7C878FF823 /* ChannelsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCAC04741232F2A8E830AF0B /* ChannelsViewModel.swift */; };
+		49CA7112F86B3ACFEA7F9708 /* ReaderHTMLTemplate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 004DBF192D82E8E0F86D42E0 /* ReaderHTMLTemplate.swift */; };
 		4BD2C84375ACE3AAE5FD5444 /* TelegramServiceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3F3DFB6A2D25791B703DD50 /* TelegramServiceProtocol.swift */; };
 		5B549432554998AB1596DBE1 /* KeychainSecureStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0AE99C1735D942F3A4D9CC9 /* KeychainSecureStorage.swift */; };
 		6283CAF9862123EC30424634 /* ChannelsManagementView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A026F26D84A892A40EA9085E /* ChannelsManagementView.swift */; };
 		6801B198C927E72F18F4256B /* LocalNotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 884260647CE1A5AB6EE996FB /* LocalNotificationService.swift */; };
+		70E1A7907754F7FD8C126226 /* ReaderFallbackPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D8FB36F8B1B22D27616C20D /* ReaderFallbackPolicy.swift */; };
 		73E21F251657727914DD7FC4 /* FeedViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1211C302EE5DB64D0372DCD5 /* FeedViewModel.swift */; };
 		7528AD3C73D395FD8BF5753B /* WatchedChannel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D96276AA212848BA72A0C080 /* WatchedChannel.swift */; };
 		76AFB9DB4434618B6213775C /* TranslationState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0EC6EE0428C4668B916ED2F6 /* TranslationState.swift */; };
 		77CB35B0CF59F2396944463A /* AuthView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7BE72D2BB2114777355537A /* AuthView.swift */; };
 		814B47428CDA861390A906FD /* PostViewerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC2CEE32344622B651A66E9E /* PostViewerView.swift */; };
+		89E8C6A594732ABE8DA19CFB /* ReadabilityExtractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C9DA0810C6DBB753DD5D34E /* ReadabilityExtractor.swift */; };
+		8D4A11A27EE5A62BF6F660FC /* ReadabilitySource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52512770F0D0F64E4BD8352A /* ReadabilitySource.swift */; };
 		8F71C41FFB3864B8ACB51DDE /* TranslationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3464DA99796ACBAF777D28F4 /* TranslationService.swift */; };
 		97B3293ACEE24A1CA65CB6A6 /* RSSService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 33449E483EEF47FB7BBD1BB6 /* RSSService.swift */; };
 		99764CE6C488DB4EA9303637 /* NotificationServiceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = A6D75EEBA61613E02E1AC0CB /* NotificationServiceProtocol.swift */; };
@@ -57,6 +62,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		004DBF192D82E8E0F86D42E0 /* ReaderHTMLTemplate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReaderHTMLTemplate.swift; sourceTree = "<group>"; };
 		012E5BB2EF9F459A7A4125EA /* ViewerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewerViewModel.swift; sourceTree = "<group>"; };
 		051CC4E6ECCBF333C9826998 /* TelegaApplication.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TelegaApplication.swift; sourceTree = "<group>"; };
 		07FCF28A44943C9C0056E91E /* TranslationServiceProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranslationServiceProtocol.swift; sourceTree = "<group>"; };
@@ -68,14 +74,18 @@
 		33449E483EEF47FB7BBD1BB6 /* RSSService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RSSService.swift; sourceTree = "<group>"; };
 		3464DA99796ACBAF777D28F4 /* TranslationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranslationService.swift; sourceTree = "<group>"; };
 		37EEB01AF28261B21C554A8C /* MainContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainContentView.swift; sourceTree = "<group>"; };
+		3C9DA0810C6DBB753DD5D34E /* ReadabilityExtractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadabilityExtractor.swift; sourceTree = "<group>"; };
 		3D306A0C94BE0416ECB3ED8A /* FileAppStateStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileAppStateStore.swift; sourceTree = "<group>"; };
 		45F38CB68E341194EAD9EC12 /* AppRoute.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppRoute.swift; sourceTree = "<group>"; };
+		4BA8D44F186669E80630921E /* ReaderWebView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReaderWebView.swift; sourceTree = "<group>"; };
 		4CC2727A9E5F04DD3EE9C341 /* WindowFrameState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WindowFrameState.swift; sourceTree = "<group>"; };
+		52512770F0D0F64E4BD8352A /* ReadabilitySource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadabilitySource.swift; sourceTree = "<group>"; };
 		645E5C9F01FC4243B3EAC54C /* AuthViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthViewModel.swift; sourceTree = "<group>"; };
 		656CCBDA1EBD9E74249C7270 /* ReaderServiceProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReaderServiceProtocol.swift; sourceTree = "<group>"; };
 		65AE1B0D5EC03A01A2456409 /* AppSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSettings.swift; sourceTree = "<group>"; };
 		66AEB74C7F2F72145209AF81 /* UnreadPost.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnreadPost.swift; sourceTree = "<group>"; };
 		6B4508F1A141833EA6A0046E /* ReaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReaderView.swift; sourceTree = "<group>"; };
+		6D8FB36F8B1B22D27616C20D /* ReaderFallbackPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReaderFallbackPolicy.swift; sourceTree = "<group>"; };
 		6ECED36381384C9202760917 /* MainWindowController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainWindowController.swift; sourceTree = "<group>"; };
 		79A6AA4F1A0F2BD7D6B0829B /* TelegaApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TelegaApp.swift; sourceTree = "<group>"; };
 		7FD4B86701150CCAE635063F /* ReaderArticle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReaderArticle.swift; sourceTree = "<group>"; };
@@ -148,6 +158,7 @@
 		07C519D575C715CB6D628AFA /* ReaderService */ = {
 			isa = PBXGroup;
 			children = (
+				3C9DA0810C6DBB753DD5D34E /* ReadabilityExtractor.swift */,
 				990CF66C4D9E0CC64E06AA22 /* ReaderService.swift */,
 				656CCBDA1EBD9E74249C7270 /* ReaderServiceProtocol.swift */,
 			);
@@ -209,9 +220,13 @@
 		59EB233E5382A840CAA7B085 /* Reader */ = {
 			isa = PBXGroup;
 			children = (
+				52512770F0D0F64E4BD8352A /* ReadabilitySource.swift */,
 				7FD4B86701150CCAE635063F /* ReaderArticle.swift */,
+				6D8FB36F8B1B22D27616C20D /* ReaderFallbackPolicy.swift */,
+				004DBF192D82E8E0F86D42E0 /* ReaderHTMLTemplate.swift */,
 				6B4508F1A141833EA6A0046E /* ReaderView.swift */,
 				BF00ABF8169A62F4E1322A71 /* ReaderViewModel.swift */,
+				4BA8D44F186669E80630921E /* ReaderWebView.swift */,
 			);
 			path = Reader;
 			sourceTree = "<group>";
@@ -459,11 +474,16 @@
 				E5D8D59FD0E4B5404B8D13C0 /* RSSFeedsViewModel.swift in Sources */,
 				97B3293ACEE24A1CA65CB6A6 /* RSSService.swift in Sources */,
 				FB8645B5946839794C64076C /* RSSServiceProtocol.swift in Sources */,
+				89E8C6A594732ABE8DA19CFB /* ReadabilityExtractor.swift in Sources */,
+				8D4A11A27EE5A62BF6F660FC /* ReadabilitySource.swift in Sources */,
 				3C1C45FEB26160CAC917F5FA /* ReaderArticle.swift in Sources */,
+				70E1A7907754F7FD8C126226 /* ReaderFallbackPolicy.swift in Sources */,
+				49CA7112F86B3ACFEA7F9708 /* ReaderHTMLTemplate.swift in Sources */,
 				201E7EA039B4791A7198EB6D /* ReaderService.swift in Sources */,
 				F701F2B660E2B14F0694CC9C /* ReaderServiceProtocol.swift in Sources */,
 				2E1BD6400325BBFBD9CD92BA /* ReaderView.swift in Sources */,
 				1024F6C4CBDFF074B247A888 /* ReaderViewModel.swift in Sources */,
+				0D93EAF2BCB6761C617CE1A4 /* ReaderWebView.swift in Sources */,
 				A87F1EE66B99C0B659E5C728 /* SecureStorageProtocol.swift in Sources */,
 				CA5312642039AE3087517262 /* SelectableTextView.swift in Sources */,
 				BDE10DAB46739EEA1D69818E /* SettingsView.swift in Sources */,

@@ -19,6 +19,7 @@ final class ReaderViewModel: ObservableObject {
 
     private let readerService: ReaderServiceProtocol
     private let translationService: TranslationServiceProtocol
+    private let fallbackPolicy = ReaderFallbackPolicy()
     private var loadTask: Task<Void, Never>?
     private var translationTask: Task<Void, Never>?
 
@@ -112,7 +113,7 @@ final class ReaderViewModel: ObservableObject {
     }
 
     var canOpenInSafari: Bool {
-        phase == .loaded && safariURLToOpen != nil
+        fallbackPolicy.canOpenSafari(for: safariURLToOpen)
     }
 
     func toggleTranslation() {

@@ -1,7 +1,7 @@
 import Foundation
 import OSLog
 
-enum ReaderServiceError: LocalizedError {
+enum ReaderServiceError: LocalizedError, Equatable {
     case invalidURL
     case invalidArticle
     case emptyArticle
@@ -25,6 +25,7 @@ final class ReaderService: ReaderServiceProtocol, @unchecked Sendable {
     private static let logger = Logger(subsystem: "com.codex.Telega", category: "ReaderService")
     private let session: URLSession
     private let userAgent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 15_0) AppleWebKit/605.1.15 (KHTML, like Gecko) TeleFeed/1.0 Safari/605.1.15"
+    private let fallbackPolicy = ReaderFallbackPolicy()
 
     init(session: URLSession = .shared) {
         self.session = session
@@ -35,6 +36,40 @@ final class ReaderService: ReaderServiceProtocol, @unchecked Sendable {
             throw ReaderServiceError.invalidURL
         }
 
+        do {
+            return try await loadArticleViaReadability(from: url, fallbackTitle: fallbackTitle)
+        } catch {
+            guard fallbackPolicy.action(for: error) == .retryWithLegacyParser else {
+                throw error
+            }
+
+            Self.logger.debug("Readability extraction failed, falling back to legacy parser for \(url.absoluteString, privacy: .public)")
+            return try await loadArticleViaLegacyParser(from: url, fallbackTitle: fallbackTitle)
+        }
+    }
+
+    private func loadArticleViaReadability(from url: URL, fallbackTitle: String) async throws -> ReaderArticle {
+        let extractor = ReadabilityExtractor(userAgent: userAgent)
+        let result = try await extractor.extract(from: url)
+        let blocks = Self.extractBlocks(from: result.contentHTML)
+        let body = blocks.isEmpty ? Self.renderText(from: result.contentHTML) : Self.composePlainText(from: blocks)
+        let normalizedBody = body.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard normalizedBody.isEmpty == false else {
+            throw ReaderServiceError.emptyArticle
+        }
+
+        return ReaderArticle(
+            sourceURL: url,
+            canonicalURL: result.canonicalURL ?? url,
+            title: result.title ?? fallbackTitle,
+            body: normalizedBody,
+            blocks: blocks.isEmpty ? [.paragraph(normalizedBody)] : blocks,
+            excerpt: result.excerpt,
+            imageURL: result.imageURL
+        )
+    }
+
+    private func loadArticleViaLegacyParser(from url: URL, fallbackTitle: String) async throws -> ReaderArticle {
         var request = URLRequest(url: url)
         request.setValue(userAgent, forHTTPHeaderField: "User-Agent")
         request.setValue("text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8", forHTTPHeaderField: "Accept")

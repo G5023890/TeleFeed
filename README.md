@@ -11,6 +11,8 @@ Telega is a native macOS menu bar watcher for public Telegram channels. It uses 
 - Clicking a notification opens Telega directly to the unread list of the corresponding channel.
 - Unread posts are loaded on demand from the Telegram account read state, capped to the latest unread items per watched channel.
 - Text, photo, and video posts are shown inside the app.
+- Reader mode uses a native macOS pipeline built from AppKit, `WKWebView`, Mozilla Readability, and a custom article HTML template.
+- Reader extraction prefers Readability first, falls back to a legacy parser when needed, and can still open the source article in Safari.
 - No intentional permanent message history archive and no intentional permanent media library.
 
 ## Architecture
@@ -22,7 +24,9 @@ The codebase follows MVVM with a service layer and is split into feature/service
 - `Sources/Channels`: watched channel management and selection.
 - `Sources/Feed`: unread list fetching and presentation.
 - `Sources/Viewer`: detail viewer for text/photo/video posts.
+- `Sources/Reader`: article reader orchestration, Readability extraction, HTML template generation, and the `WKWebView` renderer.
 - `Sources/Services/TelegramService`: TDLib bridge, JSON request/response handling, auth flow, media download coordination.
+- `Sources/Services/ReaderService`: article loading, fallback extraction pipeline, and source metadata normalization.
 - `Sources/Services/NotificationService`: macOS local notifications and click routing.
 - `Sources/Services/SecureStorage`: Keychain-backed secrets storage.
 - `Sources/Services/StateStore`: persisted app state for watched channels, notification markers, and app settings.
@@ -95,6 +99,7 @@ This keeps TDLib focused on auth/session continuity and live fetching instead of
 6. Watched channels stay open in TDLib so new posts and chat read-state updates continue to arrive.
 7. Unread posts are derived from Telegram's `last_read_inbox_message_id` / `unread_count` state for the signed-in account.
 8. Opening a post in Telega marks it as viewed/read through TDLib for that Telegram account.
+9. Reader mode fetches the article, extracts readable content with Mozilla Readability, renders the result through a custom macOS HTML template in `WKWebView`, and falls back to Safari when requested.
 
 ## Storage Policy
 
@@ -126,3 +131,10 @@ Temporary cache:
 - QR login is the primary path; there is no full fallback phone-code UI.
 - TDLib still owns the session/auth internals required for reconnect and restore.
 - Temporary media files may remain in cache until next launch/logout if the app is interrupted unexpectedly.
+
+## Reader Notes
+
+- Reader mode is intentionally macOS-native and does not depend on UIKit.
+- The renderer is separate from extraction, so the app can keep a predictable UI even when the source site markup is messy.
+- Translation is applied before rendering so the same article pipeline supports original and translated views.
+- The HTML template is controlled in-app, which makes typography and spacing consistent with the app's own settings.
