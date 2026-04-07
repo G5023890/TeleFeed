@@ -31,10 +31,16 @@ targets:
         script: |
           set -euo pipefail
           RES_DIR="$TARGET_BUILD_DIR/$UNLOCALIZED_RESOURCES_FOLDER_PATH/Assets/Icons"
+          LOCALIZATIONS_DIR="$TARGET_BUILD_DIR/$UNLOCALIZED_RESOURCES_FOLDER_PATH"
           mkdir -p "$RES_DIR"
+          mkdir -p "$LOCALIZATIONS_DIR/en.lproj"
+          mkdir -p "$LOCALIZATIONS_DIR/ru.lproj"
           /usr/bin/ditto --norsrc "$PROJECT_DIR/Resources/Assets/Icons/IconTeleFeed.png" "$RES_DIR/IconTeleFeed.png"
           /usr/bin/ditto --norsrc "$PROJECT_DIR/Resources/Assets/Icons/MenuBarIconTelegramRSS.png" "$RES_DIR/MenuBarIconTelegramRSS.png"
           /usr/bin/ditto --norsrc "$PROJECT_DIR/Resources/Assets/Icons/MenuBarIconTelegramRSS2.png" "$RES_DIR/MenuBarIconTelegramRSS2.png"
+          /usr/bin/ditto --norsrc "$PROJECT_DIR/Resources/Assets/Icons/TeleFeed.icns" "$LOCALIZATIONS_DIR/TeleFeed.icns"
+          /usr/bin/ditto --norsrc "$PROJECT_DIR/Resources/Localization/en.lproj/Localizable.strings" "$LOCALIZATIONS_DIR/en.lproj/Localizable.strings"
+          /usr/bin/ditto --norsrc "$PROJECT_DIR/Resources/Localization/ru.lproj/Localizable.strings" "$LOCALIZATIONS_DIR/ru.lproj/Localizable.strings"
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.codex.TeleFeed
@@ -45,7 +51,7 @@ targets:
         SWIFT_VERSION: 6.0
         CODE_SIGN_STYLE: Automatic
         DEVELOPMENT_TEAM: ""
-        MARKETING_VERSION: 0.0.2
+        MARKETING_VERSION: 0.0.3
         CURRENT_PROJECT_VERSION: 1
         LOCALIZATION_PREFERS_STRING_CATALOGS: NO
         SUPPORTS_MACCATALYST: NO

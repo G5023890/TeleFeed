@@ -466,7 +466,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "set -euo pipefail\nRES_DIR=\"$TARGET_BUILD_DIR/$UNLOCALIZED_RESOURCES_FOLDER_PATH/Assets/Icons\"\nmkdir -p \"$RES_DIR\"\n/usr/bin/ditto --norsrc \"$PROJECT_DIR/Resources/Assets/Icons/IconTeleFeed.png\" \"$RES_DIR/IconTeleFeed.png\"\n/usr/bin/ditto --norsrc \"$PROJECT_DIR/Resources/Assets/Icons/MenuBarIconTelegramRSS.png\" \"$RES_DIR/MenuBarIconTelegramRSS.png\"\n/usr/bin/ditto --norsrc \"$PROJECT_DIR/Resources/Assets/Icons/MenuBarIconTelegramRSS2.png\" \"$RES_DIR/MenuBarIconTelegramRSS2.png\"\n";
+			shellScript = "set -euo pipefail\nRES_DIR=\"$TARGET_BUILD_DIR/$UNLOCALIZED_RESOURCES_FOLDER_PATH/Assets/Icons\"\nLOCALIZATIONS_DIR=\"$TARGET_BUILD_DIR/$UNLOCALIZED_RESOURCES_FOLDER_PATH\"\nmkdir -p \"$RES_DIR\"\nmkdir -p \"$LOCALIZATIONS_DIR/en.lproj\"\nmkdir -p \"$LOCALIZATIONS_DIR/ru.lproj\"\n/usr/bin/ditto --norsrc \"$PROJECT_DIR/Resources/Assets/Icons/IconTeleFeed.png\" \"$RES_DIR/IconTeleFeed.png\"\n/usr/bin/ditto --norsrc \"$PROJECT_DIR/Resources/Assets/Icons/MenuBarIconTelegramRSS.png\" \"$RES_DIR/MenuBarIconTelegramRSS.png\"\n/usr/bin/ditto --norsrc \"$PROJECT_DIR/Resources/Assets/Icons/MenuBarIconTelegramRSS2.png\" \"$RES_DIR/MenuBarIconTelegramRSS2.png\"\n/usr/bin/ditto --norsrc \"$PROJECT_DIR/Resources/Assets/Icons/TeleFeed.icns\" \"$LOCALIZATIONS_DIR/TeleFeed.icns\"\n/usr/bin/ditto --norsrc \"$PROJECT_DIR/Resources/Localization/en.lproj/Localizable.strings\" \"$LOCALIZATIONS_DIR/en.lproj/Localizable.strings\"\n/usr/bin/ditto --norsrc \"$PROJECT_DIR/Resources/Localization/ru.lproj/Localizable.strings\" \"$LOCALIZATIONS_DIR/ru.lproj/Localizable.strings\"\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -550,7 +550,7 @@
 				);
 				LOCALIZATION_PREFERS_STRING_CATALOGS = NO;
 				MACOSX_DEPLOYMENT_TARGET = 15.0;
-				MARKETING_VERSION = 0.0.2;
+				MARKETING_VERSION = 0.0.3;
 				PRODUCT_BUNDLE_IDENTIFIER = com.codex.TeleFeed;
 				PRODUCT_NAME = TeleFeed;
 				SDKROOT = macosx;
@@ -696,7 +696,7 @@
 				);
 				LOCALIZATION_PREFERS_STRING_CATALOGS = NO;
 				MACOSX_DEPLOYMENT_TARGET = 15.0;
-				MARKETING_VERSION = 0.0.2;
+				MARKETING_VERSION = 0.0.3;
 				PRODUCT_BUNDLE_IDENTIFIER = com.codex.TeleFeed;
 				PRODUCT_NAME = TeleFeed;
 				SDKROOT = macosx;
