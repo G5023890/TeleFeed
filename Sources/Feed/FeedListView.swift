@@ -8,6 +8,7 @@ struct FeedListView: View {
     let onSwipeRight: (UnreadPost) -> Void
     @Environment(\.colorScheme) private var colorScheme
     @State private var previousVisiblePosts: [UnreadPost] = []
+    @State private var suppressSelectionCallback = false
 
     var body: some View {
         let visiblePosts = viewModel.visiblePosts
@@ -41,6 +42,9 @@ struct FeedListView: View {
                     .scrollIndicators(.hidden)
                     .background(Color.clear)
                     .onChange(of: selectedPostID) { _, newValue in
+                        guard suppressSelectionCallback == false else {
+                            return
+                        }
                         onSelectionChange(newValue)
                     }
                     .onMoveCommand { direction in
@@ -305,8 +309,7 @@ struct FeedListView: View {
 
     private func syncSelection(in proxy: ScrollViewProxy, visiblePosts: [UnreadPost]) {
         guard visiblePosts.isEmpty == false else {
-            selectedPostID = nil
-            onSelectionChange(nil)
+            updateSelectedPostID(nil, notifySelectionChange: true)
             previousVisiblePosts = visiblePosts
             return
         }
@@ -321,18 +324,28 @@ struct FeedListView: View {
            let previousIndex = previousVisiblePosts.firstIndex(where: { $0.id == currentSelectedPostID }) {
             let fallbackIndex = min(previousIndex, visiblePosts.count - 1)
             let fallbackPost = visiblePosts[fallbackIndex]
-            selectedPostID = fallbackPost.id
-            onSelectionChange(fallbackPost.id)
+            updateSelectedPostID(fallbackPost.id, notifySelectionChange: false)
             previousVisiblePosts = visiblePosts
             return
         }
 
         if let preferredPost = preferredInitialPostID(in: visiblePosts) {
-            selectedPostID = preferredPost.id
-            onSelectionChange(preferredPost.id)
+            updateSelectedPostID(preferredPost.id, notifySelectionChange: false)
         }
 
         previousVisiblePosts = visiblePosts
+    }
+
+    private func updateSelectedPostID(_ postID: UnreadPostIdentity?, notifySelectionChange: Bool) {
+        if notifySelectionChange == false {
+            suppressSelectionCallback = true
+        }
+        selectedPostID = postID
+        if notifySelectionChange == false {
+            DispatchQueue.main.async {
+                suppressSelectionCallback = false
+            }
+        }
     }
 
     private func preferredInitialPostID(in posts: [UnreadPost]) -> UnreadPost? {

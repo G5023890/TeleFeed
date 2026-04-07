@@ -136,6 +136,47 @@ enum ReaderHTMLTemplate {
                     letter-spacing: 0.01em;
                 }
 
+                .content img,
+                .content picture,
+                .content video,
+                .content audio,
+                .content iframe,
+                .content embed,
+                .content object {
+                    display: block;
+                    max-width: 100%;
+                }
+
+                .content img,
+                .content video,
+                .content iframe {
+                    border-radius: 18px;
+                    border: 1px solid var(--border);
+                    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.10);
+                }
+
+                .content img {
+                    height: auto;
+                }
+
+                .content picture,
+                .content figure {
+                    margin: 0 0 1.08em;
+                }
+
+                .content figcaption {
+                    margin-top: 0.5em;
+                    color: var(--muted);
+                    font-size: calc(var(--meta-size) + 1px);
+                    line-height: 1.45;
+                }
+
+                .content iframe {
+                    width: 100%;
+                    min-height: 360px;
+                    background: rgba(0, 0, 0, 0.02);
+                }
+
                 .content > :first-child {
                     margin-top: 0;
                 }
@@ -249,6 +290,11 @@ enum ReaderHTMLTemplate {
     }
 
     private static func bodyHTML(for article: ReaderArticle, settings: AppSettings) -> String {
+        let renderedHTML = article.renderHTML.trimmingCharacters(in: .whitespacesAndNewlines)
+        if renderedHTML.isEmpty == false {
+            return renderedHTML
+        }
+
         let blocks = article.blocks.isEmpty ? [.paragraph(article.body)] : article.blocks
         return blocks.map { blockHTML(for: $0, settings: settings) }.joined(separator: "\n")
     }

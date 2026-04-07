@@ -226,6 +226,7 @@ final class ReaderViewModel: ObservableObject {
             canonicalURL: article.canonicalURL,
             title: translatedTitle,
             body: composeBody(from: translatedBlocks),
+            renderHTML: article.renderHTML,
             blocks: translatedBlocks,
             excerpt: translatedExcerpt,
             imageURL: article.imageURL

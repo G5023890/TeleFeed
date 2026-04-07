@@ -249,9 +249,6 @@ final class MainViewModel: ObservableObject {
         }
 
         withAnimation(.snappy(duration: 0.28)) {
-            if feedViewModel.isUnread(post) {
-                markPostAsRead(post)
-            }
             detailPresentation = .reader
             readerViewModel.open(post: post)
         }
@@ -307,6 +304,7 @@ final class MainViewModel: ObservableObject {
     func closeViewer() {
         withAnimation(.snappy(duration: 0.28)) {
             readerViewModel.dismiss()
+            markPresentedPostAsReadIfNeeded()
             detailPresentation = .post
             viewerPresentedPost = nil
             viewerViewModel.dismiss()
@@ -679,9 +677,6 @@ final class MainViewModel: ObservableObject {
             readerViewModel.dismiss()
             viewerPresentedPost = post
             viewerViewModel.present(post: post, telegramService: telegramService)
-            if feedViewModel.isUnread(post) {
-                markPostAsRead(post)
-            }
             updateNavigationState(for: post.chatID) { state in
                 state.lastViewedPost = post
             }
@@ -699,6 +694,14 @@ final class MainViewModel: ObservableObject {
         var state = channelNavigationState(for: chatID)
         mutate(&state)
         channelNavigationStates[chatID] = state
+    }
+
+    private func markPresentedPostAsReadIfNeeded() {
+        guard let post = viewerPresentedPost, feedViewModel.isUnread(post) else {
+            return
+        }
+
+        markPostAsRead(post)
     }
 
     private func aggregateSessionPosts() -> [UnreadPost] {

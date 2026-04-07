@@ -14,6 +14,7 @@ struct ReaderArticle: Hashable, Identifiable {
     let canonicalURL: URL
     let title: String
     let body: String
+    let renderHTML: String
     let blocks: [Block]
     let excerpt: String?
     let imageURL: URL?

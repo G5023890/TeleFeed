@@ -134,11 +134,54 @@ final class ReadabilityExtractor: NSObject {
                     return JSON.stringify({ error: 'emptyArticle' });
                 }
 
+                const normalizeLazyMedia = (root) => {
+                    const fallbackAttributes = ['data-src', 'data-original', 'data-lazy-src', 'data-url', 'data-actualsrc', 'data-cfsrc'];
+                    const fallbackSrcsetAttributes = ['data-srcset', 'data-lazy-srcset'];
+                    const fallbackPosterAttributes = ['data-poster', 'data-lazy-poster'];
+
+                    const applyFallbackAttribute = (element, target, attributes) => {
+                        if (element.getAttribute(target)) {
+                            return;
+                        }
+
+                        for (const attribute of attributes) {
+                            const value = element.getAttribute(attribute);
+                            if (value) {
+                                element.setAttribute(target, value);
+                                return;
+                            }
+                        }
+                    };
+
+                    root.querySelectorAll('img').forEach((element) => {
+                        applyFallbackAttribute(element, 'src', fallbackAttributes);
+                        applyFallbackAttribute(element, 'srcset', fallbackSrcsetAttributes);
+                        element.removeAttribute('loading');
+                    });
+
+                    root.querySelectorAll('source').forEach((element) => {
+                        applyFallbackAttribute(element, 'src', fallbackAttributes);
+                        applyFallbackAttribute(element, 'srcset', fallbackSrcsetAttributes);
+                    });
+
+                    root.querySelectorAll('video, audio, iframe').forEach((element) => {
+                        applyFallbackAttribute(element, 'src', fallbackAttributes);
+                    });
+
+                    root.querySelectorAll('video').forEach((element) => {
+                        applyFallbackAttribute(element, 'poster', fallbackPosterAttributes);
+                    });
+                };
+
+                const fragment = document.createElement('div');
+                fragment.innerHTML = article.content;
+                normalizeLazyMedia(fragment);
+
                 return JSON.stringify({
                     article: {
                         title: article.title || title,
                         excerpt: article.excerpt || excerpt,
-                        contentHTML: article.content
+                        contentHTML: fragment.innerHTML
                     },
                     title: article.title || title,
                     excerpt: article.excerpt || excerpt,

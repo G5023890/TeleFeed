@@ -54,6 +54,7 @@ final class ReaderService: ReaderServiceProtocol, @unchecked Sendable {
         let blocks = Self.extractBlocks(from: result.contentHTML)
         let body = blocks.isEmpty ? Self.renderText(from: result.contentHTML) : Self.composePlainText(from: blocks)
         let normalizedBody = body.trimmingCharacters(in: .whitespacesAndNewlines)
+        let renderHTML = Self.sanitizeRenderedHTML(result.contentHTML)
         guard normalizedBody.isEmpty == false else {
             throw ReaderServiceError.emptyArticle
         }
@@ -63,6 +64,7 @@ final class ReaderService: ReaderServiceProtocol, @unchecked Sendable {
             canonicalURL: result.canonicalURL ?? url,
             title: result.title ?? fallbackTitle,
             body: normalizedBody,
+            renderHTML: renderHTML,
             blocks: blocks.isEmpty ? [.paragraph(normalizedBody)] : blocks,
             excerpt: result.excerpt,
             imageURL: result.imageURL
@@ -92,6 +94,7 @@ final class ReaderService: ReaderServiceProtocol, @unchecked Sendable {
         let blocks = Self.extractBlocks(from: sourceHTML)
         let body = blocks.isEmpty ? Self.renderText(from: sourceHTML) : Self.composePlainText(from: blocks)
         let normalizedBody = body.trimmingCharacters(in: .whitespacesAndNewlines)
+        let renderHTML = Self.sanitizeRenderedHTML(sourceHTML)
         guard normalizedBody.isEmpty == false else {
             throw ReaderServiceError.emptyArticle
         }
@@ -101,6 +104,7 @@ final class ReaderService: ReaderServiceProtocol, @unchecked Sendable {
             canonicalURL: metadata.canonicalURL ?? url,
             title: metadata.title ?? fallbackTitle,
             body: normalizedBody,
+            renderHTML: renderHTML,
             blocks: blocks.isEmpty ? [.paragraph(normalizedBody)] : blocks,
             excerpt: metadata.description,
             imageURL: metadata.imageURL
@@ -236,6 +240,22 @@ final class ReaderService: ReaderServiceProtocol, @unchecked Sendable {
             .replacingOccurrences(of: #"(?is)<[^>]+>"#, with: " ", options: .regularExpression)
             .replacingOccurrences(of: #"(?m)^[ \t]+|[ \t]+$"#, with: "", options: .regularExpression)
             .replacingOccurrences(of: #"\n{3,}"#, with: "\n\n", options: .regularExpression)
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    private static func sanitizeRenderedHTML(_ html: String) -> String {
+        html
+            .replacingOccurrences(of: #"(?is)<!--.*?-->"#, with: "", options: .regularExpression)
+            .replacingOccurrences(of: #"(?is)<script\b[^>]*>.*?</script>"#, with: "", options: .regularExpression)
+            .replacingOccurrences(of: #"(?is)<style\b[^>]*>.*?</style>"#, with: "", options: .regularExpression)
+            .replacingOccurrences(of: #"(?is)<noscript\b[^>]*>.*?</noscript>"#, with: "", options: .regularExpression)
+            .replacingOccurrences(of: #"(?is)<(header|nav|aside|footer|form|svg|template|canvas)\b[^>]*>.*?</\1>"#, with: "", options: .regularExpression)
+            .replacingOccurrences(of: #"(?is)<(header|nav|aside|footer|form|svg|template|canvas)\b[^>]*/>"#, with: "", options: .regularExpression)
+            .replacingOccurrences(of: #"(?is)\s(on[a-z]+|style)=["'][^"']*["']"#, with: "", options: .regularExpression)
+            .replacingOccurrences(of: #"(?is)\sloading=["'][^"']*["']"#, with: "", options: .regularExpression)
+            .replacingOccurrences(of: #"(?is)\sdecoding=["'][^"']*["']"#, with: "", options: .regularExpression)
+            .replacingOccurrences(of: #"(?is)\sfetchpriority=["'][^"']*["']"#, with: "", options: .regularExpression)
+            .replacingOccurrences(of: #"(?is)\sclass=["'][^"']*(?:ads?|advert|sponsored|social-share|share|breadcrumb|comment|comments?)[^"']*["']"#, with: "", options: .regularExpression)
             .trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
