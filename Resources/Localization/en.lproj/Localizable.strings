@@ -22,6 +22,7 @@
 "sidebar.rssEmpty" = "Add a public RSS feed to start watching items.";
 "sidebar.remove" = "Remove";
 "sidebar.unreadCount" = "%lld unread";
+"channels.untitled" = "Untitled channel";
 "feed.title" = "Unread Posts";
 "feed.empty" = "No unread posts right now.";
 "feed.refresh" = "Refresh";
@@ -66,6 +67,11 @@
 "settings.title" = "Settings";
 "settings.generalHint" = "Telegram API credentials and startup behavior.";
 "settings.typographyHint" = "Adjust text sizes for the feed, viewer, and reader.";
+"settings.menuBarIconTitle" = "Menu Bar Icon";
+"settings.menuBarIconHint" = "Choose which symbol appears in the menu bar.";
+"settings.menuBarIcon.current" = "Current";
+"settings.menuBarIcon.telegramRSS" = "Telegram + RSS";
+"settings.menuBarIcon.telegramRSS2" = "Telegram + RSS 2";
 "settings.generalTitle" = "General";
 "settings.typographyTitle" = "Typography";
 "settings.typography.feed" = "Left Column";

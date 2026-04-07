@@ -74,6 +74,7 @@ private final class GlobalHotKeyManager {
 final class AppRuntime: ObservableObject {
     let container = AppContainer()
     private var windowController: MainWindowController?
+    private var settingsWindowController: SettingsWindowController?
     private var globalHotKeyManager: GlobalHotKeyManager?
     private var localKeyboardMonitor: Any?
 
@@ -128,8 +129,8 @@ final class AppRuntime: ObservableObject {
     }
 
     func openSettings() {
-        NSApp.activate(ignoringOtherApps: true)
-        NSApp.sendAction(Selector(("showSettingsWindow:")), to: nil, from: nil)
+        configureSettingsWindowIfNeeded()
+        settingsWindowController?.showWindowAndActivate()
     }
 
     func openAddChannel() {
@@ -180,6 +181,14 @@ final class AppRuntime: ObservableObject {
             return nil
         }
     }
+
+    private func configureSettingsWindowIfNeeded() {
+        guard settingsWindowController == nil else {
+            return
+        }
+
+        settingsWindowController = SettingsWindowController(viewModel: container.mainViewModel)
+    }
 }
 
 @MainActor
@@ -196,7 +205,7 @@ final class MenuBarStatusItemController: NSObject {
         configureStatusItem()
         configureMenu()
         observeUnreadChanges()
-        updateStatusItem()
+        refreshAppearance()
     }
 
     private func configureStatusItem() {
@@ -209,12 +218,9 @@ final class MenuBarStatusItemController: NSObject {
         button.sendAction(on: [.leftMouseUp, .rightMouseUp])
         button.imagePosition = .imageLeading
         button.imageScaling = .scaleProportionallyDown
-        let image = bundledMenuBarImage()
-        image.size = NSSize(width: 18, height: 18)
-        image.isTemplate = true
-        button.image = image
         button.title = ""
         button.toolTip = L10n.tr("app.title")
+        refreshAppearance()
     }
 
     private func configureMenu() {
@@ -252,13 +258,23 @@ final class MenuBarStatusItemController: NSObject {
         runtime.mainViewModel.channelsViewModel.objectWillChange
             .sink { [weak self] in
                 Task { @MainActor in
-                    self?.updateStatusItem()
+                    self?.refreshAppearance()
+                }
+            }
+            .store(in: &cancellables)
+
+        runtime.mainViewModel.$settings
+            .map(\.menuBarIconStyle)
+            .removeDuplicates()
+            .sink { [weak self] _ in
+                Task { @MainActor in
+                    self?.refreshAppearance()
                 }
             }
             .store(in: &cancellables)
     }
 
-    private func updateStatusItem() {
+    private func refreshAppearance() {
         guard let button = statusItem.button else {
             return
         }
@@ -269,6 +285,8 @@ final class MenuBarStatusItemController: NSObject {
         } else {
             button.title = ""
         }
+
+        button.image = menuBarImage()
     }
 
     @objc private func statusItemClicked(_ sender: Any?) {
@@ -316,20 +334,35 @@ final class MenuBarStatusItemController: NSObject {
         menu.popUp(positioning: nil, at: location, in: button)
     }
 
-    private func bundledMenuBarImage() -> NSImage {
-        if let url = Bundle.main.url(forResource: "MenuBarIcon", withExtension: "png", subdirectory: "Assets/Icons"),
-           let image = NSImage(contentsOf: url) {
-            image.isTemplate = false
-            return image
+    private func menuBarImage() -> NSImage {
+        let iconStyle = runtime.mainViewModel.settings.menuBarIconStyle
+        let resourceName: String
+        let resourceExtension: String
+
+        switch iconStyle {
+        case .current:
+            resourceName = "IconTeleFeed"
+            resourceExtension = "png"
+        case .telegramRSS:
+            resourceName = "MenuBarIconTelegramRSS"
+            resourceExtension = "png"
+        case .telegramRSS2:
+            resourceName = "MenuBarIconTelegramRSS2"
+            resourceExtension = "png"
         }
 
-        if let image = NSImage(named: "MenuBarIcon") {
+        if let url = Bundle.main.url(forResource: resourceName, withExtension: resourceExtension, subdirectory: "Assets/Icons"),
+           let image = NSImage(contentsOf: url) {
             image.isTemplate = false
+            let targetHeight: CGFloat = 18
+            let aspectRatio = image.size.height > 0 ? image.size.width / image.size.height : 1
+            image.size = NSSize(width: targetHeight * aspectRatio, height: targetHeight)
             return image
         }
 
         let fallback = NSImage(systemSymbolName: "eye.circle", accessibilityDescription: "TeleFeed") ?? NSImage()
         fallback.isTemplate = true
+        fallback.size = NSSize(width: 18, height: 18)
         return fallback
     }
 }

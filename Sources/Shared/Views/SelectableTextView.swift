@@ -154,3 +154,39 @@ struct SelectableTextView: NSViewRepresentable {
         }
     }
 }
+
+struct VerticalStoryMotion<ID: Hashable>: ViewModifier {
+    let id: ID
+    var duration: Double = 0.28
+    var travel: CGFloat = 20
+
+    @State private var phase: CGFloat = 1
+
+    func body(content: Content) -> some View {
+        content
+            .offset(y: -travel * (1 - phase))
+            .opacity(0.74 + (0.26 * phase))
+            .scaleEffect(0.992 + (0.008 * phase), anchor: .top)
+            .blur(radius: 6 * (1 - phase))
+            .compositingGroup()
+            .onAppear {
+                phase = 1
+            }
+            .onChange(of: id) { _, _ in
+                phase = 0
+                withAnimation(.snappy(duration: duration)) {
+                    phase = 1
+                }
+            }
+    }
+}
+
+extension View {
+    func verticalStoryMotion<ID: Hashable>(
+        id: ID,
+        duration: Double = 0.28,
+        travel: CGFloat = 20
+    ) -> some View {
+        modifier(VerticalStoryMotion(id: id, duration: duration, travel: travel))
+    }
+}

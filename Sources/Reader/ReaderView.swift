@@ -14,6 +14,7 @@ struct ReaderView: View {
         }
         .padding(22)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        .verticalStoryMotion(id: viewModel.currentPost?.id)
         .background(AppTheme.drawerFill(for: colorScheme))
     }
 

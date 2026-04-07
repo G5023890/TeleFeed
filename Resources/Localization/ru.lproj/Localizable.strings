@@ -22,6 +22,7 @@
 "sidebar.rssEmpty" = "Добавьте публичную RSS-ленту, чтобы отслеживать элементы.";
 "sidebar.remove" = "Удалить";
 "sidebar.unreadCount" = "%lld непрочитанных";
+"channels.untitled" = "Без названия";
 "feed.title" = "Непрочитанные посты";
 "feed.empty" = "Сейчас непрочитанных постов нет.";
 "feed.refresh" = "Обновить";
@@ -66,6 +67,11 @@
 "settings.title" = "Настройки";
 "settings.generalHint" = "Данные Telegram API и поведение при запуске.";
 "settings.typographyHint" = "Настройте размеры текста в ленте, просмотре и Reader.";
+"settings.menuBarIconTitle" = "Иконка в меню-баре";
+"settings.menuBarIconHint" = "Выберите, какой значок показывать в меню-баре.";
+"settings.menuBarIcon.current" = "Текущий";
+"settings.menuBarIcon.telegramRSS" = "Telegram + RSS";
+"settings.menuBarIcon.telegramRSS2" = "Telegram + RSS 2";
 "settings.generalTitle" = "Общие";
 "settings.typographyTitle" = "Типографика";
 "settings.typography.feed" = "Левая колонка";

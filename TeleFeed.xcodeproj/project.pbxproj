@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		03A5DD85409F3387DA9E681A /* SettingsWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F43F8EFBB69FFE8826678D2 /* SettingsWindowController.swift */; };
 		0A1A29BA824111F0AD1F443C /* UnreadPost.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE471ECD18DB0EF8FCA5AC83 /* UnreadPost.swift */; };
 		0FB37305D1A85D061F780904 /* PostViewerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DBE356F1F7B2D928BC3CFBC /* PostViewerView.swift */; };
 		11B2F8A7A25251ECF766BAD8 /* AppSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C6BDC544B46AA7CCBDA2FDE /* AppSettings.swift */; };
@@ -69,6 +70,7 @@
 		278019C11D479A7459BD6640 /* TranslationState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranslationState.swift; sourceTree = "<group>"; };
 		2A382CF3099F62F0074862BE /* ReaderWebView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReaderWebView.swift; sourceTree = "<group>"; };
 		2B982540D4E8F45BD780EA72 /* TranslationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranslationService.swift; sourceTree = "<group>"; };
+		2F43F8EFBB69FFE8826678D2 /* SettingsWindowController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsWindowController.swift; sourceTree = "<group>"; };
 		35BDA2F872828226E407572F /* ReadabilityExtractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadabilityExtractor.swift; sourceTree = "<group>"; };
 		36987BA50AA5480D67169C5D /* TDLibDictionary+Parsing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TDLibDictionary+Parsing.swift"; sourceTree = "<group>"; };
 		39FA2E9F1E47B96BBF273700 /* SelectableTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectableTextView.swift; sourceTree = "<group>"; };
@@ -242,6 +244,7 @@
 			isa = PBXGroup;
 			children = (
 				51F0EA736D3B34FC759072C1 /* MainWindowController.swift */,
+				2F43F8EFBB69FFE8826678D2 /* SettingsWindowController.swift */,
 			);
 			path = Window;
 			sourceTree = "<group>";
@@ -395,6 +398,7 @@
 			buildPhases = (
 				BE11F0087D683BC02370D10E /* Sources */,
 				DCB3DAD11E0BE19B98C346C9 /* Frameworks */,
+				5B72CF40B632141BDD50DB62 /* Copy Menu Bar Icon */,
 			);
 			buildRules = (
 			);
@@ -445,6 +449,27 @@
 		};
 /* End PBXProject section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		5B72CF40B632141BDD50DB62 /* Copy Menu Bar Icon */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Copy Menu Bar Icon";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "set -euo pipefail\nRES_DIR=\"$TARGET_BUILD_DIR/$UNLOCALIZED_RESOURCES_FOLDER_PATH/Assets/Icons\"\nmkdir -p \"$RES_DIR\"\n/usr/bin/ditto --norsrc \"$PROJECT_DIR/Resources/Assets/Icons/IconTeleFeed.png\" \"$RES_DIR/IconTeleFeed.png\"\n/usr/bin/ditto --norsrc \"$PROJECT_DIR/Resources/Assets/Icons/MenuBarIconTelegramRSS.png\" \"$RES_DIR/MenuBarIconTelegramRSS.png\"\n/usr/bin/ditto --norsrc \"$PROJECT_DIR/Resources/Assets/Icons/MenuBarIconTelegramRSS2.png\" \"$RES_DIR/MenuBarIconTelegramRSS2.png\"\n";
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		BE11F0087D683BC02370D10E /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
@@ -487,6 +512,7 @@
 				6AE5CAA7D20DD037E7983440 /* SecureStorageProtocol.swift in Sources */,
 				E39E3D75F5B3451EABB6C651 /* SelectableTextView.swift in Sources */,
 				763C13DBF23EC3A4DA27801E /* SettingsView.swift in Sources */,
+				03A5DD85409F3387DA9E681A /* SettingsWindowController.swift in Sources */,
 				9D01F6C2F3D48F9EC3D71EFF /* StateStoreProtocol.swift in Sources */,
 				5B4BE215F94273D9F13CB5B6 /* TDLibClient.swift in Sources */,
 				AA5FAFDB5B6D9378179961F3 /* TDLibDictionary+Parsing.swift in Sources */,
@@ -524,7 +550,7 @@
 				);
 				LOCALIZATION_PREFERS_STRING_CATALOGS = NO;
 				MACOSX_DEPLOYMENT_TARGET = 15.0;
-				MARKETING_VERSION = 0.8.4;
+				MARKETING_VERSION = 0.0.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.codex.TeleFeed;
 				PRODUCT_NAME = TeleFeed;
 				SDKROOT = macosx;
@@ -670,7 +696,7 @@
 				);
 				LOCALIZATION_PREFERS_STRING_CATALOGS = NO;
 				MACOSX_DEPLOYMENT_TARGET = 15.0;
-				MARKETING_VERSION = 0.8.4;
+				MARKETING_VERSION = 0.0.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.codex.TeleFeed;
 				PRODUCT_NAME = TeleFeed;
 				SDKROOT = macosx;

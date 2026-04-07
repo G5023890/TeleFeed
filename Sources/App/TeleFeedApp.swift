@@ -27,9 +27,16 @@ private struct SettingsRootView: View {
                 get: { viewModel.settings.typography },
                 set: { viewModel.updateTypography($0) }
             ),
+            menuBarIconStyle: Binding(
+                get: { viewModel.settings.menuBarIconStyle },
+                set: { viewModel.updateMenuBarIconStyle($0) }
+            ),
             onSaveCredentials: viewModel.saveCredentials,
             onLogout: viewModel.logout,
-            onClose: { dismiss() }
+            onClose: {
+                viewModel.closeSettings()
+                dismiss()
+            }
         )
         .frame(minWidth: 560, minHeight: 720)
     }

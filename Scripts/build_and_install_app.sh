@@ -139,8 +139,14 @@ fi
 /usr/bin/ditto --norsrc "$APP_STAGE" "$INSTALL_DIR"
 
 mkdir -p "$INSTALL_DIR/Contents/Resources/Assets/Icons"
-if [[ -f "$PROJECT_DIR/Resources/Assets/Icons/MenuBarIcon.png" ]]; then
-  /usr/bin/ditto --norsrc "$PROJECT_DIR/Resources/Assets/Icons/MenuBarIcon.png" "$INSTALL_DIR/Contents/Resources/Assets/Icons/MenuBarIcon.png"
+if [[ -f "$PROJECT_DIR/Resources/Assets/Icons/IconTeleFeed.png" ]]; then
+  /usr/bin/ditto --norsrc "$PROJECT_DIR/Resources/Assets/Icons/IconTeleFeed.png" "$INSTALL_DIR/Contents/Resources/Assets/Icons/IconTeleFeed.png"
+fi
+if [[ -f "$PROJECT_DIR/Resources/Assets/Icons/MenuBarIconTelegramRSS.png" ]]; then
+  /usr/bin/ditto --norsrc "$PROJECT_DIR/Resources/Assets/Icons/MenuBarIconTelegramRSS.png" "$INSTALL_DIR/Contents/Resources/Assets/Icons/MenuBarIconTelegramRSS.png"
+fi
+if [[ -f "$PROJECT_DIR/Resources/Assets/Icons/MenuBarIconTelegramRSS2.png" ]]; then
+  /usr/bin/ditto --norsrc "$PROJECT_DIR/Resources/Assets/Icons/MenuBarIconTelegramRSS2.png" "$INSTALL_DIR/Contents/Resources/Assets/Icons/MenuBarIconTelegramRSS2.png"
 fi
 if [[ -f "$PROJECT_DIR/Resources/Assets/Icons/TeleFeed.icns" ]]; then
   /usr/bin/ditto --norsrc "$PROJECT_DIR/Resources/Assets/Icons/TeleFeed.icns" "$INSTALL_DIR/Contents/Resources/TeleFeed.icns"

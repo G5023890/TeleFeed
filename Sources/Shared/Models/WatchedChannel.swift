@@ -11,6 +11,20 @@ struct WatchedChannel: Codable, Hashable, Identifiable {
 
     var id: Int64 { chatID }
 
+    var displayTitle: String {
+        let trimmedTitle = title.trimmingCharacters(in: .whitespacesAndNewlines)
+        if trimmedTitle.isEmpty == false {
+            return trimmedTitle
+        }
+
+        let trimmedUsername = username.trimmingCharacters(in: .whitespacesAndNewlines)
+        if trimmedUsername.isEmpty == false {
+            return "@\(trimmedUsername)"
+        }
+
+        return L10n.tr("channels.untitled")
+    }
+
     mutating func applyUnreadState(lastReadInboxMessageID: Int64, unreadCount: Int) {
         self.lastReadInboxMessageID = lastReadInboxMessageID
         self.unreadCount = max(0, unreadCount)

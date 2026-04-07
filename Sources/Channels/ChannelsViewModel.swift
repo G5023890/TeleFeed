@@ -8,7 +8,7 @@ final class ChannelsViewModel: ObservableObject {
     @Published var errorMessage: String?
 
     init(channels: [WatchedChannel], selectedChannelID: Int64? = nil) {
-        self.channels = channels.sorted { $0.title.localizedCaseInsensitiveCompare($1.title) == .orderedAscending }
+        self.channels = channels.sorted { $0.displayTitle.localizedCaseInsensitiveCompare($1.displayTitle) == .orderedAscending }
         self.selectedChannelID = selectedChannelID ?? self.channels.first?.chatID
     }
 
@@ -37,7 +37,7 @@ final class ChannelsViewModel: ObservableObject {
             throw TelegramServiceError.invalidChannel
         }
         channels.append(channel)
-        channels.sort { $0.title.localizedCaseInsensitiveCompare($1.title) == .orderedAscending }
+        channels.sort { $0.displayTitle.localizedCaseInsensitiveCompare($1.displayTitle) == .orderedAscending }
         selectedChannelID = channel.chatID
     }
 
@@ -55,7 +55,7 @@ final class ChannelsViewModel: ObservableObject {
             return
         }
         channels[index] = channel
-        channels.sort { $0.title.localizedCaseInsensitiveCompare($1.title) == .orderedAscending }
+        channels.sort { $0.displayTitle.localizedCaseInsensitiveCompare($1.displayTitle) == .orderedAscending }
     }
 
     func reconcile(_ channel: WatchedChannel, previousChatID: Int64, previousUsername: String) {
@@ -70,7 +70,7 @@ final class ChannelsViewModel: ObservableObject {
         if selectedChannelID == previousChatID {
             selectedChannelID = channel.chatID
         }
-        channels.sort { $0.title.localizedCaseInsensitiveCompare($1.title) == .orderedAscending }
+        channels.sort { $0.displayTitle.localizedCaseInsensitiveCompare($1.displayTitle) == .orderedAscending }
     }
 
     func registerIncoming(_ post: UnreadPost) -> WatchedChannel? {

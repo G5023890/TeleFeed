@@ -31,14 +31,14 @@ final class FileAppStateStore: StateStoreProtocol {
             let data = try? Data(contentsOf: fileURL),
             let state = try? decoder.decode(PersistedAppState.self, from: data)
         else {
-            return loadLegacyState()
+            return normalized(loadLegacyState())
         }
 
-        return state
+        return normalized(state)
     }
 
     func save(_ state: PersistedAppState) throws {
-        let data = try encoder.encode(state)
+        let data = try encoder.encode(normalized(state))
         try data.write(to: fileURL, options: .atomic)
     }
 
@@ -56,5 +56,30 @@ final class FileAppStateStore: StateStoreProtocol {
         }
 
         return state
+    }
+
+    private func normalized(_ state: PersistedAppState) -> PersistedAppState {
+        var normalizedState = state
+        normalizedState.watchedChannels = deduplicatedWatchedChannels(normalizedState.watchedChannels)
+
+        if let selectedChannelID = normalizedState.selectedChannelID,
+           normalizedState.watchedChannels.contains(where: { $0.chatID == selectedChannelID }) == false {
+            normalizedState.selectedChannelID = normalizedState.watchedChannels.first?.chatID
+        }
+
+        return normalizedState
+    }
+
+    private func deduplicatedWatchedChannels(_ channels: [WatchedChannel]) -> [WatchedChannel] {
+        var seenChatIDs = Set<Int64>()
+        var uniqueChannels: [WatchedChannel] = []
+
+        for channel in channels.reversed() {
+            if seenChatIDs.insert(channel.chatID).inserted {
+                uniqueChannels.append(channel)
+            }
+        }
+
+        return uniqueChannels.reversed()
     }
 }

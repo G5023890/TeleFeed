@@ -37,6 +37,7 @@ struct PostViewerView: View {
         }
         .padding(22)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .verticalStoryMotion(id: post.id)
         .background(
             GeometryReader { proxy in
                 Color.clear.preference(key: ViewerViewportHeightKey.self, value: proxy.size.height)

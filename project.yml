@@ -16,13 +16,25 @@ targets:
     sources:
       - path: Sources
     resources:
-      - path: Resources/Assets
+      - path: Resources/Assets/Icons/IconTeleFeed.png
+      - path: Resources/Assets/Icons/MenuBarIconTelegramRSS.png
+      - path: Resources/Assets/Icons/MenuBarIconTelegramRSS2.png
+      - path: Resources/Assets/Icons/TeleFeed.icns
       - path: Resources/Assets/TeleFeed.xcassets
-      - path: Resources/Localization/en.lproj
-      - path: Resources/Localization/ru.lproj
+      - path: Resources/Localization/en.lproj/Localizable.strings
+      - path: Resources/Localization/ru.lproj/Localizable.strings
     dependencies:
       - package: TDLibFramework
         product: TDLibFramework
+    postBuildScripts:
+      - name: Copy Menu Bar Icon
+        script: |
+          set -euo pipefail
+          RES_DIR="$TARGET_BUILD_DIR/$UNLOCALIZED_RESOURCES_FOLDER_PATH/Assets/Icons"
+          mkdir -p "$RES_DIR"
+          /usr/bin/ditto --norsrc "$PROJECT_DIR/Resources/Assets/Icons/IconTeleFeed.png" "$RES_DIR/IconTeleFeed.png"
+          /usr/bin/ditto --norsrc "$PROJECT_DIR/Resources/Assets/Icons/MenuBarIconTelegramRSS.png" "$RES_DIR/MenuBarIconTelegramRSS.png"
+          /usr/bin/ditto --norsrc "$PROJECT_DIR/Resources/Assets/Icons/MenuBarIconTelegramRSS2.png" "$RES_DIR/MenuBarIconTelegramRSS2.png"
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.codex.TeleFeed
@@ -33,7 +45,7 @@ targets:
         SWIFT_VERSION: 6.0
         CODE_SIGN_STYLE: Automatic
         DEVELOPMENT_TEAM: ""
-        MARKETING_VERSION: 0.8.4
+        MARKETING_VERSION: 0.0.1
         CURRENT_PROJECT_VERSION: 1
         LOCALIZATION_PREFERS_STRING_CATALOGS: NO
         SUPPORTS_MACCATALYST: NO

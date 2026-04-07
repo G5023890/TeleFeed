@@ -1,9 +1,11 @@
 import SwiftUI
+import AppKit
 
 struct SettingsView: View {
     @ObservedObject var authViewModel: AuthViewModel
     @Binding var launchAtLoginEnabled: Bool
     @Binding var typography: TypographySettings
+    @Binding var menuBarIconStyle: MenuBarIconStyle
     let onSaveCredentials: () -> Void
     let onLogout: () -> Void
     let onClose: () -> Void
@@ -26,7 +28,7 @@ struct SettingsView: View {
             .pickerStyle(.segmented)
 
             ScrollView {
-                selectedTabContent
+            selectedTabContent
                     .padding(.trailing, 4)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -74,6 +76,8 @@ struct SettingsView: View {
                 .foregroundStyle(.secondary)
 
             VStack(alignment: .leading, spacing: 12) {
+                menuBarIconPicker
+
                 TextField(L10n.tr("auth.apiId"), text: $authViewModel.apiID)
                     .textFieldStyle(.roundedBorder)
 
@@ -92,6 +96,77 @@ struct SettingsView: View {
                 RoundedRectangle(cornerRadius: 20, style: .continuous)
                     .strokeBorder(AppTheme.surfaceStroke(for: colorScheme), lineWidth: 1)
             )
+        }
+    }
+
+    private var menuBarIconPicker: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            sectionHeader(L10n.tr("settings.menuBarIconTitle"))
+
+            Text(L10n.tr("settings.menuBarIconHint"))
+                .font(.callout)
+                .foregroundStyle(.secondary)
+
+            HStack(alignment: .center, spacing: 14) {
+                menuBarIconOption(
+                    style: .current,
+                    resourceName: "IconTeleFeed",
+                    accessibilityLabel: L10n.tr("settings.menuBarIcon.current")
+                )
+
+                menuBarIconOption(
+                    style: .telegramRSS,
+                    resourceName: "MenuBarIconTelegramRSS",
+                    accessibilityLabel: L10n.tr("settings.menuBarIcon.telegramRSS")
+                )
+
+                menuBarIconOption(
+                    style: .telegramRSS2,
+                    resourceName: "MenuBarIconTelegramRSS2",
+                    accessibilityLabel: L10n.tr("settings.menuBarIcon.telegramRSS2")
+                )
+            }
+        }
+    }
+
+    private func menuBarIconOption(
+        style: MenuBarIconStyle,
+        resourceName: String,
+        accessibilityLabel: String
+    ) -> some View {
+        Button {
+            menuBarIconStyle = style
+        } label: {
+            iconPreview(resourceName: resourceName)
+                .frame(width: 42, height: 42)
+                .padding(8)
+                .background(
+                    RoundedRectangle(cornerRadius: 14, style: .continuous)
+                        .fill(style == menuBarIconStyle ? AppTheme.surfaceStroke(for: colorScheme).opacity(0.18) : Color.clear)
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 14, style: .continuous)
+                        .strokeBorder(
+                            style == menuBarIconStyle ? Color.accentColor : AppTheme.surfaceStroke(for: colorScheme),
+                            lineWidth: style == menuBarIconStyle ? 2 : 1
+                        )
+                )
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(accessibilityLabel)
+    }
+
+    private func iconPreview(resourceName: String) -> some View {
+        Group {
+            if let url = Bundle.main.url(forResource: resourceName, withExtension: "png", subdirectory: "Assets/Icons"),
+               let image = NSImage(contentsOf: url) {
+                Image(nsImage: image)
+                    .resizable()
+                    .scaledToFit()
+            } else {
+                RoundedRectangle(cornerRadius: 8, style: .continuous)
+                    .fill(Color.secondary.opacity(0.15))
+            }
         }
     }
 

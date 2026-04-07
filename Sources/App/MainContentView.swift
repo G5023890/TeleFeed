@@ -27,22 +27,6 @@ struct MainContentView: View {
                 NSApp.keyWindow?.performClose(nil)
             }
         }
-            .sheet(isPresented: $viewModel.showingSettings) {
-                SettingsView(
-                    authViewModel: viewModel.authViewModel,
-                    launchAtLoginEnabled: Binding(
-                        get: { viewModel.settings.launchAtLoginEnabled },
-                        set: { viewModel.updateLaunchAtLogin($0) }
-                    ),
-                    typography: Binding(
-                        get: { viewModel.settings.typography },
-                        set: { viewModel.updateTypography($0) }
-                    ),
-                    onSaveCredentials: viewModel.saveCredentials,
-                    onLogout: viewModel.logout,
-                    onClose: viewModel.closeSettings
-                )
-            }
     }
 
     private var appBackground: some View {
@@ -117,19 +101,54 @@ struct MainContentView: View {
                 }
             )
             .frame(width: 362, alignment: .topLeading)
-            .background(AppTheme.drawerFill(for: colorScheme))
+            .background(sidebarDrawerBackground)
             .overlay(
                 RoundedRectangle(cornerRadius: 30, style: .continuous)
-                    .strokeBorder(AppTheme.drawerStroke(for: colorScheme), lineWidth: 1)
+                    .strokeBorder(sidebarDrawerStroke, lineWidth: 1)
             )
             .clipShape(RoundedRectangle(cornerRadius: 30, style: .continuous))
-            .shadow(color: AppTheme.drawerShadow(for: colorScheme), radius: 26, x: 8, y: 18)
+            .shadow(color: sidebarDrawerShadow, radius: 26, x: 8, y: 18)
             .padding(.leading, 18)
             .padding(.top, 12)
 
             Spacer(minLength: 0)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+    }
+
+    private var sidebarDrawerBackground: some View {
+        ZStack {
+            if colorScheme == .dark {
+                LinearGradient(
+                    colors: [
+                        Color(red: 0.13, green: 0.14, blue: 0.17).opacity(0.88),
+                        Color(red: 0.09, green: 0.10, blue: 0.13).opacity(0.94),
+                    ],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+
+                LinearGradient(
+                    colors: [
+                        Color.white.opacity(0.05),
+                        Color.black.opacity(0.08),
+                    ],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+                .blendMode(.softLight)
+            } else {
+                Color.white.opacity(0.76)
+            }
+        }
+    }
+
+    private var sidebarDrawerStroke: Color {
+        colorScheme == .dark ? Color.white.opacity(0.10) : Color.white.opacity(0.82)
+    }
+
+    private var sidebarDrawerShadow: Color {
+        colorScheme == .dark ? Color.black.opacity(0.60) : Color.black.opacity(0.12)
     }
 
     @ViewBuilder
@@ -154,6 +173,7 @@ struct MainContentView: View {
                 settings: viewModel.settings,
                 onBack: viewModel.closeReader
             )
+            .transition(verticalStoryTransition)
         } else if let post = viewModel.viewerPresentedPost {
             PostViewerView(
                 post: post,
@@ -162,10 +182,19 @@ struct MainContentView: View {
                 onClose: viewModel.closeViewer,
                 onOpenReader: { viewModel.openReader(for: post) }
             )
+            .transition(verticalStoryTransition)
         } else {
             Color.clear
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .transition(verticalStoryTransition)
         }
+    }
+
+    private var verticalStoryTransition: AnyTransition {
+        .asymmetric(
+            insertion: .move(edge: .top).combined(with: .opacity),
+            removal: .move(edge: .bottom).combined(with: .opacity)
+        )
     }
 }
 

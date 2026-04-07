@@ -108,10 +108,10 @@ struct ChannelsManagementView: View {
                 .foregroundStyle(.secondary)
                 .padding(.horizontal, 10)
                 .padding(.vertical, 5)
-                .background(AppTheme.chipFill(for: colorScheme), in: Capsule(style: .continuous))
+                .background(sidebarChipFill, in: Capsule(style: .continuous))
                 .overlay(
                     Capsule(style: .continuous)
-                        .strokeBorder(AppTheme.chipStroke(for: colorScheme), lineWidth: 1)
+                        .strokeBorder(sidebarChipStroke, lineWidth: 1)
                 )
 
             if let onClose {
@@ -195,12 +195,12 @@ struct ChannelsManagementView: View {
         .buttonStyle(.plain)
         .background(
             RoundedRectangle(cornerRadius: 18, style: .continuous)
-                .fill(isSelected ? AppTheme.surfaceFill(for: colorScheme) : AppTheme.inputFill(for: colorScheme).opacity(colorScheme == .dark ? 0.8 : 0.7))
+                .fill(sidebarCardFill(isSelected: isSelected))
         )
         .overlay(
             RoundedRectangle(cornerRadius: 18, style: .continuous)
                 .strokeBorder(
-                    isSelected ? AppTheme.surfaceStroke(for: colorScheme) : AppTheme.surfaceStroke(for: colorScheme).opacity(0.7),
+                    sidebarCardStroke(isSelected: isSelected),
                     lineWidth: isSelected ? 1.2 : 1
                 )
         )
@@ -211,10 +211,10 @@ struct ChannelsManagementView: View {
         let letter = title.prefix(1).uppercased()
         return ZStack {
             Circle()
-                .fill(AppTheme.surfaceFill(for: colorScheme))
+                .fill(sidebarIconFill)
                 .overlay(
                     Circle()
-                        .strokeBorder(AppTheme.surfaceStroke(for: colorScheme), lineWidth: 1)
+                        .strokeBorder(sidebarIconStroke, lineWidth: 1)
                 )
             Text(letter)
                 .font(.system(size: 13, weight: .semibold, design: .rounded))
@@ -241,10 +241,10 @@ struct ChannelsManagementView: View {
                 .foregroundStyle(.secondary)
                 .padding(.horizontal, 10)
                 .padding(.vertical, 5)
-                .background(AppTheme.chipFill(for: colorScheme), in: Capsule(style: .continuous))
+                .background(sidebarChipFill, in: Capsule(style: .continuous))
                 .overlay(
                     Capsule(style: .continuous)
-                        .strokeBorder(AppTheme.chipStroke(for: colorScheme), lineWidth: 1)
+                        .strokeBorder(sidebarChipStroke, lineWidth: 1)
                 )
         }
     }
@@ -260,10 +260,10 @@ struct ChannelsManagementView: View {
                 .textFieldStyle(.plain)
                 .padding(.horizontal, 14)
                 .padding(.vertical, 11)
-                .background(AppTheme.inputFill(for: colorScheme), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+                .background(sidebarInputFill, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
                 .overlay(
                     RoundedRectangle(cornerRadius: 18, style: .continuous)
-                        .strokeBorder(AppTheme.surfaceStroke(for: colorScheme), lineWidth: 1)
+                        .strokeBorder(sidebarInputStroke, lineWidth: 1)
                 )
 
             Button(buttonTitle, action: action)
@@ -315,7 +315,7 @@ private enum AnySourceRow: Identifiable, Equatable {
     var title: String {
         switch self {
         case .telegram(let channel):
-            return channel.title
+            return channel.displayTitle
         case .rss(let feed):
             return feed.title
         }
@@ -339,11 +339,11 @@ private struct DrawerIconButtonStyle: ButtonStyle {
             .foregroundStyle(.secondary)
             .background(
                 Circle()
-                    .fill(colorScheme == .dark ? Color.white.opacity(configuration.isPressed ? 0.08 : 0.12) : Color.white.opacity(configuration.isPressed ? 0.72 : 0.9))
+                    .fill(sidebarControlFill(colorScheme: colorScheme, isPressed: configuration.isPressed, strong: false))
             )
             .overlay(
                 Circle()
-                    .strokeBorder(AppTheme.surfaceStroke(for: colorScheme), lineWidth: 1)
+                    .strokeBorder(sidebarControlStroke(colorScheme: colorScheme), lineWidth: 1)
             )
             .scaleEffect(configuration.isPressed ? 0.96 : 1)
     }
@@ -360,13 +360,13 @@ private struct AddChannelButtonStyle: ButtonStyle {
             .padding(.vertical, 11)
             .background(
                 RoundedRectangle(cornerRadius: 18, style: .continuous)
-                    .fill(colorScheme == .dark ? Color.white.opacity(configuration.isPressed ? 0.08 : 0.12) : Color.white.opacity(configuration.isPressed ? 0.72 : 0.92))
+                    .fill(sidebarControlFill(colorScheme: colorScheme, isPressed: configuration.isPressed, strong: true))
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 18, style: .continuous)
-                    .strokeBorder(AppTheme.surfaceStroke(for: colorScheme), lineWidth: 1)
+                    .strokeBorder(sidebarControlStroke(colorScheme: colorScheme), lineWidth: 1)
             )
-            .shadow(color: colorScheme == .dark ? .black.opacity(configuration.isPressed ? 0.18 : 0.28) : .black.opacity(configuration.isPressed ? 0.03 : 0.08), radius: 10, x: 0, y: 4)
+            .shadow(color: sidebarControlShadow(colorScheme: colorScheme, isPressed: configuration.isPressed), radius: 10, x: 0, y: 4)
             .scaleEffect(configuration.isPressed ? 0.98 : 1)
     }
 }
@@ -381,12 +381,82 @@ private struct RemoveButtonStyle: ButtonStyle {
             .padding(.vertical, 11)
             .background(
                 RoundedRectangle(cornerRadius: 18, style: .continuous)
-                    .fill(colorScheme == .dark ? Color.white.opacity(configuration.isPressed ? 0.08 : 0.10) : Color.white.opacity(configuration.isPressed ? 0.72 : 0.88))
+                    .fill(sidebarControlFill(colorScheme: colorScheme, isPressed: configuration.isPressed, strong: false))
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 18, style: .continuous)
-                    .strokeBorder(AppTheme.surfaceStroke(for: colorScheme), lineWidth: 1)
+                    .strokeBorder(sidebarControlStroke(colorScheme: colorScheme), lineWidth: 1)
             )
             .scaleEffect(configuration.isPressed ? 0.98 : 1)
+    }
+}
+
+private func sidebarControlFill(colorScheme: ColorScheme, isPressed: Bool, strong: Bool) -> Color {
+    if colorScheme == .dark {
+        if strong {
+            return Color.white.opacity(isPressed ? 0.16 : 0.18)
+        }
+
+        return Color.white.opacity(isPressed ? 0.12 : 0.14)
+    }
+
+    if strong {
+        return Color.white.opacity(isPressed ? 0.74 : 0.94)
+    }
+
+    return Color.white.opacity(isPressed ? 0.72 : 0.90)
+}
+
+private func sidebarControlStroke(colorScheme: ColorScheme) -> Color {
+    colorScheme == .dark ? Color.white.opacity(0.14) : Color.black.opacity(0.05)
+}
+
+private func sidebarControlShadow(colorScheme: ColorScheme, isPressed: Bool) -> Color {
+    if colorScheme == .dark {
+        return Color.black.opacity(isPressed ? 0.18 : 0.30)
+    }
+
+    return Color.black.opacity(isPressed ? 0.03 : 0.08)
+}
+
+private extension ChannelsManagementView {
+    var sidebarChipFill: Color {
+        colorScheme == .dark ? Color.white.opacity(0.10) : Color.white.opacity(0.90)
+    }
+
+    var sidebarChipStroke: Color {
+        colorScheme == .dark ? Color.white.opacity(0.12) : Color.black.opacity(0.05)
+    }
+
+    var sidebarInputFill: Color {
+        colorScheme == .dark ? Color.white.opacity(0.10) : Color.white.opacity(0.90)
+    }
+
+    var sidebarInputStroke: Color {
+        colorScheme == .dark ? Color.white.opacity(0.14) : Color.black.opacity(0.05)
+    }
+
+    var sidebarIconFill: Color {
+        colorScheme == .dark ? Color.white.opacity(0.11) : Color.white.opacity(0.92)
+    }
+
+    var sidebarIconStroke: Color {
+        colorScheme == .dark ? Color.white.opacity(0.14) : Color.black.opacity(0.05)
+    }
+
+    func sidebarCardFill(isSelected: Bool) -> Color {
+        if colorScheme == .dark {
+            return isSelected ? Color.white.opacity(0.13) : Color.white.opacity(0.08)
+        }
+
+        return isSelected ? Color.white.opacity(0.95) : Color.white.opacity(0.72)
+    }
+
+    func sidebarCardStroke(isSelected: Bool) -> Color {
+        if colorScheme == .dark {
+            return isSelected ? Color.white.opacity(0.18) : Color.white.opacity(0.11)
+        }
+
+        return isSelected ? Color.black.opacity(0.06) : Color.black.opacity(0.05)
     }
 }

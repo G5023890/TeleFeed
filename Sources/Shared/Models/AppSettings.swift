@@ -1,5 +1,11 @@
 import Foundation
 
+enum MenuBarIconStyle: String, Codable, CaseIterable, Equatable {
+    case current
+    case telegramRSS
+    case telegramRSS2
+}
+
 struct TypographySettings: Codable, Equatable {
     var feedHeaderTitle: Double = 19
     var feedTitle: Double = 14
@@ -119,10 +125,12 @@ struct TypographySettings: Codable, Equatable {
 struct AppSettings: Codable, Equatable {
     var launchAtLoginEnabled: Bool = true
     var typography: TypographySettings = TypographySettings()
+    var menuBarIconStyle: MenuBarIconStyle = .current
 
     private enum CodingKeys: String, CodingKey {
         case launchAtLoginEnabled
         case typography
+        case menuBarIconStyle
     }
 
     init() {}
@@ -131,12 +139,14 @@ struct AppSettings: Codable, Equatable {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         launchAtLoginEnabled = try container.decodeIfPresent(Bool.self, forKey: .launchAtLoginEnabled) ?? true
         typography = try container.decodeIfPresent(TypographySettings.self, forKey: .typography) ?? TypographySettings()
+        menuBarIconStyle = try container.decodeIfPresent(MenuBarIconStyle.self, forKey: .menuBarIconStyle) ?? .current
     }
 
     func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(launchAtLoginEnabled, forKey: .launchAtLoginEnabled)
         try container.encode(typography, forKey: .typography)
+        try container.encode(menuBarIconStyle, forKey: .menuBarIconStyle)
     }
 }
 

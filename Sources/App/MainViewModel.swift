@@ -1,6 +1,7 @@
 import Foundation
 import ServiceManagement
 import OSLog
+import SwiftUI
 
 @MainActor
 final class MainViewModel: ObservableObject {
@@ -13,7 +14,6 @@ final class MainViewModel: ObservableObject {
     @Published var feedViewModel = FeedViewModel()
     @Published var viewerViewModel: ViewerViewModel
     @Published var settings: AppSettings
-    @Published var showingSettings = false
     @Published var connectionStatus: TelegramConnectionStatus = .offline
     @Published var viewerPresentedPost: UnreadPost?
     @Published var selectedUnreadPostID: UnreadPostIdentity?
@@ -78,11 +78,22 @@ final class MainViewModel: ObservableObject {
             readIDs: Set(state.readPostIDs),
             readRetentionInterval: readFeedRetentionInterval
         ))
-        self.sessionFeedPosts = Dictionary(uniqueKeysWithValues: retainedPosts.map { ($0.id, $0) })
+        let normalizedRetainedPosts = retainedPosts.map { post -> UnreadPost in
+            guard
+                post.sourceKind == .telegram,
+                post.channelTitle.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
+                let watchedChannel = self.channelsViewModel.channel(for: post.chatID)
+            else {
+                return post
+            }
+
+            return post.updatingChannelTitle(watchedChannel.displayTitle)
+        }
+        self.sessionFeedPosts = Dictionary(uniqueKeysWithValues: normalizedRetainedPosts.map { ($0.id, $0) })
         self.feedViewModel.readPostIDs = Set(state.readPostIDs)
-        self.feedViewModel.setPosts(retainedPosts)
+        self.feedViewModel.setPosts(normalizedRetainedPosts)
         self.selectedUnreadPostID = Self.initialSelectionID(
-            from: retainedPosts,
+            from: normalizedRetainedPosts,
             readIDs: self.feedViewModel.readPostIDs
         )
     }
@@ -125,11 +136,6 @@ final class MainViewModel: ObservableObject {
         showWindow?()
         refreshAggregatedFeedPresentation()
         kickoffBackgroundRefresh()
-    }
-
-    func openSettings() {
-        showingSettings = true
-        showWindow?()
     }
 
     func toggleSidebar() {
@@ -242,11 +248,13 @@ final class MainViewModel: ObservableObject {
             return
         }
 
-        if feedViewModel.isUnread(post) {
-            markPostAsRead(post)
+        withAnimation(.snappy(duration: 0.28)) {
+            if feedViewModel.isUnread(post) {
+                markPostAsRead(post)
+            }
+            detailPresentation = .reader
+            readerViewModel.open(post: post)
         }
-        detailPresentation = .reader
-        readerViewModel.open(post: post)
     }
 
     func toggleReadState(for post: UnreadPost) {
@@ -267,12 +275,16 @@ final class MainViewModel: ObservableObject {
 
         let previousPost = viewerPresentedPost
         guard let postID else {
-            closeViewer()
+            withAnimation(.snappy(duration: 0.28)) {
+                closeViewer()
+            }
             return
         }
 
         guard let post = feedViewModel.posts.first(where: { $0.id == postID }) else {
-            closeViewer()
+            withAnimation(.snappy(duration: 0.28)) {
+                closeViewer()
+            }
             return
         }
 
@@ -286,15 +298,19 @@ final class MainViewModel: ObservableObject {
     }
 
     func closeReader() {
-        readerViewModel.dismiss()
-        detailPresentation = .post
+        withAnimation(.snappy(duration: 0.28)) {
+            readerViewModel.dismiss()
+            detailPresentation = .post
+        }
     }
 
     func closeViewer() {
-        readerViewModel.dismiss()
-        detailPresentation = .post
-        viewerPresentedPost = nil
-        viewerViewModel.dismiss()
+        withAnimation(.snappy(duration: 0.28)) {
+            readerViewModel.dismiss()
+            detailPresentation = .post
+            viewerPresentedPost = nil
+            viewerViewModel.dismiss()
+        }
     }
 
     private func markPostAsRead(_ post: UnreadPost) {
@@ -335,7 +351,6 @@ final class MainViewModel: ObservableObject {
             do {
                 try await telegramService.saveCredentials(apiIDText: authViewModel.apiID, apiHash: authViewModel.apiHash)
                 await synchronizeAuthState()
-                showingSettings = false
             } catch {
                 authViewModel.errorMessage = error.localizedDescription
             }
@@ -374,7 +389,6 @@ final class MainViewModel: ObservableObject {
 
     func closeSettings() {
         persistState()
-        showingSettings = false
     }
 
     func logout() {
@@ -392,7 +406,6 @@ final class MainViewModel: ObservableObject {
                 selectedUnreadPostID = nil
                 channelNavigationStates.removeAll()
                 sessionFeedPosts.removeAll()
-                showingSettings = false
                 persistState()
             } catch {
                 authViewModel.errorMessage = error.localizedDescription
@@ -409,6 +422,15 @@ final class MainViewModel: ObservableObject {
 
     func updateTypography(_ typography: TypographySettings) {
         settings.typography = typography
+        persistState()
+    }
+
+    func updateMenuBarIconStyle(_ style: MenuBarIconStyle) {
+        guard settings.menuBarIconStyle != style else {
+            return
+        }
+
+        settings.menuBarIconStyle = style
         persistState()
     }
 
@@ -499,7 +521,7 @@ final class MainViewModel: ObservableObject {
             }
             persistState()
 
-            let hydratedPost = post.channelTitle.isEmpty ? post.updatingChannelTitle(watchedChannel.title) : post
+            let hydratedPost = post.channelTitle.isEmpty ? post.updatingChannelTitle(watchedChannel.displayTitle) : post
             let shouldNotify = hydratedPost.messageID > (watchedChannel.lastNotifiedMessageID ?? 0)
 
             storeSessionPosts([hydratedPost])
@@ -578,7 +600,7 @@ final class MainViewModel: ObservableObject {
         do {
             syncedChannel = try await telegramService.refreshChannel(channel)
         } catch TelegramServiceError.invalidChannel {
-            authViewModel.debugMessage = "Skipped channel metadata refresh for \(channel.title)"
+            authViewModel.debugMessage = "Skipped channel metadata refresh for \(channel.displayTitle)"
             return channel
         }
 
@@ -652,18 +674,20 @@ final class MainViewModel: ObservableObject {
         _ post: UnreadPost,
         updateSelection: Bool
     ) {
-        detailPresentation = .post
-        readerViewModel.dismiss()
-        viewerPresentedPost = post
-        viewerViewModel.present(post: post, telegramService: telegramService)
-        if feedViewModel.isUnread(post) {
-            markPostAsRead(post)
-        }
-        updateNavigationState(for: post.chatID) { state in
-            state.lastViewedPost = post
-        }
-        if updateSelection {
-            selectedUnreadPostID = post.id
+        withAnimation(.snappy(duration: 0.28)) {
+            detailPresentation = .post
+            readerViewModel.dismiss()
+            viewerPresentedPost = post
+            viewerViewModel.present(post: post, telegramService: telegramService)
+            if feedViewModel.isUnread(post) {
+                markPostAsRead(post)
+            }
+            updateNavigationState(for: post.chatID) { state in
+                state.lastViewedPost = post
+            }
+            if updateSelection {
+                selectedUnreadPostID = post.id
+            }
         }
     }
 
@@ -824,7 +848,7 @@ final class MainViewModel: ObservableObject {
         var encounteredError: String?
         for channel in channelsViewModel.channels {
             do {
-                Self.logger.debug("Refreshing Telegram channel \(channel.title, privacy: .public)")
+                Self.logger.debug("Refreshing Telegram channel \(channel.displayTitle, privacy: .public)")
                 let syncedChannel = try await synchronizeChannel(channel)
                 let posts = try await telegramService.fetchUnreadPosts(for: syncedChannel, limit: 50)
                 storeSessionPosts(posts)
@@ -832,7 +856,7 @@ final class MainViewModel: ObservableObject {
                     state.unreadPosts = sortedUnreadPosts(posts)
                 }
             } catch {
-                Self.logger.error("Telegram refresh failed for \(channel.title, privacy: .public): \(error.localizedDescription, privacy: .public)")
+                Self.logger.error("Telegram refresh failed for \(channel.displayTitle, privacy: .public): \(error.localizedDescription, privacy: .public)")
                 encounteredError = encounteredError ?? error.localizedDescription
             }
         }
