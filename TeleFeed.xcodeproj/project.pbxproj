@@ -463,6 +463,12 @@
 			outputFileListPaths = (
 			);
 			outputPaths = (
+				"$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/Assets/Icons/IconTeleFeed.png",
+				"$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/Assets/Icons/MenuBarIconTelegramRSS.png",
+				"$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/Assets/Icons/MenuBarIconTelegramRSS2.png",
+				"$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/TeleFeed.icns",
+				"$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/en.lproj/Localizable.strings",
+				"$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/ru.lproj/Localizable.strings",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -550,11 +556,19 @@
 				);
 				LOCALIZATION_PREFERS_STRING_CATALOGS = NO;
 				MACOSX_DEPLOYMENT_TARGET = 15.0;
-				MARKETING_VERSION = 0.0.3;
+				MARKETING_VERSION = 0.7.1;
+				OTHER_SWIFT_FLAGS = (
+					"$(inherited)",
+					"-Xfrontend",
+					"-disable-autolink-framework",
+					"-Xfrontend",
+					AppIntents,
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.codex.TeleFeed;
 				PRODUCT_NAME = TeleFeed;
 				SDKROOT = macosx;
 				SUPPORTS_MACCATALYST = NO;
+				SWIFT_ENABLE_EMIT_CONST_VALUES = NO;
 				SWIFT_VERSION = 6.0;
 			};
 			name = Debug;
@@ -696,13 +710,21 @@
 				);
 				LOCALIZATION_PREFERS_STRING_CATALOGS = NO;
 				MACOSX_DEPLOYMENT_TARGET = 15.0;
-				MARKETING_VERSION = 0.0.3;
+				MARKETING_VERSION = 0.7.1;
+				OTHER_SWIFT_FLAGS = (
+					"$(inherited)",
+					"-Xfrontend",
+					"-disable-autolink-framework",
+					"-Xfrontend",
+					AppIntents,
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.codex.TeleFeed;
 				PRODUCT_NAME = TeleFeed;
 				SDKROOT = macosx;
 				STRIP_INSTALLED_PRODUCT = YES;
 				STRIP_SWIFT_SYMBOLS = YES;
 				SUPPORTS_MACCATALYST = NO;
+				SWIFT_ENABLE_EMIT_CONST_VALUES = NO;
 				SWIFT_VERSION = 6.0;
 			};
 			name = Release;

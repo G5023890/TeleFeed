@@ -2,6 +2,17 @@
 
 TeleFeed is a native macOS menu bar watcher for public Telegram channels and RSS feeds. It uses Swift, SwiftUI, AppKit, and the TDLib JSON interface to deliver a read-only, notification-first workflow for unread channel posts and feed items.
 
+## Current Release
+
+Release `0.7.1` focuses on making the app easier to ship and run as a self-contained macOS bundle:
+
+- The app bundle now includes the TDLib framework dependency instead of relying on an external install.
+- Required runtime assets are packaged with the app: menu bar icons, app icon, and localization files.
+- Build output is validated so the installed `.app` does not depend on local development paths or external resources.
+- Application Support and Caches are created automatically at runtime, so first launch does not require manual folder setup.
+- The release build and install flow is documented and reproducible through `Scripts/build_and_install_app.sh`.
+- Readability, RSS, Telegram, and translation behavior remain the same, but the packaging is now cleaner and more portable.
+
 ## Overview
 
 - Menu bar only macOS app with `LSUIElement`, background behavior after closing the window, and launch-at-login support.
@@ -14,6 +25,14 @@ TeleFeed is a native macOS menu bar watcher for public Telegram channels and RSS
 - Reader mode uses a native macOS pipeline built from AppKit, `WKWebView`, Mozilla Readability, and a custom article HTML template.
 - Reader extraction prefers Readability first, falls back to a legacy parser when needed, and can still open the source article in Safari.
 - No intentional permanent message history archive and no intentional permanent media library.
+
+## Packaging Notes
+
+- `TeleFeed.app` is intended to be self-contained for runtime use.
+- The app links only against system frameworks plus the embedded `TDLibFramework.framework`.
+- Runtime state is stored under `~/Library/Application Support/TeleFeed` and `~/Library/Caches/TeleFeed`.
+- Those directories are created automatically on launch if they do not exist.
+- Localized strings are bundled with the app so the UI does not depend on a pre-seeded external localization folder.
 
 ## Architecture
 
@@ -50,6 +69,14 @@ xcodegen generate
 
 ```bash
 xcodebuild -project TeleFeed.xcodeproj -scheme TeleFeed -configuration Debug -destination platform=macOS build
+```
+
+### Build and Install
+
+For a release-style build that signs, installs, and launches the app:
+
+```bash
+Scripts/build_and_install_app.sh
 ```
 
 ### Open in Xcode
@@ -123,6 +150,16 @@ Temporary cache:
 
 - photo/video payloads may be downloaded temporarily to the app cache directory for in-app viewing
 - the cache is cleaned on startup and logout
+
+## Release Checklist
+
+Before shipping a new build:
+
+- verify the bundle contains `TDLibFramework.framework`
+- verify required icons and `.strings` files are in `Contents/Resources`
+- verify `Info.plist` matches the marketing version
+- verify `otool -L` shows only system frameworks plus the embedded framework
+- verify launch works from a fresh install without any manual Application Support preparation
 
 ## Known Limitations
 

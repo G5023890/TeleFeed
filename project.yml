@@ -28,6 +28,13 @@ targets:
         product: TDLibFramework
     postBuildScripts:
       - name: Copy Menu Bar Icon
+        outputFiles:
+          - $(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/Assets/Icons/IconTeleFeed.png
+          - $(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/Assets/Icons/MenuBarIconTelegramRSS.png
+          - $(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/Assets/Icons/MenuBarIconTelegramRSS2.png
+          - $(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/TeleFeed.icns
+          - $(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/en.lproj/Localizable.strings
+          - $(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/ru.lproj/Localizable.strings
         script: |
           set -euo pipefail
           RES_DIR="$TARGET_BUILD_DIR/$UNLOCALIZED_RESOURCES_FOLDER_PATH/Assets/Icons"
@@ -51,11 +58,18 @@ targets:
         SWIFT_VERSION: 6.0
         CODE_SIGN_STYLE: Automatic
         DEVELOPMENT_TEAM: ""
-        MARKETING_VERSION: 0.0.3
+        MARKETING_VERSION: 0.7.1
         CURRENT_PROJECT_VERSION: 1
         LOCALIZATION_PREFERS_STRING_CATALOGS: NO
         SUPPORTS_MACCATALYST: NO
         ENABLE_HARDENED_RUNTIME: YES
+        SWIFT_ENABLE_EMIT_CONST_VALUES: NO
+        OTHER_SWIFT_FLAGS:
+          - $(inherited)
+          - -Xfrontend
+          - -disable-autolink-framework
+          - -Xfrontend
+          - AppIntents
         LD_RUNPATH_SEARCH_PATHS:
           - $(inherited)
           - "@executable_path/../Frameworks"

@@ -58,6 +58,7 @@ struct SelectableTextView: NSViewRepresentable {
         return context.coordinator.sizeThatFits(width: width, view: self)
     }
 
+    @MainActor
     final class Coordinator {
         private var cachedText: String = ""
         private var cachedFont: NSFont = .systemFont(ofSize: 13)
