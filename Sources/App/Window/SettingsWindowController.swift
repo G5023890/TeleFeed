@@ -10,6 +10,14 @@ final class SettingsWindowController: NSWindowController {
                 get: { viewModel.settings.launchAtLoginEnabled },
                 set: { viewModel.updateLaunchAtLogin($0) }
             ),
+            showDockIcon: Binding(
+                get: { viewModel.settings.showDockIcon },
+                set: { viewModel.updateShowDockIcon($0) }
+            ),
+            showMenuBarIcon: Binding(
+                get: { viewModel.settings.showMenuBarIcon },
+                set: { viewModel.updateShowMenuBarIcon($0) }
+            ),
             typography: Binding(
                 get: { viewModel.settings.typography },
                 set: { viewModel.updateTypography($0) }

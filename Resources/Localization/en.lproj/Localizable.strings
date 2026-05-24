@@ -21,10 +21,10 @@
 "sidebar.rssPlaceholder" = "https://example.com/feed.xml";
 "sidebar.rssEmpty" = "Add a public RSS feed to start watching items.";
 "sidebar.remove" = "Remove";
-"sidebar.unreadCount" = "%lld unread";
+"sidebar.unreadCount" = "%lld newer";
 "channels.untitled" = "Untitled channel";
-"feed.title" = "Unread Posts";
-"feed.empty" = "No unread posts right now.";
+"feed.title" = "All news";
+"feed.empty" = "No news loaded yet.";
 "feed.refresh" = "Refresh";
 "feed.openViewer" = "Open";
 "feed.unsupported" = "Unsupported post type";
@@ -103,6 +103,8 @@
 "settings.typography.readerHeading5" = "Heading 5";
 "settings.typography.readerHeading6" = "Heading 6";
 "settings.launchAtLogin" = "Launch at login";
+"settings.showDockIcon" = "Show icon in Dock";
+"settings.showMenuBarIcon" = "Show icon in menu bar";
 "settings.logout" = "Log Out";
 "settings.close" = "Done";
 "settings.storageNote" = "Message history and media are not intentionally stored permanently.";
@@ -110,7 +112,7 @@
 "channels.duplicate" = "This channel is already watched.";
 "channels.invalid" = "Only public channel usernames or links are supported.";
 "notifications.newPostTitle" = "New post in %@";
-"notifications.defaultBody" = "Open unread posts in TeleFeed.";
+"notifications.defaultBody" = "Open news in TeleFeed.";
 "general.cancel" = "Cancel";
 "general.remove" = "Remove";
 "general.save" = "Save";

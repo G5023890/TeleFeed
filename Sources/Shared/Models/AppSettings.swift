@@ -124,11 +124,15 @@ struct TypographySettings: Codable, Equatable {
 
 struct AppSettings: Codable, Equatable {
     var launchAtLoginEnabled: Bool = true
+    var showDockIcon: Bool = true
+    var showMenuBarIcon: Bool = true
     var typography: TypographySettings = TypographySettings()
     var menuBarIconStyle: MenuBarIconStyle = .current
 
     private enum CodingKeys: String, CodingKey {
         case launchAtLoginEnabled
+        case showDockIcon
+        case showMenuBarIcon
         case typography
         case menuBarIconStyle
     }
@@ -138,6 +142,8 @@ struct AppSettings: Codable, Equatable {
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         launchAtLoginEnabled = try container.decodeIfPresent(Bool.self, forKey: .launchAtLoginEnabled) ?? true
+        showDockIcon = try container.decodeIfPresent(Bool.self, forKey: .showDockIcon) ?? true
+        showMenuBarIcon = try container.decodeIfPresent(Bool.self, forKey: .showMenuBarIcon) ?? true
         typography = try container.decodeIfPresent(TypographySettings.self, forKey: .typography) ?? TypographySettings()
         menuBarIconStyle = try container.decodeIfPresent(MenuBarIconStyle.self, forKey: .menuBarIconStyle) ?? .current
     }
@@ -145,6 +151,8 @@ struct AppSettings: Codable, Equatable {
     func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(launchAtLoginEnabled, forKey: .launchAtLoginEnabled)
+        try container.encode(showDockIcon, forKey: .showDockIcon)
+        try container.encode(showMenuBarIcon, forKey: .showMenuBarIcon)
         try container.encode(typography, forKey: .typography)
         try container.encode(menuBarIconStyle, forKey: .menuBarIconStyle)
     }

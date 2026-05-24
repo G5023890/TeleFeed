@@ -5,10 +5,12 @@ struct FeedListView: View {
     let settings: AppSettings
     @Binding var selectedPostID: UnreadPostIdentity?
     let onSelectionChange: (UnreadPostIdentity?) -> Void
-    let onSwipeRight: (UnreadPost) -> Void
+    let onTopVisiblePostChange: (UnreadPost) -> Void
+    let onRefresh: () async -> Void
     @Environment(\.colorScheme) private var colorScheme
     @State private var previousVisiblePosts: [UnreadPost] = []
     @State private var suppressSelectionCallback = false
+    @State private var userHasScrolled = false
 
     var body: some View {
         let visiblePosts = viewModel.visiblePosts
@@ -21,43 +23,62 @@ struct FeedListView: View {
                 emptyState
             } else {
                 header
-                ScrollViewReader { proxy in
-                    ScrollView {
-                        LazyVStack(spacing: 10) {
-                            ForEach(visiblePosts, id: \.id) { post in
-                                row(post)
-                                    .id(post.id)
-                                    .contentShape(Rectangle())
-                                    .onTapGesture {
-                                        selectedPostID = post.id
-                                        onSelectionChange(post.id)
-                                    }
-                                    .simultaneousGesture(swipeRightGesture(for: post))
+                GeometryReader { viewportProxy in
+                    ScrollViewReader { proxy in
+                        ScrollView {
+                            LazyVStack(spacing: 10) {
+                                ForEach(visiblePosts, id: \.id) { post in
+                                    row(post)
+                                        .id(post.id)
+                                        .contentShape(Rectangle())
+                                        .background(
+                                            visibilityReader(
+                                                for: post,
+                                                viewport: CGRect(origin: .zero, size: viewportProxy.size)
+                                            )
+                                        )
+                                        .onTapGesture {
+                                            selectedPostID = post.id
+                                            onSelectionChange(post.id)
+                                        }
+                                }
+                            }
+                            .padding(.vertical, 2)
+                        }
+                        .coordinateSpace(name: "feedListScroll")
+                        .refreshable {
+                            await onRefresh()
+                        }
+                        .focusable()
+                        .focusEffectDisabled()
+                        .scrollIndicators(.hidden)
+                        .background(Color.clear)
+                        .simultaneousGesture(
+                            DragGesture(minimumDistance: 8)
+                                .onChanged { _ in
+                                    userHasScrolled = true
+                                }
+                        )
+                        .onScrollPhaseChange { _, newPhase in
+                            switch newPhase {
+                            case .tracking, .interacting, .decelerating:
+                                userHasScrolled = true
+                            default:
+                                break
                             }
                         }
-                        .padding(.vertical, 2)
-                    }
-                    .focusable()
-                    .focusEffectDisabled()
-                    .scrollIndicators(.hidden)
-                    .background(Color.clear)
-                    .onChange(of: selectedPostID) { _, newValue in
-                        guard suppressSelectionCallback == false else {
-                            return
+                        .onMoveCommand { direction in
+                            moveSelection(direction, proxy: proxy)
                         }
-                        onSelectionChange(newValue)
-                    }
-                    .onMoveCommand { direction in
-                        moveSelection(direction, proxy: proxy)
-                    }
-                    .onAppear {
-                        syncSelection(in: proxy, visiblePosts: visiblePosts)
-                    }
-                    .onChange(of: viewModel.displayMode) { _, _ in
-                        syncSelection(in: proxy, visiblePosts: viewModel.visiblePosts)
-                    }
-                    .onChange(of: viewModel.readPostIDs) { _, _ in
-                        syncSelection(in: proxy, visiblePosts: viewModel.visiblePosts)
+                        .onAppear {
+                            syncSelection(in: proxy, visiblePosts: visiblePosts)
+                        }
+                        .onChange(of: viewModel.viewedPostID) { _, _ in
+                            syncSelection(in: proxy, visiblePosts: viewModel.visiblePosts)
+                        }
+                        .onPreferenceChange(VisibleFeedRowsPreferenceKey.self) { visibleRows in
+                            handleVisibleRowsChange(visibleRows)
+                        }
                     }
                 }
             }
@@ -74,7 +95,7 @@ struct FeedListView: View {
     private var emptyState: some View {
         VStack(alignment: .leading, spacing: 8) {
             header
-            Text(viewModel.displayMode == .unread ? L10n.tr("feed.emptyUnread") : L10n.tr("feed.empty"))
+            Text(L10n.tr("feed.empty"))
                 .font(.system(size: CGFloat(settings.typography.feedBody), weight: .regular, design: .rounded))
                 .foregroundStyle(.secondary)
                 .padding(.top, 8)
@@ -88,110 +109,69 @@ struct FeedListView: View {
             VStack(alignment: .leading, spacing: 8) {
                 Text(L10n.tr("feed.title"))
                     .font(.system(size: CGFloat(settings.typography.feedHeaderTitle), weight: .semibold, design: .rounded))
-                filterControl
+                newerCounter
             }
 
             Spacer()
         }
     }
 
-    private var filterControl: some View {
-        let unreadCount = viewModel.unreadCount
-        let segmentHeight: CGFloat = 24
-        let controlWidth: CGFloat = 188
-        let segmentWidth = (controlWidth - 1) / 2
-
-        return HStack(spacing: 0) {
-            filterSegment(
-                title: L10n.tr("feed.filterAll"),
-                isSelected: viewModel.displayMode == .all,
-                width: segmentWidth,
-                height: segmentHeight
-            ) {
-                withAnimation(.snappy(duration: 0.15)) {
-                    viewModel.displayMode = .all
-                }
-            }
-
-            Rectangle()
-                .fill(AppTheme.separatorColor(for: colorScheme).opacity(0.75))
-                .frame(width: 1)
-
-            filterSegment(
-                title: L10n.tr("feed.filterUnread"),
-                badge: unreadCount,
-                isSelected: viewModel.displayMode == .unread,
-                width: segmentWidth,
-                height: segmentHeight
-            ) {
-                withAnimation(.snappy(duration: 0.15)) {
-                    viewModel.displayMode = .unread
-                }
-            }
-        }
-        .padding(3)
-        .fixedSize()
-        .background(AppTheme.toolbarPillFill(for: colorScheme), in: Capsule(style: .continuous))
-        .overlay(
-            Capsule(style: .continuous)
-                .strokeBorder(AppTheme.toolbarPillStroke(for: colorScheme), lineWidth: 1)
-        )
-    }
-
-    private func filterSegment(
-        title: String,
-        badge: Int? = nil,
-        isSelected: Bool,
-        width: CGFloat,
-        height: CGFloat,
-        action: @escaping () -> Void
-    ) -> some View {
-        Button(action: action) {
-            HStack(spacing: 8) {
-                Text(title)
-                    .font(.system(size: CGFloat(settings.typography.feedFilter), weight: .semibold, design: .rounded))
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.85)
-
-                if let badge {
-                    Text(badgeLabel(for: badge))
-                        .font(.system(size: CGFloat(settings.typography.feedDate), weight: .semibold, design: .rounded))
-                        .foregroundStyle(.secondary)
-                        .padding(.horizontal, 7)
-                        .padding(.vertical, 3)
-                        .background(AppTheme.chipFill(for: colorScheme), in: Capsule(style: .continuous))
-                        .overlay(
-                            Capsule(style: .continuous)
-                                .strokeBorder(AppTheme.chipStroke(for: colorScheme), lineWidth: 1)
-                        )
-                }
-            }
-            .frame(width: width, height: height)
-            .padding(.horizontal, 8)
-            .foregroundStyle(isSelected ? .primary : .secondary)
-            .background(
+    private var newerCounter: some View {
+        Text(badgeLabel(for: viewModel.newerThanViewedCount))
+            .font(.system(size: CGFloat(settings.typography.feedFilter), weight: .semibold, design: .rounded))
+            .foregroundStyle(.primary)
+            .frame(minWidth: 56, minHeight: 24)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 3)
+            .background(AppTheme.toolbarPillFill(for: colorScheme), in: Capsule(style: .continuous))
+            .overlay(
                 Capsule(style: .continuous)
-                    .fill(isSelected ? AppTheme.surfaceFill(for: colorScheme) : Color.clear)
+                    .strokeBorder(AppTheme.toolbarPillStroke(for: colorScheme), lineWidth: 1)
             )
-        }
-        .buttonStyle(.plain)
-        .contentShape(Rectangle())
     }
 
     private func badgeLabel(for count: Int) -> String {
         count > 99 ? "99+" : "\(count)"
     }
 
+    private func visibilityReader(for post: UnreadPost, viewport: CGRect) -> some View {
+        GeometryReader { rowProxy in
+            let rowFrame = rowProxy.frame(in: .named("feedListScroll"))
+            let isVisible = rowFrame.intersects(viewport) && rowFrame.height > 0
+            Color.clear.preference(
+                key: VisibleFeedRowsPreferenceKey.self,
+                value: isVisible ? [VisibleFeedRow(id: post.id, minY: rowFrame.minY)] : []
+            )
+        }
+    }
+
+    private func handleVisibleRowsChange(_ visibleRows: [VisibleFeedRow]) {
+        guard userHasScrolled,
+              let focusedVisibleID = topVisiblePostID(in: visibleRows),
+              let post = viewModel.visiblePosts.first(where: { $0.id == focusedVisibleID })
+        else {
+            return
+        }
+
+        onTopVisiblePostChange(post)
+    }
+
+    private func topVisiblePostID(in visibleRows: [VisibleFeedRow]) -> UnreadPostIdentity? {
+        let sortedRows = visibleRows.sorted { lhs, rhs in
+            lhs.minY < rhs.minY
+        }
+        return sortedRows.first(where: { $0.minY >= 0 })?.id ?? sortedRows.first?.id
+    }
+
     @ViewBuilder
     private func row(_ post: UnreadPost) -> some View {
         let isSelected = selectedPostID == post.id
-        let isUnread = viewModel.isUnread(post)
         let parts = cardParts(for: post)
 
         VStack(alignment: .leading, spacing: parts.body == nil ? 4 : 5) {
             Text(parts.title)
-                .font(.system(size: CGFloat(settings.typography.feedTitle), weight: isUnread ? .bold : .semibold, design: .rounded))
-                .foregroundStyle(isUnread ? .primary : .secondary)
+                .font(.system(size: CGFloat(settings.typography.feedTitle), weight: .semibold, design: .rounded))
+                .foregroundStyle(.primary)
                 .lineLimit(2)
                 .multilineTextAlignment(.leading)
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -220,30 +200,17 @@ struct FeedListView: View {
         .padding(.vertical, 7)
         .background(
             RoundedRectangle(cornerRadius: 10, style: .continuous)
-                .fill(AppTheme.rowFill(for: colorScheme, selected: isSelected, unread: isUnread))
+                .fill(AppTheme.rowFill(for: colorScheme, selected: isSelected, unread: false))
         )
         .overlay(
             Group {
                 if isSelected || colorScheme == .dark {
                     RoundedRectangle(cornerRadius: 10, style: .continuous)
-                        .strokeBorder(AppTheme.rowStroke(for: colorScheme, selected: isSelected, unread: isUnread), lineWidth: 1)
+                        .strokeBorder(AppTheme.rowStroke(for: colorScheme, selected: isSelected, unread: false), lineWidth: 1)
                 }
             }
         )
-        .shadow(color: AppTheme.rowShadow(for: colorScheme, selected: isSelected, unread: isUnread), radius: 7, x: 0, y: 3)
-    }
-
-    private func swipeRightGesture(for post: UnreadPost) -> some Gesture {
-        DragGesture(minimumDistance: 18, coordinateSpace: .local)
-            .onEnded { value in
-                guard value.translation.width > 60 else {
-                    return
-                }
-                guard abs(value.translation.width) > abs(value.translation.height) else {
-                    return
-                }
-                onSwipeRight(post)
-            }
+        .shadow(color: AppTheme.rowShadow(for: colorScheme, selected: isSelected, unread: false), radius: 7, x: 0, y: 3)
     }
 
     private func cardParts(for post: UnreadPost) -> (title: String, source: String, body: String?) {
@@ -299,10 +266,11 @@ struct FeedListView: View {
 
         let nextPostID = posts[nextIndex].id
         selectedPostID = nextPostID
+        onSelectionChange(nextPostID)
 
         DispatchQueue.main.async {
             withAnimation(.snappy(duration: 0.2)) {
-                proxy.scrollTo(nextPostID, anchor: .center)
+                proxy.scrollTo(nextPostID, anchor: .top)
             }
         }
     }
@@ -316,6 +284,7 @@ struct FeedListView: View {
 
         if let currentSelectedPostID = selectedPostID,
            visiblePosts.contains(where: { $0.id == currentSelectedPostID }) {
+            scrollToPost(currentSelectedPostID, in: proxy)
             previousVisiblePosts = visiblePosts
             return
         }
@@ -325,12 +294,14 @@ struct FeedListView: View {
             let fallbackIndex = min(previousIndex, visiblePosts.count - 1)
             let fallbackPost = visiblePosts[fallbackIndex]
             updateSelectedPostID(fallbackPost.id, notifySelectionChange: false)
+            scrollToPost(fallbackPost.id, in: proxy)
             previousVisiblePosts = visiblePosts
             return
         }
 
         if let preferredPost = preferredInitialPostID(in: visiblePosts) {
             updateSelectedPostID(preferredPost.id, notifySelectionChange: false)
+            scrollToPost(preferredPost.id, in: proxy)
         }
 
         previousVisiblePosts = visiblePosts
@@ -349,10 +320,31 @@ struct FeedListView: View {
     }
 
     private func preferredInitialPostID(in posts: [UnreadPost]) -> UnreadPost? {
-        if let oldestUnreadPost = posts.last(where: { viewModel.isUnread($0) }) {
-            return oldestUnreadPost
-        }
-        return posts.first
+        viewModel.viewedPostID.flatMap { viewedID in
+            posts.first(where: { $0.id == viewedID })
+        } ?? posts.last
     }
 
+    private func scrollToPost(_ postID: UnreadPostIdentity, in proxy: ScrollViewProxy) {
+        userHasScrolled = false
+        DispatchQueue.main.async {
+            withAnimation(.snappy(duration: 0.2)) {
+                proxy.scrollTo(postID, anchor: .top)
+            }
+        }
+    }
+
+}
+
+private struct VisibleFeedRow: Equatable {
+    let id: UnreadPostIdentity
+    let minY: CGFloat
+}
+
+private struct VisibleFeedRowsPreferenceKey: PreferenceKey {
+    static let defaultValue: [VisibleFeedRow] = []
+
+    static func reduce(value: inout [VisibleFeedRow], nextValue: () -> [VisibleFeedRow]) {
+        value.append(contentsOf: nextValue())
+    }
 }

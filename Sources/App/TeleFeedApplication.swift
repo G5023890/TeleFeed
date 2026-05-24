@@ -208,6 +208,11 @@ final class MenuBarStatusItemController: NSObject {
         refreshAppearance()
     }
 
+    func invalidate() {
+        NSStatusBar.system.removeStatusItem(statusItem)
+        cancellables.removeAll()
+    }
+
     private func configureStatusItem() {
         guard let button = statusItem.button else {
             return
@@ -255,7 +260,7 @@ final class MenuBarStatusItemController: NSObject {
     }
 
     private func observeUnreadChanges() {
-        runtime.mainViewModel.channelsViewModel.objectWillChange
+        runtime.mainViewModel.feedViewModel.objectWillChange
             .sink { [weak self] in
                 Task { @MainActor in
                     self?.refreshAppearance()
@@ -279,9 +284,9 @@ final class MenuBarStatusItemController: NSObject {
             return
         }
 
-        let unreadCount = runtime.mainViewModel.channelsViewModel.channels.reduce(0) { $0 + $1.unreadCount }
-        if unreadCount > 0 {
-            button.title = unreadCount > 99 ? "99+" : "\(unreadCount)"
+        let newerCount = runtime.mainViewModel.feedViewModel.newerThanViewedCount
+        if newerCount > 0 {
+            button.title = newerCount > 99 ? "99+" : "\(newerCount)"
         } else {
             button.title = ""
         }
@@ -335,35 +340,30 @@ final class MenuBarStatusItemController: NSObject {
     }
 
     private func menuBarImage() -> NSImage {
-        let iconStyle = runtime.mainViewModel.settings.menuBarIconStyle
-        let resourceName: String
-        let resourceExtension: String
+        let font = NSFont(name: "AvenirNextCondensed-DemiBold", size: 15) ?? NSFont.systemFont(ofSize: 15, weight: .semibold)
+        let attributes: [NSAttributedString.Key: Any] = [
+            .font: font,
+            .foregroundColor: NSColor.black
+        ]
+        let label = NSAttributedString(string: "News", attributes: attributes)
+        let textSize = label.size()
+        let imageSize = NSSize(width: ceil(textSize.width), height: 18)
+        let image = NSImage(size: imageSize)
 
-        switch iconStyle {
-        case .current:
-            resourceName = "IconTeleFeed"
-            resourceExtension = "png"
-        case .telegramRSS:
-            resourceName = "MenuBarIconTelegramRSS"
-            resourceExtension = "png"
-        case .telegramRSS2:
-            resourceName = "MenuBarIconTelegramRSS2"
-            resourceExtension = "png"
-        }
+        image.lockFocus()
+        NSColor.clear.setFill()
+        NSRect(origin: .zero, size: imageSize).fill()
+        let drawRect = NSRect(
+            x: 0,
+            y: floor((imageSize.height - textSize.height) / 2) + 1,
+            width: imageSize.width,
+            height: textSize.height
+        )
+        label.draw(in: drawRect)
+        image.unlockFocus()
 
-        if let url = Bundle.main.url(forResource: resourceName, withExtension: resourceExtension, subdirectory: "Assets/Icons"),
-           let image = NSImage(contentsOf: url) {
-            image.isTemplate = false
-            let targetHeight: CGFloat = 18
-            let aspectRatio = image.size.height > 0 ? image.size.width / image.size.height : 1
-            image.size = NSSize(width: targetHeight * aspectRatio, height: targetHeight)
-            return image
-        }
-
-        let fallback = NSImage(systemSymbolName: "eye.circle", accessibilityDescription: "TeleFeed") ?? NSImage()
-        fallback.isTemplate = true
-        fallback.size = NSSize(width: 18, height: 18)
-        return fallback
+        image.isTemplate = true
+        return image
     }
 }
 
@@ -372,16 +372,66 @@ final class TeleFeedAppDelegate: NSObject, NSApplicationDelegate {
     let runtime = AppRuntime()
     private var menuBarController: MenuBarStatusItemController?
     private let mainMenu = NSMenu()
+    private var cancellables = Set<AnyCancellable>()
 
     func applicationDidFinishLaunching(_ notification: Notification) {
-        NSApp.setActivationPolicy(.accessory)
         configureMainMenu()
+        applyDockIconVisibility(runtime.mainViewModel.settings.showDockIcon)
+        guard ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] == nil else {
+            return
+        }
         runtime.start()
-        menuBarController = MenuBarStatusItemController(runtime: runtime)
+        updateMenuBarVisibility(runtime.mainViewModel.settings.showMenuBarIcon)
+        observePresentationSettings()
+        runtime.openHome()
     }
 
     func applicationWillTerminate(_ notification: Notification) {
         runtime.shutdown()
+    }
+
+    func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
+        if flag == false {
+            runtime.openHome()
+        }
+        return true
+    }
+
+    private func observePresentationSettings() {
+        runtime.mainViewModel.$settings
+            .map(\.showDockIcon)
+            .removeDuplicates()
+            .sink { [weak self] showDockIcon in
+                Task { @MainActor in
+                    self?.applyDockIconVisibility(showDockIcon)
+                }
+            }
+            .store(in: &cancellables)
+
+        runtime.mainViewModel.$settings
+            .map(\.showMenuBarIcon)
+            .removeDuplicates()
+            .sink { [weak self] showMenuBarIcon in
+                Task { @MainActor in
+                    self?.updateMenuBarVisibility(showMenuBarIcon)
+                }
+            }
+            .store(in: &cancellables)
+    }
+
+    private func applyDockIconVisibility(_ isVisible: Bool) {
+        NSApp.setActivationPolicy(isVisible ? .regular : .accessory)
+    }
+
+    private func updateMenuBarVisibility(_ isVisible: Bool) {
+        if isVisible {
+            if menuBarController == nil {
+                menuBarController = MenuBarStatusItemController(runtime: runtime)
+            }
+        } else {
+            menuBarController?.invalidate()
+            menuBarController = nil
+        }
     }
 
     private func configureMainMenu() {

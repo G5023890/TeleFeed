@@ -8,7 +8,12 @@
 
 /* Begin PBXBuildFile section */
 		03A5DD85409F3387DA9E681A /* SettingsWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F43F8EFBB69FFE8826678D2 /* SettingsWindowController.swift */; };
+		049AD7D10B4189BC4714B29F /* ReaderService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0C3C3052EC4903DAD5B7B11 /* ReaderService.swift */; };
+		0682024315E6AAD9E25D3B15 /* TDLibFramework in Frameworks */ = {isa = PBXBuildFile; productRef = 6F10747212B4C5572F1E72B8 /* TDLibFramework */; };
 		0A1A29BA824111F0AD1F443C /* UnreadPost.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE471ECD18DB0EF8FCA5AC83 /* UnreadPost.swift */; };
+		0B949DA11D526FF64667EAFD /* TDLibDictionary+Parsing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36987BA50AA5480D67169C5D /* TDLibDictionary+Parsing.swift */; };
+		0E228CAE6985CAB11A521A4A /* RSSService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C98D7329344328305E7D64F8 /* RSSService.swift */; };
+		0E7FABC093891C0389CCD148 /* ReadabilityExtractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35BDA2F872828226E407572F /* ReadabilityExtractor.swift */; };
 		0FB37305D1A85D061F780904 /* PostViewerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DBE356F1F7B2D928BC3CFBC /* PostViewerView.swift */; };
 		11B2F8A7A25251ECF766BAD8 /* AppSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C6BDC544B46AA7CCBDA2FDE /* AppSettings.swift */; };
 		15EAF20352FE439BC11C9C10 /* TeleFeedApplication.swift in Sources */ = {isa = PBXBuildFile; fileRef = B78CD489A67F8E001DD76B0A /* TeleFeedApplication.swift */; };
@@ -16,55 +21,123 @@
 		1B28317E570301F9B05997EE /* ReadabilitySource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 696528D7DEEA146E9AF8E531 /* ReadabilitySource.swift */; };
 		20AF1E0B8E0DCC43F8332793 /* ReaderHTMLTemplate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1600CCD43549BE3010037BA /* ReaderHTMLTemplate.swift */; };
 		23A5B436DED4920D86CC6A86 /* AppContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE2628F7A465B730A9EA4084 /* AppContainer.swift */; };
+		23E04F2E6FAE41D0C8268AF9 /* IOSGlassBackground.swift in Sources */ = {isa = PBXBuildFile; fileRef = 833A5475D1743B5871DA3DA2 /* IOSGlassBackground.swift */; };
+		2ADADA10E127FDC0F1606790 /* AppSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C6BDC544B46AA7CCBDA2FDE /* AppSettings.swift */; };
+		2C826404FDD549B37E0026F3 /* ReaderArticle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51545A518675D6C1588ADECD /* ReaderArticle.swift */; };
+		2C97A70DC8B53B8C69203D57 /* ReadabilitySource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 696528D7DEEA146E9AF8E531 /* ReadabilitySource.swift */; };
 		2DD030AB8101014E627D2E97 /* ChannelsManagementView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7753332B8A8A5BB0FEB8A964 /* ChannelsManagementView.swift */; };
+		2ED4B9CA2944B8D77B013BFD /* CloudSyncService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD656328424ADC1458067C40 /* CloudSyncService.swift */; };
 		39588215D694B785F6B41EA0 /* ReaderWebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A382CF3099F62F0074862BE /* ReaderWebView.swift */; };
+		3DDAA25BC82277749B7ECAF8 /* WatchedChannel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 888EF0BCA1A395DB291A2D10 /* WatchedChannel.swift */; };
 		3DEA5554351133D7B99544D9 /* MainWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51F0EA736D3B34FC759072C1 /* MainWindowController.swift */; };
 		3E7A8954877D082343067579 /* TranslationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B982540D4E8F45BD780EA72 /* TranslationService.swift */; };
+		3E7D851A855AEB39E40260FC /* SecureStorageProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = F377BEEB5FBAFE6EAD8DDE72 /* SecureStorageProtocol.swift */; };
+		3FD7E5780FFC464ED9B036E1 /* TelegramService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50069F665BDA81A83065E98A /* TelegramService.swift */; };
 		40BC9F7628EBF43E8A3D2F38 /* MenuBarContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7E4EA3028E1876B87676AEC8 /* MenuBarContentView.swift */; };
+		4235C5670A823698E7B595A1 /* NewsSourcesDrawerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98BDF99B7C326ABCCFE17E46 /* NewsSourcesDrawerView.swift */; };
+		427EB04AC61056DFC7F5C108 /* CloudSyncService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD656328424ADC1458067C40 /* CloudSyncService.swift */; };
+		45E1F86F5A1AFC241394C529 /* CloudSyncServiceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98B0026D646D2A861CE860F5 /* CloudSyncServiceProtocol.swift */; };
+		4865595E74FF0CAF17FBBB91 /* RSSFeedSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = D275461E5515768D14FA7466 /* RSSFeedSource.swift */; };
+		4F5B7313997ED9CED9B1B759 /* CloudSyncServiceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98B0026D646D2A861CE860F5 /* CloudSyncServiceProtocol.swift */; };
+		511944249BF50F919CB031D5 /* NewsFilterState.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEB2B60BE2276B8F4D9122FF /* NewsFilterState.swift */; };
+		515B2BA799398120B31ADAA2 /* NewsFilterState.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEB2B60BE2276B8F4D9122FF /* NewsFilterState.swift */; };
+		541D71C96C4CA9F27D87EF6D /* TDLibClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8400C314588FBD41E3431D49 /* TDLibClient.swift */; };
+		5515A90D0B885A7B5F6AE8F1 /* ReaderFallbackPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2092EB6E92EC84FC9A2FB81 /* ReaderFallbackPolicy.swift */; };
+		58DEB88F6353594625681F30 /* IOSReaderViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15C0752106AE34A1125172BB /* IOSReaderViewModel.swift */; };
+		590BD2A5156E1BF505BDAB8B /* SyncableAppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EC13A27F787CA7F15C730CB /* SyncableAppState.swift */; };
+		5A01F6C35206B4CE934662A1 /* DefaultRSSFeeds.swift in Sources */ = {isa = PBXBuildFile; fileRef = 730460240E42F88928A11E24 /* DefaultRSSFeeds.swift */; };
 		5B4BE215F94273D9F13CB5B6 /* TDLibClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8400C314588FBD41E3431D49 /* TDLibClient.swift */; };
+		5EDA0ACDAEE78C7A0D78F6EB /* FileAppStateStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E8CB80CB34C800F5F0F7B37 /* FileAppStateStore.swift */; };
+		5EE3C556EC3E57ED9672288E /* ReaderHTMLTemplate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1600CCD43549BE3010037BA /* ReaderHTMLTemplate.swift */; };
+		5F99A471DFD48A19CB14EF11 /* ReaderServiceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB97651D0137C1B788F191A4 /* ReaderServiceProtocol.swift */; };
 		624E464D02415A6B4287F147 /* L10n.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A629401DA34A1E82EC3E8F0 /* L10n.swift */; };
 		62CF60FD386E1CE4714F4EAB /* KeychainSecureStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 480D44A80D716191EA721E66 /* KeychainSecureStorage.swift */; };
 		63177622BA1E52A8185001C0 /* TelegramService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50069F665BDA81A83065E98A /* TelegramService.swift */; };
+		637DF0312FD4C075672A18CF /* KeychainSecureStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 480D44A80D716191EA721E66 /* KeychainSecureStorage.swift */; };
+		67694B2F4627BE17DA68B561 /* TranslationState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 278019C11D479A7459BD6640 /* TranslationState.swift */; };
 		6AE5CAA7D20DD037E7983440 /* SecureStorageProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = F377BEEB5FBAFE6EAD8DDE72 /* SecureStorageProtocol.swift */; };
 		6F6BB8D553FEBAE805FA1A22 /* ChannelsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA2E43889461AA00EA31FFAF /* ChannelsViewModel.swift */; };
 		6FCF3F1DFD3BC72A6B52B5E1 /* FeedListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65D680A41A607A219C39539B /* FeedListView.swift */; };
+		7347BED4381460C0E03C55AE /* TeleFeed.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 54C0D461B8BA5E1A6FDF594A /* TeleFeed.xcassets */; };
+		7375595368B335812F7A4CD6 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 6EBC6D4D4D1A70E3BDB74523 /* Localizable.strings */; };
 		763C13DBF23EC3A4DA27801E /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FDC820DB6509ABB876EF5067 /* SettingsView.swift */; };
 		76EC18B37567D5249CB514DF /* TelegramServiceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBC05721423F48B40EA34944 /* TelegramServiceProtocol.swift */; };
 		7ABC7674F596F7DB9828A34B /* NotificationServiceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B3A5B4BCE8F7FE95400C418 /* NotificationServiceProtocol.swift */; };
 		7AFCC85C8E5CC864664AB2C4 /* AppTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = C184D0FEC69E50ECBF9B8BD9 /* AppTheme.swift */; };
+		7B6007B3AED412418CF63654 /* DefaultRSSFeeds.swift in Sources */ = {isa = PBXBuildFile; fileRef = 730460240E42F88928A11E24 /* DefaultRSSFeeds.swift */; };
 		7EBFEC257F0FE90D0D974A66 /* RSSServiceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54D85559F64518D8E9F31751 /* RSSServiceProtocol.swift */; };
 		8091193E0C6E853C2CD4C500 /* TranslationServiceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B4C0153BA2C8F7C9F9FD41D /* TranslationServiceProtocol.swift */; };
+		81BEFA9F38BEFF985E76009E /* TelegramServiceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBC05721423F48B40EA34944 /* TelegramServiceProtocol.swift */; };
 		889C713A0F5FEBB7F633C0BA /* FileAppStateStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E8CB80CB34C800F5F0F7B37 /* FileAppStateStore.swift */; };
+		8C7E6F278D4EDC3C24303488 /* TranslationServiceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B4C0153BA2C8F7C9F9FD41D /* TranslationServiceProtocol.swift */; };
 		8DD48F5E9E31484D79E7A5F6 /* ReaderServiceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB97651D0137C1B788F191A4 /* ReaderServiceProtocol.swift */; };
+		8E27C92FF25FE82E60833F73 /* IOSNewsFlowViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA11D8E7696BAD3E729661BD /* IOSNewsFlowViewModel.swift */; };
+		924EF71471DEF542FC5A0A54 /* L10n.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A629401DA34A1E82EC3E8F0 /* L10n.swift */; };
 		94205CEEDCF8A9A13C8801E6 /* ReaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E01C071B26CE764DB3169651 /* ReaderView.swift */; };
+		9517D9292EFC4A5FE21A6B84 /* NewsIntelligenceService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4BBD3FB6FAAD4FCC7358AD9 /* NewsIntelligenceService.swift */; };
+		955DE8C87FFE509FDD315F51 /* RSSServiceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54D85559F64518D8E9F31751 /* RSSServiceProtocol.swift */; };
+		98960B90622C35CDBA62516B /* LocalNotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BC815AC3CF2EC9253D546D0 /* LocalNotificationService.swift */; };
+		994BEB3A63EE5611ACBB7D48 /* NotificationServiceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B3A5B4BCE8F7FE95400C418 /* NotificationServiceProtocol.swift */; };
+		9A12D6D2F9B688F03703BFFB /* UnreadPost.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE471ECD18DB0EF8FCA5AC83 /* UnreadPost.swift */; };
 		9CF56695B0EF15249C8F795D /* TeleFeedApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3EA9BDC71F6129EE7C98CE7 /* TeleFeedApp.swift */; };
 		9D01F6C2F3D48F9EC3D71EFF /* StateStoreProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CA97BB23E39543CCA54AFBE /* StateStoreProtocol.swift */; };
 		9E38F15D38B9AFFAEEDCD7C0 /* ReadabilityExtractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35BDA2F872828226E407572F /* ReadabilityExtractor.swift */; };
+		9E8FE7164B89B33B740D654D /* NewsIntelligenceService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4BBD3FB6FAAD4FCC7358AD9 /* NewsIntelligenceService.swift */; };
 		A5823619706D6FC92EA61317 /* RSSFeedSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = D275461E5515768D14FA7466 /* RSSFeedSource.swift */; };
+		A72B03ACEC56F1DAE15C7633 /* SyncableAppStateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11CF903D2DA433F1F63DD1F9 /* SyncableAppStateTests.swift */; };
 		A78200475123656C46B4AD4B /* ReaderViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11707C4C9CAC49AD6E5B566A /* ReaderViewModel.swift */; };
 		AA5FAFDB5B6D9378179961F3 /* TDLibDictionary+Parsing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36987BA50AA5480D67169C5D /* TDLibDictionary+Parsing.swift */; };
 		AB15AFDC46A929334841D5A7 /* MainViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F044F52606255FB8F1972D12 /* MainViewModel.swift */; };
 		ACEF3249C7B52E0F2F686582 /* TranslationState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 278019C11D479A7459BD6640 /* TranslationState.swift */; };
+		AD7AD447C638B15D0BC0CAB3 /* FeedViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F5A0DDE2BB66A27DA7D1FEC /* FeedViewModel.swift */; };
 		B3B5108EE619D6FE6A0696F5 /* FeedViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F5A0DDE2BB66A27DA7D1FEC /* FeedViewModel.swift */; };
+		B5364241D8FFDD249D6D004B /* IOSNewsFlowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 419E7412776D7683EA1C1284 /* IOSNewsFlowView.swift */; };
 		B5FC7C5EFF8A9B20BEDF2DA1 /* WindowFrameState.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0807DA65099569570213613 /* WindowFrameState.swift */; };
 		B71B3A4804B65023E2F40A11 /* AuthViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55EA84DDA3E30ECAA7E39226 /* AuthViewModel.swift */; };
+		C0F3DE4893C21B15AB70BC13 /* SyncableAppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EC13A27F787CA7F15C730CB /* SyncableAppState.swift */; };
 		C2913E8180D3A40E7D063763 /* ReaderArticle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51545A518675D6C1588ADECD /* ReaderArticle.swift */; };
+		C295FC866A3FA933595697A5 /* StateStoreProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CA97BB23E39543CCA54AFBE /* StateStoreProtocol.swift */; };
+		C9D24D336643A89A2D8389D1 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 7BA2FC6DF42D093AFA295078 /* Localizable.strings */; };
+		CCF1E55FF38AB31827DBB81A /* DefaultTelegramChannels.swift in Sources */ = {isa = PBXBuildFile; fileRef = D704C556EAA120A646819DB9 /* DefaultTelegramChannels.swift */; };
+		CF3398485670B29BFFBFC46A /* TeleFeedIOSApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAA8F323ED2B372D17FA2672 /* TeleFeedIOSApp.swift */; };
 		D057DB0CE659A58E8561986E /* WatchedChannel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 888EF0BCA1A395DB291A2D10 /* WatchedChannel.swift */; };
 		D12869B6B5A5F0D989384B53 /* RSSFeedsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0941110630866FBB2FC6AF1 /* RSSFeedsViewModel.swift */; };
+		D246DE91B249DFA15D39634F /* IOSReaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD9D4EE8B0EF78D6C01690EC /* IOSReaderView.swift */; };
 		D4CD2C5A05992740CD77B2FD /* ReaderFallbackPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2092EB6E92EC84FC9A2FB81 /* ReaderFallbackPolicy.swift */; };
+		D82D0C8D81EA7B7C1E628D09 /* NewsListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F17C756BA28907A35092E5D /* NewsListView.swift */; };
 		D8EE40962EEBA8C599B99361 /* AppRoute.swift in Sources */ = {isa = PBXBuildFile; fileRef = 493D86B3505ACDE738D236BE /* AppRoute.swift */; };
+		D90260F826AC03C11335F30B /* NewsDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A90FB8DBB80F0ED32742240 /* NewsDetailView.swift */; };
+		DAE1757F3AEDD8C182E3C0B4 /* TeleFeed.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 54C0D461B8BA5E1A6FDF594A /* TeleFeed.xcassets */; };
 		DCE6005E4840685B991BF330 /* AuthView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40D5D8E9D616100C74913782 /* AuthView.swift */; };
 		DE79CF0EB6526546C202C5B1 /* LocalNotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BC815AC3CF2EC9253D546D0 /* LocalNotificationService.swift */; };
 		E05197E0EB43A7A96E553904 /* ViewerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94127635310969C62CD35211 /* ViewerViewModel.swift */; };
 		E39E3D75F5B3451EABB6C651 /* SelectableTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39FA2E9F1E47B96BBF273700 /* SelectableTextView.swift */; };
 		E637DACADD0C31B5B80A5320 /* TDLibFramework in Frameworks */ = {isa = PBXBuildFile; productRef = FE6A37A4D806E51E026D10CC /* TDLibFramework */; };
 		EB743B375A282B0987254696 /* MainContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBC676C39F9B42CF055BA0B8 /* MainContentView.swift */; };
+		F0B2EC3910F2B564D75D20D7 /* IOSReaderWebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9823D0F085ED58DFA678D620 /* IOSReaderWebView.swift */; };
 		F14F66D4EF3BDC4AD1E97AB7 /* ReaderService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0C3C3052EC4903DAD5B7B11 /* ReaderService.swift */; };
+		F97C7437C131B99FB1C02454 /* TranslationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B982540D4E8F45BD780EA72 /* TranslationService.swift */; };
+		FBE50C8AD785FDDF8F48F6E3 /* DefaultTelegramChannels.swift in Sources */ = {isa = PBXBuildFile; fileRef = D704C556EAA120A646819DB9 /* DefaultTelegramChannels.swift */; };
+		FC3B725E34405EEC04D07B83 /* WindowFrameState.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0807DA65099569570213613 /* WindowFrameState.swift */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		92228735A79C067572CAB604 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 134BA1CD2623EF8619D2516C /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 03E6E1BB1993953B493E9D8C;
+			remoteInfo = TeleFeed;
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		0B3A5B4BCE8F7FE95400C418 /* NotificationServiceProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationServiceProtocol.swift; sourceTree = "<group>"; };
+		0F17C756BA28907A35092E5D /* NewsListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewsListView.swift; sourceTree = "<group>"; };
 		11707C4C9CAC49AD6E5B566A /* ReaderViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReaderViewModel.swift; sourceTree = "<group>"; };
+		11CF903D2DA433F1F63DD1F9 /* SyncableAppStateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncableAppStateTests.swift; sourceTree = "<group>"; };
+		14B43998EBB01AC0BE7D2F00 /* TeleFeed iOS.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = "TeleFeed iOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		15C0752106AE34A1125172BB /* IOSReaderViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IOSReaderViewModel.swift; sourceTree = "<group>"; };
 		1DBE356F1F7B2D928BC3CFBC /* PostViewerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostViewerView.swift; sourceTree = "<group>"; };
 		1F5A0DDE2BB66A27DA7D1FEC /* FeedViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedViewModel.swift; sourceTree = "<group>"; };
 		278019C11D479A7459BD6640 /* TranslationState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranslationState.swift; sourceTree = "<group>"; };
@@ -74,36 +147,55 @@
 		35BDA2F872828226E407572F /* ReadabilityExtractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadabilityExtractor.swift; sourceTree = "<group>"; };
 		36987BA50AA5480D67169C5D /* TDLibDictionary+Parsing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TDLibDictionary+Parsing.swift"; sourceTree = "<group>"; };
 		39FA2E9F1E47B96BBF273700 /* SelectableTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectableTextView.swift; sourceTree = "<group>"; };
+		3B8C1B7E809183639F4456C0 /* TeleFeedTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TeleFeedTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		3C6BDC544B46AA7CCBDA2FDE /* AppSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSettings.swift; sourceTree = "<group>"; };
 		40D5D8E9D616100C74913782 /* AuthView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthView.swift; sourceTree = "<group>"; };
+		419E7412776D7683EA1C1284 /* IOSNewsFlowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IOSNewsFlowView.swift; sourceTree = "<group>"; };
 		480D44A80D716191EA721E66 /* KeychainSecureStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainSecureStorage.swift; sourceTree = "<group>"; };
 		493D86B3505ACDE738D236BE /* AppRoute.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppRoute.swift; sourceTree = "<group>"; };
 		4A629401DA34A1E82EC3E8F0 /* L10n.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = L10n.swift; sourceTree = "<group>"; };
 		50069F665BDA81A83065E98A /* TelegramService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TelegramService.swift; sourceTree = "<group>"; };
 		51545A518675D6C1588ADECD /* ReaderArticle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReaderArticle.swift; sourceTree = "<group>"; };
 		51F0EA736D3B34FC759072C1 /* MainWindowController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainWindowController.swift; sourceTree = "<group>"; };
+		54C0D461B8BA5E1A6FDF594A /* TeleFeed.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = TeleFeed.xcassets; sourceTree = "<group>"; };
 		54D85559F64518D8E9F31751 /* RSSServiceProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RSSServiceProtocol.swift; sourceTree = "<group>"; };
 		55EA84DDA3E30ECAA7E39226 /* AuthViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthViewModel.swift; sourceTree = "<group>"; };
 		5B4C0153BA2C8F7C9F9FD41D /* TranslationServiceProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranslationServiceProtocol.swift; sourceTree = "<group>"; };
 		65D680A41A607A219C39539B /* FeedListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedListView.swift; sourceTree = "<group>"; };
 		696528D7DEEA146E9AF8E531 /* ReadabilitySource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadabilitySource.swift; sourceTree = "<group>"; };
+		6EBC6D4D4D1A70E3BDB74523 /* Localizable.strings */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; path = Localizable.strings; sourceTree = "<group>"; };
+		730460240E42F88928A11E24 /* DefaultRSSFeeds.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultRSSFeeds.swift; sourceTree = "<group>"; };
 		7753332B8A8A5BB0FEB8A964 /* ChannelsManagementView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChannelsManagementView.swift; sourceTree = "<group>"; };
+		7A90FB8DBB80F0ED32742240 /* NewsDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewsDetailView.swift; sourceTree = "<group>"; };
+		7BA2FC6DF42D093AFA295078 /* Localizable.strings */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; path = Localizable.strings; sourceTree = "<group>"; };
 		7E4EA3028E1876B87676AEC8 /* MenuBarContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarContentView.swift; sourceTree = "<group>"; };
+		833A5475D1743B5871DA3DA2 /* IOSGlassBackground.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IOSGlassBackground.swift; sourceTree = "<group>"; };
 		8400C314588FBD41E3431D49 /* TDLibClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TDLibClient.swift; sourceTree = "<group>"; };
 		888EF0BCA1A395DB291A2D10 /* WatchedChannel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchedChannel.swift; sourceTree = "<group>"; };
 		8CA97BB23E39543CCA54AFBE /* StateStoreProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StateStoreProtocol.swift; sourceTree = "<group>"; };
 		8E8CB80CB34C800F5F0F7B37 /* FileAppStateStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileAppStateStore.swift; sourceTree = "<group>"; };
+		8EC13A27F787CA7F15C730CB /* SyncableAppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncableAppState.swift; sourceTree = "<group>"; };
 		94127635310969C62CD35211 /* ViewerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewerViewModel.swift; sourceTree = "<group>"; };
+		9823D0F085ED58DFA678D620 /* IOSReaderWebView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IOSReaderWebView.swift; sourceTree = "<group>"; };
+		98B0026D646D2A861CE860F5 /* CloudSyncServiceProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudSyncServiceProtocol.swift; sourceTree = "<group>"; };
+		98BDF99B7C326ABCCFE17E46 /* NewsSourcesDrawerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewsSourcesDrawerView.swift; sourceTree = "<group>"; };
 		9BC815AC3CF2EC9253D546D0 /* LocalNotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalNotificationService.swift; sourceTree = "<group>"; };
+		AD656328424ADC1458067C40 /* CloudSyncService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudSyncService.swift; sourceTree = "<group>"; };
 		B0941110630866FBB2FC6AF1 /* RSSFeedsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RSSFeedsViewModel.swift; sourceTree = "<group>"; };
 		B30F653FDC3CDC06BFD48796 /* TeleFeed.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TeleFeed.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		B4BBD3FB6FAAD4FCC7358AD9 /* NewsIntelligenceService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewsIntelligenceService.swift; sourceTree = "<group>"; };
 		B78CD489A67F8E001DD76B0A /* TeleFeedApplication.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TeleFeedApplication.swift; sourceTree = "<group>"; };
 		BBC05721423F48B40EA34944 /* TelegramServiceProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TelegramServiceProtocol.swift; sourceTree = "<group>"; };
 		C184D0FEC69E50ECBF9B8BD9 /* AppTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTheme.swift; sourceTree = "<group>"; };
 		C2092EB6E92EC84FC9A2FB81 /* ReaderFallbackPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReaderFallbackPolicy.swift; sourceTree = "<group>"; };
 		C98D7329344328305E7D64F8 /* RSSService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RSSService.swift; sourceTree = "<group>"; };
+		CA11D8E7696BAD3E729661BD /* IOSNewsFlowViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IOSNewsFlowViewModel.swift; sourceTree = "<group>"; };
+		CAA8F323ED2B372D17FA2672 /* TeleFeedIOSApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TeleFeedIOSApp.swift; sourceTree = "<group>"; };
+		CD9D4EE8B0EF78D6C01690EC /* IOSReaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IOSReaderView.swift; sourceTree = "<group>"; };
 		CE2628F7A465B730A9EA4084 /* AppContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppContainer.swift; sourceTree = "<group>"; };
+		CEB2B60BE2276B8F4D9122FF /* NewsFilterState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewsFilterState.swift; sourceTree = "<group>"; };
 		D275461E5515768D14FA7466 /* RSSFeedSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RSSFeedSource.swift; sourceTree = "<group>"; };
+		D704C556EAA120A646819DB9 /* DefaultTelegramChannels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultTelegramChannels.swift; sourceTree = "<group>"; };
 		DB97651D0137C1B788F191A4 /* ReaderServiceProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReaderServiceProtocol.swift; sourceTree = "<group>"; };
 		DBC676C39F9B42CF055BA0B8 /* MainContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainContentView.swift; sourceTree = "<group>"; };
 		E01C071B26CE764DB3169651 /* ReaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReaderView.swift; sourceTree = "<group>"; };
@@ -119,6 +211,14 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		2F2207B3EE787309073E831C /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0682024315E6AAD9E25D3B15 /* TDLibFramework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		DCB3DAD11E0BE19B98C346C9 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -139,6 +239,15 @@
 			path = NotificationService;
 			sourceTree = "<group>";
 		};
+		1518C5F51D9BC90665540377 /* Localization */ = {
+			isa = PBXGroup;
+			children = (
+				6F8F6F1664A64335806A989F /* en.lproj */,
+				F0BF32FFA8001F2ADB604602 /* ru.lproj */,
+			);
+			path = Localization;
+			sourceTree = "<group>";
+		};
 		1FAFC68F226273B04110F743 /* StateStore */ = {
 			isa = PBXGroup;
 			children = (
@@ -151,7 +260,9 @@
 		3109E1919C09F9566EA8D3FF /* Products */ = {
 			isa = PBXGroup;
 			children = (
+				14B43998EBB01AC0BE7D2F00 /* TeleFeed iOS.app */,
 				B30F653FDC3CDC06BFD48796 /* TeleFeed.app */,
+				3B8C1B7E809183639F4456C0 /* TeleFeedTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -182,10 +293,20 @@
 			path = Views;
 			sourceTree = "<group>";
 		};
+		4835CD8BB98D5B3C80D4EBAB /* NewsIntelligence */ = {
+			isa = PBXGroup;
+			children = (
+				B4BBD3FB6FAAD4FCC7358AD9 /* NewsIntelligenceService.swift */,
+			);
+			path = NewsIntelligence;
+			sourceTree = "<group>";
+		};
 		59AD0FABB5C2FAADCA23E2A4 = {
 			isa = PBXGroup;
 			children = (
+				F9B5865050B3DF572ED28408 /* Resources */,
 				93496DF722BC50AE7B6E348E /* Sources */,
+				A55567BDC0395C0C1633C8A5 /* Tests */,
 				3109E1919C09F9566EA8D3FF /* Products */,
 			);
 			sourceTree = "<group>";
@@ -193,6 +314,8 @@
 		64EB72A341EABA7B71DCF0E5 /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				847425F275E583D4C91A175C /* CloudSync */,
+				4835CD8BB98D5B3C80D4EBAB /* NewsIntelligence */,
 				017BAF1736E9F4C9D66A2C08 /* NotificationService */,
 				6745E111EB09A192C1888297 /* ReaderService */,
 				39B9F35DA892B9BF8AD6E142 /* RSSService */,
@@ -212,6 +335,14 @@
 				DB97651D0137C1B788F191A4 /* ReaderServiceProtocol.swift */,
 			);
 			path = ReaderService;
+			sourceTree = "<group>";
+		};
+		6F8F6F1664A64335806A989F /* en.lproj */ = {
+			isa = PBXGroup;
+			children = (
+				7BA2FC6DF42D093AFA295078 /* Localizable.strings */,
+			);
+			path = en.lproj;
 			sourceTree = "<group>";
 		};
 		716B46EB5FF9F2E96B22374D /* SecureStorage */ = {
@@ -257,6 +388,16 @@
 			path = Routing;
 			sourceTree = "<group>";
 		};
+		847425F275E583D4C91A175C /* CloudSync */ = {
+			isa = PBXGroup;
+			children = (
+				AD656328424ADC1458067C40 /* CloudSyncService.swift */,
+				98B0026D646D2A861CE860F5 /* CloudSyncServiceProtocol.swift */,
+				8EC13A27F787CA7F15C730CB /* SyncableAppState.swift */,
+			);
+			path = CloudSync;
+			sourceTree = "<group>";
+		};
 		8525651395137BCCD666B52B /* Shared */ = {
 			isa = PBXGroup;
 			children = (
@@ -274,6 +415,7 @@
 				C70D3E489623C0FDCBE15C87 /* Auth */,
 				F9A3DCDC0BF8A88CEE1A9AD5 /* Channels */,
 				9D0C99B06A6EE13A125ECCB9 /* Feed */,
+				F6BABA063C927ADDB66C1A27 /* iOS */,
 				A0D406DB686FB61E4CD5FD88 /* Reader */,
 				79B6586B5F462F10AC83CBEF /* RSS */,
 				64EB72A341EABA7B71DCF0E5 /* Services */,
@@ -296,6 +438,9 @@
 			isa = PBXGroup;
 			children = (
 				3C6BDC544B46AA7CCBDA2FDE /* AppSettings.swift */,
+				730460240E42F88928A11E24 /* DefaultRSSFeeds.swift */,
+				D704C556EAA120A646819DB9 /* DefaultTelegramChannels.swift */,
+				CEB2B60BE2276B8F4D9122FF /* NewsFilterState.swift */,
 				D275461E5515768D14FA7466 /* RSSFeedSource.swift */,
 				278019C11D479A7459BD6640 /* TranslationState.swift */,
 				FE471ECD18DB0EF8FCA5AC83 /* UnreadPost.swift */,
@@ -328,6 +473,22 @@
 				BBC05721423F48B40EA34944 /* TelegramServiceProtocol.swift */,
 			);
 			path = TelegramService;
+			sourceTree = "<group>";
+		};
+		A55567BDC0395C0C1633C8A5 /* Tests */ = {
+			isa = PBXGroup;
+			children = (
+				A7821C7D588B3E374EA0E76D /* TeleFeedTests */,
+			);
+			path = Tests;
+			sourceTree = "<group>";
+		};
+		A7821C7D588B3E374EA0E76D /* TeleFeedTests */ = {
+			isa = PBXGroup;
+			children = (
+				11CF903D2DA433F1F63DD1F9 /* SyncableAppStateTests.swift */,
+			);
+			path = TeleFeedTests;
 			sourceTree = "<group>";
 		};
 		AE25FCE19CDFDBBF0DC28FD6 /* MenuBar */ = {
@@ -372,12 +533,45 @@
 			path = Viewer;
 			sourceTree = "<group>";
 		};
+		F0BF32FFA8001F2ADB604602 /* ru.lproj */ = {
+			isa = PBXGroup;
+			children = (
+				6EBC6D4D4D1A70E3BDB74523 /* Localizable.strings */,
+			);
+			path = ru.lproj;
+			sourceTree = "<group>";
+		};
 		F33AF8843150492C096A6A9F /* DI */ = {
 			isa = PBXGroup;
 			children = (
 				CE2628F7A465B730A9EA4084 /* AppContainer.swift */,
 			);
 			path = DI;
+			sourceTree = "<group>";
+		};
+		F6BABA063C927ADDB66C1A27 /* iOS */ = {
+			isa = PBXGroup;
+			children = (
+				833A5475D1743B5871DA3DA2 /* IOSGlassBackground.swift */,
+				419E7412776D7683EA1C1284 /* IOSNewsFlowView.swift */,
+				CA11D8E7696BAD3E729661BD /* IOSNewsFlowViewModel.swift */,
+				CD9D4EE8B0EF78D6C01690EC /* IOSReaderView.swift */,
+				15C0752106AE34A1125172BB /* IOSReaderViewModel.swift */,
+				9823D0F085ED58DFA678D620 /* IOSReaderWebView.swift */,
+				7A90FB8DBB80F0ED32742240 /* NewsDetailView.swift */,
+				0F17C756BA28907A35092E5D /* NewsListView.swift */,
+				98BDF99B7C326ABCCFE17E46 /* NewsSourcesDrawerView.swift */,
+				CAA8F323ED2B372D17FA2672 /* TeleFeedIOSApp.swift */,
+			);
+			path = iOS;
+			sourceTree = "<group>";
+		};
+		F7DD5ED24D8FB710F6B15835 /* Assets */ = {
+			isa = PBXGroup;
+			children = (
+				54C0D461B8BA5E1A6FDF594A /* TeleFeed.xcassets */,
+			);
+			path = Assets;
 			sourceTree = "<group>";
 		};
 		F9A3DCDC0BF8A88CEE1A9AD5 /* Channels */ = {
@@ -389,6 +583,15 @@
 			path = Channels;
 			sourceTree = "<group>";
 		};
+		F9B5865050B3DF572ED28408 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				F7DD5ED24D8FB710F6B15835 /* Assets */,
+				1518C5F51D9BC90665540377 /* Localization */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -397,6 +600,7 @@
 			buildConfigurationList = DDFD1C0ABE59A0EF56FABE86 /* Build configuration list for PBXNativeTarget "TeleFeed" */;
 			buildPhases = (
 				BE11F0087D683BC02370D10E /* Sources */,
+				094227085D215F454952AE62 /* Resources */,
 				DCB3DAD11E0BE19B98C346C9 /* Frameworks */,
 				5B72CF40B632141BDD50DB62 /* Copy Menu Bar Icon */,
 			);
@@ -412,6 +616,44 @@
 			productReference = B30F653FDC3CDC06BFD48796 /* TeleFeed.app */;
 			productType = "com.apple.product-type.application";
 		};
+		1515E51D2B1AA0AEA207FCBD /* TeleFeed iOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A97CB1D570066E5E92C0DCA8 /* Build configuration list for PBXNativeTarget "TeleFeed iOS" */;
+			buildPhases = (
+				99073B203F98979E809FD480 /* Sources */,
+				3C0795520DAA0111456AC6B9 /* Resources */,
+				2F2207B3EE787309073E831C /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "TeleFeed iOS";
+			packageProductDependencies = (
+				6F10747212B4C5572F1E72B8 /* TDLibFramework */,
+			);
+			productName = "TeleFeed iOS";
+			productReference = 14B43998EBB01AC0BE7D2F00 /* TeleFeed iOS.app */;
+			productType = "com.apple.product-type.application";
+		};
+		7CC2A7D955F9EEB7FFF8641F /* TeleFeedTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 11DCC7F5EABF4959FB990473 /* Build configuration list for PBXNativeTarget "TeleFeedTests" */;
+			buildPhases = (
+				7EB4FB93994FA8C3D558D296 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				EA71DB523B966ED7DEDF5880 /* PBXTargetDependency */,
+			);
+			name = TeleFeedTests;
+			packageProductDependencies = (
+			);
+			productName = TeleFeedTests;
+			productReference = 3B8C1B7E809183639F4456C0 /* TeleFeedTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -422,7 +664,11 @@
 				LastUpgradeCheck = 1430;
 				TargetAttributes = {
 					03E6E1BB1993953B493E9D8C = {
-						DevelopmentTeam = "";
+						DevelopmentTeam = 9FP39GTDT5;
+						ProvisioningStyle = Automatic;
+					};
+					1515E51D2B1AA0AEA207FCBD = {
+						DevelopmentTeam = 9FP39GTDT5;
 						ProvisioningStyle = Automatic;
 					};
 				};
@@ -445,9 +691,32 @@
 			projectRoot = "";
 			targets = (
 				03E6E1BB1993953B493E9D8C /* TeleFeed */,
+				1515E51D2B1AA0AEA207FCBD /* TeleFeed iOS */,
+				7CC2A7D955F9EEB7FFF8641F /* TeleFeedTests */,
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		094227085D215F454952AE62 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				7347BED4381460C0E03C55AE /* TeleFeed.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3C0795520DAA0111456AC6B9 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C9D24D336643A89A2D8389D1 /* Localizable.strings in Resources */,
+				7375595368B335812F7A4CD6 /* Localizable.strings in Resources */,
+				DAE1757F3AEDD8C182E3C0B4 /* TeleFeed.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
 		5B72CF40B632141BDD50DB62 /* Copy Menu Bar Icon */ = {
@@ -462,21 +731,83 @@
 			name = "Copy Menu Bar Icon";
 			outputFileListPaths = (
 			);
-			outputPaths = (
-				"$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/Assets/Icons/IconTeleFeed.png",
-				"$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/Assets/Icons/MenuBarIconTelegramRSS.png",
-				"$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/Assets/Icons/MenuBarIconTelegramRSS2.png",
+				outputPaths = (
+					"$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/Assets/Icons/IconTeleFeed.png",
+					"$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/Assets/Icons/MenuBarIconTemplate.png",
+					"$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/Assets/Icons/MenuBarIconTelegramRSS.png",
+					"$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/Assets/Icons/MenuBarIconTelegramRSS2.png",
 				"$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/TeleFeed.icns",
 				"$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/en.lproj/Localizable.strings",
 				"$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/ru.lproj/Localizable.strings",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "set -euo pipefail\nRES_DIR=\"$TARGET_BUILD_DIR/$UNLOCALIZED_RESOURCES_FOLDER_PATH/Assets/Icons\"\nLOCALIZATIONS_DIR=\"$TARGET_BUILD_DIR/$UNLOCALIZED_RESOURCES_FOLDER_PATH\"\nmkdir -p \"$RES_DIR\"\nmkdir -p \"$LOCALIZATIONS_DIR/en.lproj\"\nmkdir -p \"$LOCALIZATIONS_DIR/ru.lproj\"\n/usr/bin/ditto --norsrc \"$PROJECT_DIR/Resources/Assets/Icons/IconTeleFeed.png\" \"$RES_DIR/IconTeleFeed.png\"\n/usr/bin/ditto --norsrc \"$PROJECT_DIR/Resources/Assets/Icons/MenuBarIconTelegramRSS.png\" \"$RES_DIR/MenuBarIconTelegramRSS.png\"\n/usr/bin/ditto --norsrc \"$PROJECT_DIR/Resources/Assets/Icons/MenuBarIconTelegramRSS2.png\" \"$RES_DIR/MenuBarIconTelegramRSS2.png\"\n/usr/bin/ditto --norsrc \"$PROJECT_DIR/Resources/Assets/Icons/TeleFeed.icns\" \"$LOCALIZATIONS_DIR/TeleFeed.icns\"\n/usr/bin/ditto --norsrc \"$PROJECT_DIR/Resources/Localization/en.lproj/Localizable.strings\" \"$LOCALIZATIONS_DIR/en.lproj/Localizable.strings\"\n/usr/bin/ditto --norsrc \"$PROJECT_DIR/Resources/Localization/ru.lproj/Localizable.strings\" \"$LOCALIZATIONS_DIR/ru.lproj/Localizable.strings\"\n";
+			shellScript = "set -euo pipefail\nRES_DIR=\"$TARGET_BUILD_DIR/$UNLOCALIZED_RESOURCES_FOLDER_PATH/Assets/Icons\"\nLOCALIZATIONS_DIR=\"$TARGET_BUILD_DIR/$UNLOCALIZED_RESOURCES_FOLDER_PATH\"\nmkdir -p \"$RES_DIR\"\nmkdir -p \"$LOCALIZATIONS_DIR/en.lproj\"\nmkdir -p \"$LOCALIZATIONS_DIR/ru.lproj\"\n/usr/bin/ditto --norsrc \"$PROJECT_DIR/Resources/Assets/Icons/IconTeleFeed.png\" \"$RES_DIR/IconTeleFeed.png\"\n/usr/bin/ditto --norsrc \"$PROJECT_DIR/Resources/Assets/Icons/MenuBarIconTemplate.png\" \"$RES_DIR/MenuBarIconTemplate.png\"\n/usr/bin/ditto --norsrc \"$PROJECT_DIR/Resources/Assets/Icons/MenuBarIconTelegramRSS.png\" \"$RES_DIR/MenuBarIconTelegramRSS.png\"\n/usr/bin/ditto --norsrc \"$PROJECT_DIR/Resources/Assets/Icons/MenuBarIconTelegramRSS2.png\" \"$RES_DIR/MenuBarIconTelegramRSS2.png\"\n/usr/bin/ditto --norsrc \"$PROJECT_DIR/Resources/Assets/Icons/TeleFeed.icns\" \"$LOCALIZATIONS_DIR/TeleFeed.icns\"\n/usr/bin/ditto --norsrc \"$PROJECT_DIR/Resources/Localization/en.lproj/Localizable.strings\" \"$LOCALIZATIONS_DIR/en.lproj/Localizable.strings\"\n/usr/bin/ditto --norsrc \"$PROJECT_DIR/Resources/Localization/ru.lproj/Localizable.strings\" \"$LOCALIZATIONS_DIR/ru.lproj/Localizable.strings\"\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		7EB4FB93994FA8C3D558D296 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A72B03ACEC56F1DAE15C7633 /* SyncableAppStateTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		99073B203F98979E809FD480 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2ADADA10E127FDC0F1606790 /* AppSettings.swift in Sources */,
+				2ED4B9CA2944B8D77B013BFD /* CloudSyncService.swift in Sources */,
+				45E1F86F5A1AFC241394C529 /* CloudSyncServiceProtocol.swift in Sources */,
+				5A01F6C35206B4CE934662A1 /* DefaultRSSFeeds.swift in Sources */,
+				CCF1E55FF38AB31827DBB81A /* DefaultTelegramChannels.swift in Sources */,
+				AD7AD447C638B15D0BC0CAB3 /* FeedViewModel.swift in Sources */,
+				5EDA0ACDAEE78C7A0D78F6EB /* FileAppStateStore.swift in Sources */,
+				23E04F2E6FAE41D0C8268AF9 /* IOSGlassBackground.swift in Sources */,
+				B5364241D8FFDD249D6D004B /* IOSNewsFlowView.swift in Sources */,
+				8E27C92FF25FE82E60833F73 /* IOSNewsFlowViewModel.swift in Sources */,
+				D246DE91B249DFA15D39634F /* IOSReaderView.swift in Sources */,
+				58DEB88F6353594625681F30 /* IOSReaderViewModel.swift in Sources */,
+				F0B2EC3910F2B564D75D20D7 /* IOSReaderWebView.swift in Sources */,
+				637DF0312FD4C075672A18CF /* KeychainSecureStorage.swift in Sources */,
+				924EF71471DEF542FC5A0A54 /* L10n.swift in Sources */,
+				98960B90622C35CDBA62516B /* LocalNotificationService.swift in Sources */,
+				D90260F826AC03C11335F30B /* NewsDetailView.swift in Sources */,
+				515B2BA799398120B31ADAA2 /* NewsFilterState.swift in Sources */,
+				9517D9292EFC4A5FE21A6B84 /* NewsIntelligenceService.swift in Sources */,
+				D82D0C8D81EA7B7C1E628D09 /* NewsListView.swift in Sources */,
+				4235C5670A823698E7B595A1 /* NewsSourcesDrawerView.swift in Sources */,
+				994BEB3A63EE5611ACBB7D48 /* NotificationServiceProtocol.swift in Sources */,
+				4865595E74FF0CAF17FBBB91 /* RSSFeedSource.swift in Sources */,
+				0E228CAE6985CAB11A521A4A /* RSSService.swift in Sources */,
+				955DE8C87FFE509FDD315F51 /* RSSServiceProtocol.swift in Sources */,
+				0E7FABC093891C0389CCD148 /* ReadabilityExtractor.swift in Sources */,
+				2C97A70DC8B53B8C69203D57 /* ReadabilitySource.swift in Sources */,
+				2C826404FDD549B37E0026F3 /* ReaderArticle.swift in Sources */,
+				5515A90D0B885A7B5F6AE8F1 /* ReaderFallbackPolicy.swift in Sources */,
+				5EE3C556EC3E57ED9672288E /* ReaderHTMLTemplate.swift in Sources */,
+				049AD7D10B4189BC4714B29F /* ReaderService.swift in Sources */,
+				5F99A471DFD48A19CB14EF11 /* ReaderServiceProtocol.swift in Sources */,
+				3E7D851A855AEB39E40260FC /* SecureStorageProtocol.swift in Sources */,
+				C295FC866A3FA933595697A5 /* StateStoreProtocol.swift in Sources */,
+				C0F3DE4893C21B15AB70BC13 /* SyncableAppState.swift in Sources */,
+				541D71C96C4CA9F27D87EF6D /* TDLibClient.swift in Sources */,
+				0B949DA11D526FF64667EAFD /* TDLibDictionary+Parsing.swift in Sources */,
+				CF3398485670B29BFFBFC46A /* TeleFeedIOSApp.swift in Sources */,
+				3FD7E5780FFC464ED9B036E1 /* TelegramService.swift in Sources */,
+				81BEFA9F38BEFF985E76009E /* TelegramServiceProtocol.swift in Sources */,
+				F97C7437C131B99FB1C02454 /* TranslationService.swift in Sources */,
+				8C7E6F278D4EDC3C24303488 /* TranslationServiceProtocol.swift in Sources */,
+				67694B2F4627BE17DA68B561 /* TranslationState.swift in Sources */,
+				9A12D6D2F9B688F03703BFFB /* UnreadPost.swift in Sources */,
+				3DDAA25BC82277749B7ECAF8 /* WatchedChannel.swift in Sources */,
+				FC3B725E34405EEC04D07B83 /* WindowFrameState.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		BE11F0087D683BC02370D10E /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -489,6 +820,10 @@
 				B71B3A4804B65023E2F40A11 /* AuthViewModel.swift in Sources */,
 				2DD030AB8101014E627D2E97 /* ChannelsManagementView.swift in Sources */,
 				6F6BB8D553FEBAE805FA1A22 /* ChannelsViewModel.swift in Sources */,
+				427EB04AC61056DFC7F5C108 /* CloudSyncService.swift in Sources */,
+				4F5B7313997ED9CED9B1B759 /* CloudSyncServiceProtocol.swift in Sources */,
+				7B6007B3AED412418CF63654 /* DefaultRSSFeeds.swift in Sources */,
+				FBE50C8AD785FDDF8F48F6E3 /* DefaultTelegramChannels.swift in Sources */,
 				6FCF3F1DFD3BC72A6B52B5E1 /* FeedListView.swift in Sources */,
 				B3B5108EE619D6FE6A0696F5 /* FeedViewModel.swift in Sources */,
 				889C713A0F5FEBB7F633C0BA /* FileAppStateStore.swift in Sources */,
@@ -499,6 +834,8 @@
 				AB15AFDC46A929334841D5A7 /* MainViewModel.swift in Sources */,
 				3DEA5554351133D7B99544D9 /* MainWindowController.swift in Sources */,
 				40BC9F7628EBF43E8A3D2F38 /* MenuBarContentView.swift in Sources */,
+				511944249BF50F919CB031D5 /* NewsFilterState.swift in Sources */,
+				9E8FE7164B89B33B740D654D /* NewsIntelligenceService.swift in Sources */,
 				7ABC7674F596F7DB9828A34B /* NotificationServiceProtocol.swift in Sources */,
 				0FB37305D1A85D061F780904 /* PostViewerView.swift in Sources */,
 				A5823619706D6FC92EA61317 /* RSSFeedSource.swift in Sources */,
@@ -520,6 +857,7 @@
 				763C13DBF23EC3A4DA27801E /* SettingsView.swift in Sources */,
 				03A5DD85409F3387DA9E681A /* SettingsWindowController.swift in Sources */,
 				9D01F6C2F3D48F9EC3D71EFF /* StateStoreProtocol.swift in Sources */,
+				590BD2A5156E1BF505BDAB8B /* SyncableAppState.swift in Sources */,
 				5B4BE215F94273D9F13CB5B6 /* TDLibClient.swift in Sources */,
 				AA5FAFDB5B6D9378179961F3 /* TDLibDictionary+Parsing.swift in Sources */,
 				9CF56695B0EF15249C8F795D /* TeleFeedApp.swift in Sources */,
@@ -538,15 +876,24 @@
 		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXTargetDependency section */
+		EA71DB523B966ED7DEDF5880 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 03E6E1BB1993953B493E9D8C /* TeleFeed */;
+			targetProxy = 92228735A79C067572CAB604 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
 /* Begin XCBuildConfiguration section */
 		5A3FB85A9CA1A1DBBCC28E32 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Config/TeleFeed.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = 9FP39GTDT5;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = "Config/TeleFeed-Info.plist";
@@ -556,7 +903,7 @@
 				);
 				LOCALIZATION_PREFERS_STRING_CATALOGS = NO;
 				MACOSX_DEPLOYMENT_TARGET = 15.0;
-				MARKETING_VERSION = 0.7.1;
+				MARKETING_VERSION = 0.9.1;
 				OTHER_SWIFT_FLAGS = (
 					"$(inherited)",
 					"-Xfrontend",
@@ -628,10 +975,101 @@
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = macosx;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		7A5677E6A155E07DB5C22FBB /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				COMBINE_HIDPI_IMAGES = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.codex.TeleFeedTests;
+				SDKROOT = macosx;
+				SWIFT_VERSION = 6.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/TeleFeed.app/Contents/MacOS/TeleFeed";
+			};
+			name = Release;
+		};
+		7C8A773853FA296D68B0883C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = "Config/TeleFeed-iOS.entitlements";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 9FP39GTDT5;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = "Config/TeleFeed-iOS-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				LOCALIZATION_PREFERS_STRING_CATALOGS = NO;
+				MARKETING_VERSION = 0.3.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.codex.TeleFeed.iOS;
+				PRODUCT_NAME = TeleFeed;
+				SDKROOT = iphoneos;
+				SWIFT_ENABLE_EMIT_CONST_VALUES = NO;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		AD8EC507EC292B8EB2D9E527 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = "Config/TeleFeed-iOS.entitlements";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 9FP39GTDT5;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = "Config/TeleFeed-iOS-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				LOCALIZATION_PREFERS_STRING_CATALOGS = NO;
+				MARKETING_VERSION = 0.3.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.codex.TeleFeed.iOS;
+				PRODUCT_NAME = TeleFeed;
+				SDKROOT = iphoneos;
+				SWIFT_ENABLE_EMIT_CONST_VALUES = NO;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		C1B518C7000424ED0A9BD427 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				COMBINE_HIDPI_IMAGES = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.codex.TeleFeedTests;
+				SDKROOT = macosx;
+				SWIFT_VERSION = 6.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/TeleFeed.app/Contents/MacOS/TeleFeed";
 			};
 			name = Debug;
 		};
@@ -683,7 +1121,6 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = macosx;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 5.0;
@@ -694,13 +1131,14 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Config/TeleFeed.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = YES;
 				CURRENT_PROJECT_VERSION = 1;
 				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = 9FP39GTDT5;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = "Config/TeleFeed-Info.plist";
@@ -710,7 +1148,7 @@
 				);
 				LOCALIZATION_PREFERS_STRING_CATALOGS = NO;
 				MACOSX_DEPLOYMENT_TARGET = 15.0;
-				MARKETING_VERSION = 0.7.1;
+				MARKETING_VERSION = 0.9.1;
 				OTHER_SWIFT_FLAGS = (
 					"$(inherited)",
 					"-Xfrontend",
@@ -732,11 +1170,29 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		11DCC7F5EABF4959FB990473 /* Build configuration list for PBXNativeTarget "TeleFeedTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C1B518C7000424ED0A9BD427 /* Debug */,
+				7A5677E6A155E07DB5C22FBB /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
 		7693166A991E0A3339AD1BFE /* Build configuration list for PBXProject "TeleFeed" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				68019A9AADD9EFEE2B67EB0C /* Debug */,
 				C29E686E2D83207BEA6D4B1F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		A97CB1D570066E5E92C0DCA8 /* Build configuration list for PBXNativeTarget "TeleFeed iOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				7C8A773853FA296D68B0883C /* Debug */,
+				AD8EC507EC292B8EB2D9E527 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
@@ -764,6 +1220,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		6F10747212B4C5572F1E72B8 /* TDLibFramework */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D1554EAB2815F9A792CFD22C /* XCRemoteSwiftPackageReference "TDLibFramework" */;
+			productName = TDLibFramework;
+		};
 		FE6A37A4D806E51E026D10CC /* TDLibFramework */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = D1554EAB2815F9A792CFD22C /* XCRemoteSwiftPackageReference "TDLibFramework" */;

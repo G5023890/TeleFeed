@@ -21,10 +21,10 @@
 "sidebar.rssPlaceholder" = "https://example.com/feed.xml";
 "sidebar.rssEmpty" = "Добавьте публичную RSS-ленту, чтобы отслеживать элементы.";
 "sidebar.remove" = "Удалить";
-"sidebar.unreadCount" = "%lld непрочитанных";
+"sidebar.unreadCount" = "%lld новее";
 "channels.untitled" = "Без названия";
-"feed.title" = "Непрочитанные посты";
-"feed.empty" = "Сейчас непрочитанных постов нет.";
+"feed.title" = "Все новости";
+"feed.empty" = "Пока нет загруженных новостей.";
 "feed.refresh" = "Обновить";
 "feed.openViewer" = "Открыть";
 "feed.unsupported" = "Неподдерживаемый тип поста";
@@ -103,6 +103,8 @@
 "settings.typography.readerHeading5" = "Заголовок 5";
 "settings.typography.readerHeading6" = "Заголовок 6";
 "settings.launchAtLogin" = "Запускать при входе";
+"settings.showDockIcon" = "Показывать иконку в Dock";
+"settings.showMenuBarIcon" = "Показывать иконку в меню-баре";
 "settings.logout" = "Выйти из аккаунта";
 "settings.close" = "Готово";
 "settings.storageNote" = "История сообщений и медиа не сохраняются намеренно на постоянной основе.";
@@ -110,7 +112,7 @@
 "channels.duplicate" = "Этот канал уже отслеживается.";
 "channels.invalid" = "Поддерживаются только публичные каналы по username или ссылке.";
 "notifications.newPostTitle" = "Новый пост в %@";
-"notifications.defaultBody" = "Откройте непрочитанные посты в TeleFeed.";
+"notifications.defaultBody" = "Откройте новости в TeleFeed.";
 "general.cancel" = "Отмена";
 "general.remove" = "Удалить";
 "general.save" = "Сохранить";

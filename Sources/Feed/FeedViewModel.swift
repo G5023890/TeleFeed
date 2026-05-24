@@ -10,17 +10,22 @@ final class FeedViewModel: ObservableObject {
     }
 
     @Published var posts: [UnreadPost] = []
-    @Published var readPostIDs: Set<UnreadPostIdentity> = []
-    @Published var displayMode: DisplayMode
+    @Published var viewedPostID: UnreadPostIdentity?
     @Published var isLoading = false
     @Published var errorMessage: String?
 
-    init(displayMode: DisplayMode = .all) {
-        self.displayMode = displayMode
+    private let intelligenceService: NewsIntelligenceService
+
+    init(
+        displayMode: DisplayMode? = nil,
+        intelligenceService: NewsIntelligenceService = NewsIntelligenceService()
+    ) {
+        self.intelligenceService = intelligenceService
     }
 
     func setPosts(_ posts: [UnreadPost]) {
         self.posts = sortedPosts(posts)
+        intelligenceService.prepareIndex(for: self.posts)
     }
 
     func prepend(_ post: UnreadPost) {
@@ -29,38 +34,29 @@ final class FeedViewModel: ObservableObject {
         }
         posts = sortedPosts(posts + [post])
         posts = Array(posts.suffix(20))
-    }
-
-    func markRead(identity: UnreadPostIdentity) {
-        readPostIDs.insert(identity)
-    }
-
-    func markUnread(identity: UnreadPostIdentity) {
-        readPostIDs.remove(identity)
-    }
-
-    func isUnread(_ post: UnreadPost) -> Bool {
-        readPostIDs.contains(post.id) == false
+        intelligenceService.prepareIndex(for: posts)
     }
 
     var visiblePosts: [UnreadPost] {
-        switch displayMode {
-        case .all:
-            return posts
-        case .unread:
-            return posts.filter { isUnread($0) }
-        }
+        posts
     }
 
-    var unreadCount: Int {
-        posts.reduce(0) { partialResult, post in
-            partialResult + (isUnread(post) ? 1 : 0)
+    func filteredPosts(matching filter: AppliedNewsFilterState) -> [UnreadPost] {
+        intelligenceService.rankedPosts(posts, matching: filter)
+    }
+
+    var newerThanViewedCount: Int {
+        guard let viewedPostID,
+              let viewedIndex = posts.firstIndex(where: { $0.id == viewedPostID })
+        else {
+            return posts.isEmpty ? 0 : posts.count
         }
+        return viewedIndex
     }
 
     func reset() {
         posts = []
-        readPostIDs = []
+        viewedPostID = nil
         errorMessage = nil
         isLoading = false
     }

@@ -12,7 +12,7 @@ final class RSSService: RSSServiceProtocol, @unchecked Sendable {
 
     func resolveFeed(from input: String) async throws -> RSSFeedSource {
         let url = try normalizedFeedURL(from: input)
-        let response = try await fetchAndParse(from: url)
+        let response = try await fetchAndParseWithFallback(from: url)
         Self.logger.debug("Resolved RSS feed \(url.absoluteString, privacy: .public) with \(response.items.count, privacy: .public) items")
         return RSSFeedSource(
             urlString: url.absoluteString,
@@ -26,7 +26,7 @@ final class RSSService: RSSServiceProtocol, @unchecked Sendable {
             throw RSSServiceError.invalidURL
         }
 
-        let response = try await fetchAndParse(from: url)
+        let response = try await fetchAndParseWithFallback(from: url)
         let title = response.title ?? source.title
         let items = Self.sortedItems(response.items)
         let newPosts = Self.makePosts(
@@ -48,6 +48,23 @@ final class RSSService: RSSServiceProtocol, @unchecked Sendable {
         return RSSFeedRefreshResult(source: updatedSource, posts: newPosts)
     }
 
+    private func fetchAndParseWithFallback(from url: URL) async throws -> RSSParseResult {
+        do {
+            return try await fetchAndParse(from: url)
+        } catch {
+            guard
+                Self.isAppTransportSecurityError(error),
+                let retryURL = Self.httpsURLWithoutTrailingSlash(from: url),
+                retryURL != url
+            else {
+                throw error
+            }
+
+            Self.logger.info("Retrying RSS feed without trailing slash after ATS failure: \(retryURL.absoluteString, privacy: .public)")
+            return try await fetchAndParse(from: retryURL)
+        }
+    }
+
     private func fetchAndParse(from url: URL) async throws -> RSSParseResult {
         var request = URLRequest(url: url)
         request.setValue(userAgent, forHTTPHeaderField: "User-Agent")
@@ -62,6 +79,25 @@ final class RSSService: RSSServiceProtocol, @unchecked Sendable {
         }
 
         return try RSSXMLParser().parse(data: data)
+    }
+
+    private static func isAppTransportSecurityError(_ error: Error) -> Bool {
+        let nsError = error as NSError
+        return nsError.domain == NSURLErrorDomain && nsError.code == NSURLErrorAppTransportSecurityRequiresSecureConnection
+    }
+
+    private static func httpsURLWithoutTrailingSlash(from url: URL) -> URL? {
+        guard
+            url.scheme?.lowercased() == "https",
+            url.path.count > 1,
+            url.path.hasSuffix("/")
+        else {
+            return nil
+        }
+
+        var components = URLComponents(url: url, resolvingAgainstBaseURL: false)
+        components?.path = String(url.path.dropLast())
+        return components?.url
     }
 
     private func normalizedFeedURL(from input: String) throws -> URL {

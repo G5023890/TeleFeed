@@ -18,8 +18,10 @@ DERIVED_DATA_ROOT="${DERIVED_DATA_ROOT:-$(mktemp -d "${TMPDIR:-/tmp}/telega-deri
 STAGING_ROOT="${STAGING_ROOT:-$(mktemp -d "${TMPDIR:-/tmp}/telega-stage.XXXXXX")}"
 SIGN_IDENTITY="${SIGN_IDENTITY:-}"
 SKIP_SIGN="${SKIP_SIGN:-0}"
+ENTITLEMENTS="${ENTITLEMENTS:-$PROJECT_DIR/Config/TeleFeed.entitlements}"
 RESOLVED_SIGN_IDENTITY=""
-TEAM_ID="${TEAM_ID:-53YUZ2U35Z}"
+TEAM_ID="${TEAM_ID:-9FP39GTDT5}"
+USE_XCODE_SIGNING="${USE_XCODE_SIGNING:-1}"
 
 cleanup() {
   rm -rf "$DERIVED_DATA_ROOT" "$STAGING_ROOT"
@@ -72,7 +74,10 @@ resolve_sign_identity() {
 
   local identities_output first_available
   identities_output="$(security find-identity -v -p codesigning 2>/dev/null || true)"
-  first_available="$(printf '%s\n' "$identities_output" | awk -F '"' '/Apple Development: /{print $2; exit}')"
+  first_available="$(printf '%s\n' "$identities_output" | awk '/Apple Development: .*RW87CRAFCB/ { print $2; exit }')"
+  if [[ -z "$first_available" ]]; then
+    first_available="$(printf '%s\n' "$identities_output" | awk '/Apple Development: /{print $2; exit}')"
+  fi
   if [[ -n "$first_available" ]]; then
     RESOLVED_SIGN_IDENTITY="$first_available"
   fi
@@ -91,10 +96,18 @@ sign_bundle() {
 
   if [[ -n "$RESOLVED_SIGN_IDENTITY" ]]; then
     log "Signing with identity: $RESOLVED_SIGN_IDENTITY"
-    codesign --force --deep --options runtime --sign "$RESOLVED_SIGN_IDENTITY" "$bundle"
+    while IFS= read -r nested_code; do
+      codesign --force --options runtime --timestamp=none --sign "$RESOLVED_SIGN_IDENTITY" "$nested_code"
+    done < <(find "$bundle/Contents/Frameworks" -type d -name '*.framework' -maxdepth 3 2>/dev/null)
+
+    codesign --force --options runtime --timestamp=none --entitlements "$ENTITLEMENTS" --sign "$RESOLVED_SIGN_IDENTITY" "$bundle"
   else
     log "No Apple Development identity found; using ad-hoc signature"
-    codesign --force --deep --sign - "$bundle"
+    while IFS= read -r nested_code; do
+      codesign --force --sign - "$nested_code"
+    done < <(find "$bundle/Contents/Frameworks" -type d -name '*.framework' -maxdepth 3 2>/dev/null)
+
+    codesign --force --entitlements "$ENTITLEMENTS" --sign - "$bundle"
   fi
 
   codesign --verify --deep --strict "$bundle"
@@ -111,17 +124,30 @@ log "Generating Xcode project"
 xcodegen generate
 
 log "Building into temporary DerivedData outside Documents"
-xcodebuild \
-  -project TeleFeed.xcodeproj \
-  -scheme "$SCHEME" \
-  -configuration "$CONFIGURATION" \
-  -destination platform=macOS \
-  -derivedDataPath "$DERIVED_DATA_ROOT" \
-  CODE_SIGNING_ALLOWED=NO \
-  CODE_SIGNING_REQUIRED=NO \
-  DEVELOPMENT_TEAM="$TEAM_ID" \
-  PRODUCT_BUNDLE_IDENTIFIER="$BUNDLE_ID" \
-  build
+if [[ "$USE_XCODE_SIGNING" == "1" ]]; then
+  xcodebuild \
+    -project TeleFeed.xcodeproj \
+    -scheme "$SCHEME" \
+    -configuration "$CONFIGURATION" \
+    -destination platform=macOS,arch=arm64 \
+    -derivedDataPath "$DERIVED_DATA_ROOT" \
+    -allowProvisioningUpdates \
+    DEVELOPMENT_TEAM="$TEAM_ID" \
+    PRODUCT_BUNDLE_IDENTIFIER="$BUNDLE_ID" \
+    build
+else
+  xcodebuild \
+    -project TeleFeed.xcodeproj \
+    -scheme "$SCHEME" \
+    -configuration "$CONFIGURATION" \
+    -destination platform=macOS,arch=arm64 \
+    -derivedDataPath "$DERIVED_DATA_ROOT" \
+    CODE_SIGNING_ALLOWED=NO \
+    CODE_SIGNING_REQUIRED=NO \
+    DEVELOPMENT_TEAM="$TEAM_ID" \
+    PRODUCT_BUNDLE_IDENTIFIER="$BUNDLE_ID" \
+    build
+fi
 
 BUILT_APP="$DERIVED_DATA_ROOT/Build/Products/$CONFIGURATION/${APP_NAME}.app"
 if [[ ! -d "$BUILT_APP" ]]; then
@@ -134,6 +160,23 @@ rm -rf "$APP_STAGE" "$APP_DIST_PATH" "$INSTALL_DIR"
 if [[ "$LEGACY_INSTALL_DIR" != "$INSTALL_DIR" ]]; then
   rm -rf "$LEGACY_INSTALL_DIR"
 fi
+
+if [[ "$USE_XCODE_SIGNING" == "1" ]]; then
+  /usr/bin/ditto --norsrc "$BUILT_APP" "$APP_DIST_PATH"
+  /usr/bin/ditto --norsrc "$BUILT_APP" "$INSTALL_DIR"
+  codesign --verify --deep --strict "$INSTALL_DIR"
+
+  log "Installed: $INSTALL_DIR"
+  codesign -dv --verbose=4 "$INSTALL_DIR" 2>&1 | sed -n '1,40p'
+  /usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$INSTALL_DIR/Contents/Info.plist"
+
+  if [[ "$LAUNCH_AFTER_INSTALL" == "1" ]]; then
+    launch_app
+  fi
+
+  exit 0
+fi
+
 /usr/bin/ditto --norsrc "$BUILT_APP" "$APP_STAGE"
 /usr/bin/ditto --norsrc "$APP_STAGE" "$APP_DIST_PATH"
 /usr/bin/ditto --norsrc "$APP_STAGE" "$INSTALL_DIR"

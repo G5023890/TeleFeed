@@ -25,20 +25,30 @@ final class MainViewModel: ObservableObject {
     var showWindow: (() -> Void)?
 
     private let stateStore: StateStoreProtocol
+    private let cloudSyncService: CloudSyncServiceProtocol
     private let telegramService: TelegramServiceProtocol
     private let rssService: RSSServiceProtocol
     private let notificationService: NotificationServiceProtocol
-    private let readFeedRetentionInterval: TimeInterval = 24 * 60 * 60
     private let rssPollingInterval: TimeInterval = 10 * 60
+    private let readingAnchorCheckpointInterval: TimeInterval = 60
+    private let activeReadingInteractionInterval: TimeInterval = 2 * 60
     private var channelNavigationStates: [Int64: ChannelUnreadState] = [:]
     private var sessionFeedPosts: [UnreadPostIdentity: UnreadPost] = [:]
+    private var readingAnchor: NewsReadingAnchor?
     private var rssPollingTask: Task<Void, Never>?
+    private var cloudPushTask: Task<Void, Never>?
+    private var cloudSyncTask: Task<Void, Never>?
+    private var readingAnchorCheckpointTask: Task<Void, Never>?
+    private var newsCacheCleanupTask: Task<Void, Never>?
+    private var isReadingAnchorCheckpointDirty = false
+    private var lastLocalFocusInteractionAt: Date?
     private var isRefreshingTelegramSources = false
     private var isRefreshingRSSFeeds = false
     let readerViewModel: ReaderViewModel
 
     init(
         stateStore: StateStoreProtocol,
+        cloudSyncService: CloudSyncServiceProtocol,
         telegramService: TelegramServiceProtocol,
         rssService: RSSServiceProtocol,
         notificationService: NotificationServiceProtocol,
@@ -47,6 +57,7 @@ final class MainViewModel: ObservableObject {
     ) {
         let state = stateStore.load()
         self.stateStore = stateStore
+        self.cloudSyncService = cloudSyncService
         self.telegramService = telegramService
         self.rssService = rssService
         self.notificationService = notificationService
@@ -69,14 +80,12 @@ final class MainViewModel: ObservableObject {
             feeds: loadedRSSFeeds,
             selectedFeedID: state.selectedRSSFeedID
         )
-        self.feedViewModel = FeedViewModel(displayMode: state.feedDisplayMode ?? .all)
+        self.feedViewModel = FeedViewModel(displayMode: state.feedDisplayMode)
         if hasRetainedRSSPosts == false, state.rssFeeds.isEmpty == false {
             Self.logger.debug("RSS cache is empty, forcing a fresh backfill on startup")
         }
         let retainedPosts = Self.sortedSessionPosts(Self.prunedSessionPosts(
-            state.recentFeedPosts,
-            readIDs: Set(state.readPostIDs),
-            readRetentionInterval: readFeedRetentionInterval
+            state.recentFeedPosts
         ))
         let normalizedRetainedPosts = retainedPosts.map { post -> UnreadPost in
             guard
@@ -90,12 +99,14 @@ final class MainViewModel: ObservableObject {
             return post.updatingChannelTitle(watchedChannel.displayTitle)
         }
         self.sessionFeedPosts = Dictionary(uniqueKeysWithValues: normalizedRetainedPosts.map { ($0.id, $0) })
-        self.feedViewModel.readPostIDs = Set(state.readPostIDs)
         self.feedViewModel.setPosts(normalizedRetainedPosts)
-        self.selectedUnreadPostID = Self.initialSelectionID(
+        self.readingAnchor = state.effectiveReadingAnchor
+        let selectedPost = Self.preferredSelectionPost(
             from: normalizedRetainedPosts,
-            readIDs: self.feedViewModel.readPostIDs
+            readingAnchor: readingAnchor
         )
+        self.selectedUnreadPostID = selectedPost?.id
+        self.feedViewModel.viewedPostID = selectedPost?.id
     }
 
     func start() async {
@@ -115,7 +126,10 @@ final class MainViewModel: ObservableObject {
 
         await notificationService.requestAuthorization()
         syncLaunchAtLogin()
+        await synchronizeCloudState(reason: "startup")
         startRSSPolling()
+        startReadingAnchorCheckpointLoop()
+        startNewsCacheCleanupLoop()
         await telegramService.start()
         await synchronizeAuthState()
         kickoffBackgroundRefresh()
@@ -124,7 +138,17 @@ final class MainViewModel: ObservableObject {
     func shutdown() async {
         rssPollingTask?.cancel()
         rssPollingTask = nil
-        persistState()
+        cloudPushTask?.cancel()
+        cloudPushTask = nil
+        cloudSyncTask?.cancel()
+        cloudSyncTask = nil
+        readingAnchorCheckpointTask?.cancel()
+        readingAnchorCheckpointTask = nil
+        newsCacheCleanupTask?.cancel()
+        newsCacheCleanupTask = nil
+        persistState(pushToCloud: false)
+        await flushReadingAnchorCheckpoint(reason: "shutdown")
+        await pushCloudState(reason: "shutdown", applyRemoteFocus: false)
         await telegramService.shutdown()
     }
 
@@ -135,6 +159,7 @@ final class MainViewModel: ObservableObject {
         }
         showWindow?()
         refreshAggregatedFeedPresentation()
+        kickoffCloudSync(reason: "openHome")
         kickoffBackgroundRefresh()
     }
 
@@ -243,23 +268,29 @@ final class MainViewModel: ObservableObject {
         selectUnreadPost(post.id)
     }
 
+    func focusVisiblePost(_ post: UnreadPost) {
+        guard readingAnchor?.postID != post.id else {
+            selectedUnreadPostID = post.id
+            feedViewModel.viewedPostID = post.id
+            return
+        }
+
+        readingAnchor = NewsReadingAnchor(post: post, readAt: Date())
+        selectedUnreadPostID = post.id
+        feedViewModel.viewedPostID = post.id
+        persistFocusStateForCheckpoint()
+    }
+
     func openReader(for post: UnreadPost) {
         guard post.articleURL != nil else {
             return
         }
 
+        registerViewedPost(post)
+        markTelegramPostAsViewed(post)
         withAnimation(.snappy(duration: 0.28)) {
             detailPresentation = .reader
             readerViewModel.open(post: post)
-        }
-    }
-
-    func toggleReadState(for post: UnreadPost) {
-        if feedViewModel.isUnread(post) {
-            markPostAsRead(post)
-        } else {
-            feedViewModel.markUnread(identity: post.id)
-            persistState()
         }
     }
 
@@ -270,7 +301,6 @@ final class MainViewModel: ObservableObject {
             return
         }
 
-        let previousPost = viewerPresentedPost
         guard let postID else {
             withAnimation(.snappy(duration: 0.28)) {
                 closeViewer()
@@ -285,12 +315,8 @@ final class MainViewModel: ObservableObject {
             return
         }
 
-        // Mark the previous post as read only when the user explicitly moves
-        // to another news item.
-        if let previousPost, previousPost.id != postID {
-            markPostAsRead(previousPost)
-        }
-
+        registerViewedPost(post)
+        markTelegramPostAsViewed(post)
         present(post, updateSelection: true)
     }
 
@@ -304,35 +330,28 @@ final class MainViewModel: ObservableObject {
     func closeViewer() {
         withAnimation(.snappy(duration: 0.28)) {
             readerViewModel.dismiss()
-            markPresentedPostAsReadIfNeeded()
             detailPresentation = .post
             viewerPresentedPost = nil
             viewerViewModel.dismiss()
         }
     }
 
-    private func markPostAsRead(_ post: UnreadPost) {
-        if post.sourceKind == .telegram {
-            channelsViewModel.markAsRead(chatID: post.chatID, messageID: post.messageID)
-            notificationService.removeNotification(chatID: post.chatID, messageID: post.messageID)
+    private func markTelegramPostAsViewed(_ post: UnreadPost) {
+        guard post.sourceKind == .telegram else {
+            return
         }
-        feedViewModel.markRead(identity: post.id)
+
+        channelsViewModel.markAsRead(chatID: post.chatID, messageID: post.messageID)
+        notificationService.removeNotification(chatID: post.chatID, messageID: post.messageID)
         updateNavigationState(for: post.chatID) { state in
             state.unreadPosts.removeAll { $0.messageID == post.messageID }
             state.lastViewedPost = post
         }
-
-        persistState()
+        persistState(pushToCloud: false)
 
         Task {
             do {
-                if post.sourceKind == .telegram {
-                    try await telegramService.markPostAsRead(post)
-                }
-                await MainActor.run {
-                    self.feedViewModel.markRead(identity: post.id)
-                    self.persistState()
-                }
+                try await telegramService.markPostAsRead(post)
             } catch {
                 await MainActor.run {
                     self.feedViewModel.errorMessage = error.localizedDescription
@@ -418,6 +437,24 @@ final class MainViewModel: ObservableObject {
         persistState()
     }
 
+    func updateShowDockIcon(_ enabled: Bool) {
+        guard settings.showDockIcon != enabled else {
+            return
+        }
+
+        settings.showDockIcon = enabled
+        persistState()
+    }
+
+    func updateShowMenuBarIcon(_ enabled: Bool) {
+        guard settings.showMenuBarIcon != enabled else {
+            return
+        }
+
+        settings.showMenuBarIcon = enabled
+        persistState()
+    }
+
     func updateTypography(_ typography: TypographySettings) {
         settings.typography = typography
         persistState()
@@ -471,7 +508,7 @@ final class MainViewModel: ObservableObject {
     }
 
     var totalUnreadCount: Int {
-        channelsViewModel.channels.reduce(0) { $0 + $1.unreadCount }
+        feedViewModel.newerThanViewedCount
     }
 
     private func handle(event: TelegramEvent) {
@@ -486,6 +523,7 @@ final class MainViewModel: ObservableObject {
             }
             if case .ready = state {
                 Task {
+                    await reconcileDefaultTelegramChannelsIfNeeded()
                     await reconcileChannels()
                     await syncWatchedChannels()
                     kickoffBackgroundRefresh()
@@ -506,10 +544,6 @@ final class MainViewModel: ObservableObject {
                 state.unreadPosts.removeAll { $0.messageID <= lastReadInboxMessageID }
             }
 
-            for post in sessionFeedPosts.values where post.sourceKind == .telegram && post.chatID == chatID && post.messageID <= lastReadInboxMessageID {
-                feedViewModel.markRead(identity: post.id)
-            }
-
             refreshAggregatedFeedPresentation()
             persistState()
 
@@ -523,7 +557,6 @@ final class MainViewModel: ObservableObject {
             let shouldNotify = hydratedPost.messageID > (watchedChannel.lastNotifiedMessageID ?? 0)
 
             storeSessionPosts([hydratedPost])
-            feedViewModel.markUnread(identity: hydratedPost.id)
 
             updateNavigationState(for: hydratedPost.chatID) { state in
                 state.unreadPosts.removeAll { $0.id == hydratedPost.id }
@@ -593,6 +626,42 @@ final class MainViewModel: ObservableObject {
         }
     }
 
+    private func reconcileDefaultTelegramChannelsIfNeeded() async {
+        guard case .ready = authViewModel.state else {
+            return
+        }
+
+        let previousSelectedChannelID = channelsViewModel.selectedChannelID
+        var didChange = false
+        for input in DefaultTelegramChannels.inputs {
+            do {
+                let channel = try await telegramService.resolveChannel(from: input)
+                guard currentPersistedState().syncMetadata.isChannelDeleted(channel) == false else {
+                    continue
+                }
+                guard channelsViewModel.contains(chatID: channel.chatID) == false,
+                      channelsViewModel.contains(username: channel.username) == false
+                else {
+                    continue
+                }
+                try channelsViewModel.add(channel)
+                didChange = true
+            } catch {
+                authViewModel.debugMessage = "Default channel sync skipped for \(input): \(error.localizedDescription)"
+            }
+        }
+
+        guard didChange else {
+            return
+        }
+
+        if let previousSelectedChannelID,
+           channelsViewModel.contains(chatID: previousSelectedChannelID) {
+            channelsViewModel.selectedChannelID = previousSelectedChannelID
+        }
+        persistState()
+    }
+
     private func synchronizeChannel(_ channel: WatchedChannel) async throws -> WatchedChannel {
         let syncedChannel: WatchedChannel
         do {
@@ -624,7 +693,7 @@ final class MainViewModel: ObservableObject {
         refreshAggregatedFeedPresentation()
     }
 
-    private func refreshAggregatedFeedPresentation() {
+    private func refreshAggregatedFeedPresentation(forceSyncedFocus: Bool = false) {
         pruneSessionPosts()
         let allPosts = aggregateSessionPosts()
         let rssCount = allPosts.filter { $0.sourceKind == .rss }.count
@@ -642,7 +711,8 @@ final class MainViewModel: ObservableObject {
             return
         }
 
-        if let selectedUnreadPostID,
+        if forceSyncedFocus == false,
+           let selectedUnreadPostID,
            let selectedPost = allPosts.first(where: { $0.id == selectedUnreadPostID })
         {
             if viewerPresentedPost?.id != selectedUnreadPostID {
@@ -651,21 +721,34 @@ final class MainViewModel: ObservableObject {
             return
         }
 
-        if let firstUnreadPost = allPosts.last(where: { feedViewModel.isUnread($0) }) {
-            selectedUnreadPostID = firstUnreadPost.id
-            present(firstUnreadPost, updateSelection: true)
+        if let preferredPost = Self.preferredSelectionPost(
+            from: allPosts,
+            readingAnchor: readingAnchor
+        ) {
+            selectedUnreadPostID = preferredPost.id
+            feedViewModel.viewedPostID = preferredPost.id
+            present(preferredPost, updateSelection: true)
             return
         }
 
-        if let oldestPost = allPosts.last {
-            selectedUnreadPostID = oldestPost.id
-            present(oldestPost, updateSelection: true)
+        if readingAnchor?.postID != nil {
+            selectedUnreadPostID = nil
+            feedViewModel.viewedPostID = nil
+            if viewerPresentedPost != nil {
+                closeViewer()
+            }
             return
         }
 
         if viewerPresentedPost != nil {
             closeViewer()
         }
+    }
+
+    private func registerViewedPost(_ post: UnreadPost) {
+        readingAnchor = NewsReadingAnchor(post: post, readAt: Date())
+        feedViewModel.viewedPostID = post.id
+        persistFocusStateForCheckpoint()
     }
 
     private func present(
@@ -694,14 +777,6 @@ final class MainViewModel: ObservableObject {
         var state = channelNavigationState(for: chatID)
         mutate(&state)
         channelNavigationStates[chatID] = state
-    }
-
-    private func markPresentedPostAsReadIfNeeded() {
-        guard let post = viewerPresentedPost, feedViewModel.isUnread(post) else {
-            return
-        }
-
-        markPostAsRead(post)
     }
 
     private func aggregateSessionPosts() -> [UnreadPost] {
@@ -736,7 +811,10 @@ final class MainViewModel: ObservableObject {
 
     private func removeSessionPosts(for chatID: Int64) {
         sessionFeedPosts = sessionFeedPosts.filter { $0.value.sourceKind != .telegram || $0.value.chatID != chatID }
-        feedViewModel.readPostIDs = Set(feedViewModel.readPostIDs.filter { $0.sourceKind != .telegram || $0.sourceIdentifier != String(chatID) })
+        if readingAnchor?.isAnchoredToSource(kind: .telegram, identifier: String(chatID)) == true {
+            readingAnchor = nil
+            feedViewModel.viewedPostID = nil
+        }
         if selectedUnreadPostID?.sourceKind == .telegram,
            selectedUnreadPostID?.sourceIdentifier == String(chatID) {
             selectedUnreadPostID = nil
@@ -750,7 +828,10 @@ final class MainViewModel: ObservableObject {
     private func removeSessionPosts(for feed: RSSFeedSource) {
         let identifier = feed.id
         sessionFeedPosts = sessionFeedPosts.filter { $0.value.sourceKind != .rss || $0.value.sourceIdentifier != identifier }
-        feedViewModel.readPostIDs = Set(feedViewModel.readPostIDs.filter { $0.sourceKind != .rss || $0.sourceIdentifier != identifier })
+        if readingAnchor?.isAnchoredToSource(kind: .rss, identifier: identifier) == true {
+            readingAnchor = nil
+            feedViewModel.viewedPostID = nil
+        }
         if selectedUnreadPostID?.sourceKind == .rss,
            selectedUnreadPostID?.sourceIdentifier == identifier {
             selectedUnreadPostID = nil
@@ -762,42 +843,141 @@ final class MainViewModel: ObservableObject {
     }
 
     private func isSupported(_ post: UnreadPost) -> Bool {
-        if case .unsupported = post.content {
-            return false
-        }
-        return true
+        NewsCachePolicy.isSupported(post)
     }
 
     private func sortedUnreadPosts(_ posts: [UnreadPost]) -> [UnreadPost] {
         Self.sortedSessionPosts(posts)
     }
 
-    private func persistState() {
+    private func persistState(pushToCloud: Bool = true) {
         do {
             pruneSessionPosts()
-            try stateStore.save(PersistedAppState(
+            try stateStore.save(currentPersistedState())
+            if pushToCloud {
+                scheduleCloudPush()
+            }
+        } catch {
+            authViewModel.errorMessage = error.localizedDescription
+        }
+    }
+
+    private func persistFocusStateForCheckpoint() {
+        lastLocalFocusInteractionAt = Date()
+        isReadingAnchorCheckpointDirty = true
+        persistState(pushToCloud: false)
+    }
+
+    private func currentPersistedState() -> PersistedAppState {
+        PersistedAppState(
                 settings: settings,
                 watchedChannels: channelsViewModel.channels,
                 rssFeeds: rssFeedsViewModel.feeds,
                 selectedChannelID: channelsViewModel.selectedChannelID,
                 selectedRSSFeedID: rssFeedsViewModel.selectedFeedID,
-                feedDisplayMode: feedViewModel.displayMode,
+                feedDisplayMode: nil,
+                lastOpenedPost: readingAnchor?.lastOpenedPost,
+                readingAnchor: readingAnchor,
                 unreadColumnWidth: Double(unreadColumnWidth),
                 windowFrame: windowFrame,
                 recentFeedPosts: Self.sortedSessionPosts(sessionFeedPosts.values.filter { isSupported($0) && isWithinRetention($0) }),
-                readPostIDs: feedViewModel.readPostIDs.sorted { lhs, rhs in
-                    if lhs.sourceKind == rhs.sourceKind, lhs.sourceIdentifier == rhs.sourceIdentifier {
-                        return lhs.messageID > rhs.messageID
-                    }
-                    if lhs.sourceKind != rhs.sourceKind {
-                        return lhs.sourceKind.rawValue > rhs.sourceKind.rawValue
-                    }
-                    return lhs.sourceIdentifier > rhs.sourceIdentifier
-                },
+                readPostIDs: [],
                 readPostRetentionDates: [:]
-            ))
+        )
+    }
+
+    private func kickoffCloudSync(reason: String) {
+        cloudSyncTask?.cancel()
+        cloudSyncTask = Task { [weak self] in
+            await self?.synchronizeCloudState(reason: reason)
+        }
+    }
+
+    private func synchronizeCloudState(reason: String) async {
+        await synchronizeCloudState(reason: reason, applyRemoteFocus: true)
+    }
+
+    private func synchronizeCloudState(reason: String, applyRemoteFocus: Bool) async {
+        do {
+            let mergedState = try await cloudSyncService.sync(local: currentPersistedState())
+            applyCloudState(mergedState, applyRemoteFocus: applyRemoteFocus)
+            persistState(pushToCloud: false)
+            authViewModel.debugMessage = "iCloud sync complete: \(reason) • \(mergedState.syncedSources.statusSummary)"
         } catch {
-            authViewModel.errorMessage = error.localizedDescription
+            authViewModel.debugMessage = "iCloud sync skipped: \(error.localizedDescription)"
+        }
+    }
+
+    private func scheduleCloudPush() {
+        cloudPushTask?.cancel()
+        cloudPushTask = Task { [weak self] in
+            try? await Task.sleep(for: .milliseconds(900))
+            await self?.pushCloudState(reason: "local change")
+        }
+    }
+
+    private func pushCloudState(reason: String) async {
+        await pushCloudState(reason: reason, applyRemoteFocus: true)
+    }
+
+    private func pushCloudState(reason: String, applyRemoteFocus: Bool) async {
+        do {
+            let state = currentPersistedState()
+            let mergedState = try await cloudSyncService.push(local: state)
+            applyCloudState(mergedState, applyRemoteFocus: applyRemoteFocus)
+            persistState(pushToCloud: false)
+            authViewModel.debugMessage = "iCloud push complete: \(reason) • \(mergedState.syncedSources.statusSummary)"
+        } catch {
+            authViewModel.debugMessage = "iCloud push skipped: \(error.localizedDescription)"
+        }
+    }
+
+    private func applyCloudState(_ state: PersistedAppState) {
+        applyCloudState(state, applyRemoteFocus: true)
+    }
+
+    private func applyCloudState(_ state: PersistedAppState, applyRemoteFocus: Bool) {
+        let localReadingAnchor = readingAnchor
+        settings = state.settings
+        channelsViewModel.channels = state.watchedChannels.sorted {
+            $0.displayTitle.localizedCaseInsensitiveCompare($1.displayTitle) == .orderedAscending
+        }
+        channelsViewModel.selectedChannelID = state.selectedChannelID ?? channelsViewModel.channels.first?.chatID
+        rssFeedsViewModel.feeds = state.rssFeeds.sorted {
+            $0.title.localizedCaseInsensitiveCompare($1.title) == .orderedAscending
+        }
+        rssFeedsViewModel.selectedFeedID = state.selectedRSSFeedID ?? rssFeedsViewModel.feeds.first?.id
+        if applyRemoteFocus {
+            readingAnchor = state.effectiveReadingAnchor
+        } else if let localReadingAnchor, isAnchorSourceActive(localReadingAnchor) {
+            readingAnchor = localReadingAnchor
+        } else {
+            readingAnchor = state.effectiveReadingAnchor
+        }
+        sessionFeedPosts = sessionFeedPosts.filter { _, post in
+            switch post.sourceKind {
+            case .telegram:
+                return channelsViewModel.channels.contains(where: { $0.chatID == post.chatID })
+            case .rss:
+                return rssFeedsViewModel.feeds.contains(where: { $0.id == post.sourceIdentifier })
+            }
+        }
+        storeSessionPosts(state.recentFeedPosts)
+        refreshAggregatedFeedPresentation(forceSyncedFocus: applyRemoteFocus)
+    }
+
+    private func isAnchorSourceActive(_ anchor: NewsReadingAnchor) -> Bool {
+        let sourceKind = anchor.sourceKind ?? anchor.postID?.sourceKind
+        let sourceIdentifier = anchor.sourceIdentifier ?? anchor.postID?.sourceIdentifier
+        guard let sourceKind, let sourceIdentifier else {
+            return true
+        }
+
+        switch sourceKind {
+        case .telegram:
+            return channelsViewModel.channels.contains { String($0.chatID) == sourceIdentifier }
+        case .rss:
+            return rssFeedsViewModel.feeds.contains { $0.id == sourceIdentifier }
         }
     }
 
@@ -853,7 +1033,7 @@ final class MainViewModel: ObservableObject {
             do {
                 Self.logger.debug("Refreshing Telegram channel \(channel.displayTitle, privacy: .public)")
                 let syncedChannel = try await synchronizeChannel(channel)
-                let posts = try await telegramService.fetchUnreadPosts(for: syncedChannel, limit: 50)
+                let posts = try await telegramService.fetchRecentPosts(for: syncedChannel, limit: 50)
                 storeSessionPosts(posts)
                 updateNavigationState(for: syncedChannel.chatID) { state in
                     state.unreadPosts = sortedUnreadPosts(posts)
@@ -895,6 +1075,7 @@ final class MainViewModel: ObservableObject {
         }
 
         var encounteredError: String?
+        var successfulRefreshCount = 0
         let service = self.rssService
         let feeds = rssFeedsViewModel.feeds
 
@@ -904,13 +1085,14 @@ final class MainViewModel: ObservableObject {
                     do {
                         return RSSRefreshOutcome(result: try await service.refreshFeed(feed, limit: 50), errorMessage: nil)
                     } catch {
-                        return RSSRefreshOutcome(result: nil, errorMessage: error.localizedDescription)
+                        return RSSRefreshOutcome(result: nil, errorMessage: "\(feed.title): \(error.localizedDescription)")
                     }
                 }
             }
 
             for await outcome in group {
                 if let result = outcome.result {
+                    successfulRefreshCount += 1
                     Self.logger.info("RSS refreshed: \(result.source.title, privacy: .public) newPosts=\(result.posts.count, privacy: .public)")
                     rssFeedsViewModel.update(result.source)
                     storeSessionPosts(result.posts)
@@ -926,69 +1108,38 @@ final class MainViewModel: ObservableObject {
         refreshAggregatedFeedPresentation()
         persistState()
 
-        if let encounteredError {
+        if successfulRefreshCount == 0, let encounteredError {
             feedViewModel.errorMessage = encounteredError
+        } else if encounteredError != nil {
+            feedViewModel.errorMessage = nil
         }
     }
 
     private func isWithinRetention(_ post: UnreadPost) -> Bool {
-        guard isSupported(post) else {
-            return false
-        }
-
-        guard feedViewModel.readPostIDs.contains(post.id) else {
-            return true
-        }
-
-        guard post.hasPublicationDate else {
-            return true
-        }
-
-        return post.date >= Date().addingTimeInterval(-readFeedRetentionInterval)
+        NewsCachePolicy.isRetained(post)
     }
 
     private static func prunedSessionPosts(
-        _ posts: [UnreadPost],
-        readIDs: Set<UnreadPostIdentity>,
-        readRetentionInterval: TimeInterval
+        _ posts: [UnreadPost]
     ) -> [UnreadPost] {
-        return posts.filter {
-            guard $0.sourceKind == .telegram || $0.sourceKind == .rss else {
-                return false
-            }
-            if readIDs.contains($0.id), $0.hasPublicationDate, $0.date < Date().addingTimeInterval(-readRetentionInterval) {
-                return false
-            }
-            if case .unsupported = $0.content {
-                return false
-            }
-            return true
+        return NewsCachePolicy.retainedPosts(posts).filter {
+            $0.sourceKind == .telegram || $0.sourceKind == .rss
         }
     }
 
     private static func sortedSessionPosts(_ posts: [UnreadPost]) -> [UnreadPost] {
-        posts.sorted { lhs, rhs in
-            if lhs.date == rhs.date {
-                if lhs.id.sourceKind == rhs.id.sourceKind, lhs.id.sourceIdentifier == rhs.id.sourceIdentifier {
-                    return lhs.messageID > rhs.messageID
-                }
-                if lhs.id.sourceKind != rhs.id.sourceKind {
-                    return lhs.id.sourceKind.rawValue > rhs.id.sourceKind.rawValue
-                }
-                return lhs.id.sourceIdentifier > rhs.id.sourceIdentifier
-            }
-            return lhs.date > rhs.date
-        }
+        NewsCachePolicy.sorted(posts)
     }
 
-    private static func initialSelectionID(
+    static func preferredSelectionPost(
         from posts: [UnreadPost],
-        readIDs: Set<UnreadPostIdentity>
-    ) -> UnreadPostIdentity? {
-        if let firstUnreadPost = posts.last(where: { readIDs.contains($0.id) == false }) {
-            return firstUnreadPost.id
+        readingAnchor: NewsReadingAnchor?
+    ) -> UnreadPost? {
+        if let postID = readingAnchor?.postID {
+            return posts.first(where: { $0.id == postID })
         }
-        return posts.first?.id
+
+        return posts.last
     }
 
     private func syncLaunchAtLogin() {
@@ -1019,6 +1170,70 @@ final class MainViewModel: ObservableObject {
                 await self.refreshRSSFeeds(showLoading: false)
             }
         }
+    }
+
+    private func startReadingAnchorCheckpointLoop() {
+        guard readingAnchorCheckpointTask == nil else {
+            return
+        }
+
+        let interval = readingAnchorCheckpointInterval
+        readingAnchorCheckpointTask = Task { [weak self] in
+            while Task.isCancelled == false {
+                try? await Task.sleep(for: .seconds(interval))
+                guard let self else {
+                    return
+                }
+
+                let didPushCheckpoint = await self.flushReadingAnchorCheckpoint(reason: "reading checkpoint")
+                if didPushCheckpoint == false {
+                    await self.synchronizeCloudState(
+                        reason: "reading checkpoint",
+                        applyRemoteFocus: self.shouldApplyRemoteFocus()
+                    )
+                }
+            }
+        }
+    }
+
+    private func startNewsCacheCleanupLoop() {
+        guard newsCacheCleanupTask == nil else {
+            return
+        }
+
+        newsCacheCleanupTask = Task { [weak self] in
+            while Task.isCancelled == false {
+                let nextCleanup = NewsCachePolicy.nextDailyCleanupDate()
+                let delay = max(60, nextCleanup.timeIntervalSinceNow)
+                try? await Task.sleep(for: .seconds(delay))
+                guard let self else {
+                    return
+                }
+                self.pruneSessionPosts()
+                self.refreshAggregatedFeedPresentation()
+                self.persistState()
+                await AppCacheCleaner.cleanDailyCaches()
+            }
+        }
+    }
+
+    @discardableResult
+    private func flushReadingAnchorCheckpoint(reason: String) async -> Bool {
+        guard isReadingAnchorCheckpointDirty else {
+            return false
+        }
+
+        isReadingAnchorCheckpointDirty = false
+        await pushCloudState(reason: reason, applyRemoteFocus: shouldApplyRemoteFocus())
+        return true
+    }
+
+    private func shouldApplyRemoteFocus() -> Bool {
+        guard let lastLocalFocusInteractionAt else {
+            return true
+        }
+
+        return Date().timeIntervalSince(lastLocalFocusInteractionAt) > activeReadingInteractionInterval
     }
 
     private func kickoffBackgroundRefresh() {

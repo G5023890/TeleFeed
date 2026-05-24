@@ -40,22 +40,12 @@ struct MainContentView: View {
 
     @ViewBuilder
     private var content: some View {
-        if case .ready = viewModel.authViewModel.state {
-            VStack(spacing: 10) {
-                AppSplitView(
-                    leadingMinWidth: 240,
-                    leadingContent: unreadColumn,
-                    trailingMinWidth: 520,
-                    trailingContent: detailColumn
-                )
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-            }
-        } else {
-            AuthView(
-                viewModel: viewModel.authViewModel,
-                onSaveCredentials: viewModel.saveCredentials,
-                onRefreshQR: viewModel.refreshQRCode,
-                onSubmitPassword: viewModel.submitPassword
+        VStack(spacing: 10) {
+            AppSplitView(
+                leadingMinWidth: 240,
+                leadingContent: unreadColumn,
+                trailingMinWidth: 520,
+                trailingContent: detailColumn
             )
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
@@ -161,7 +151,10 @@ struct MainContentView: View {
                 set: { viewModel.selectedUnreadPostID = $0 }
             ),
             onSelectionChange: viewModel.selectUnreadPost,
-            onSwipeRight: viewModel.toggleReadState
+            onTopVisiblePostChange: viewModel.focusVisiblePost,
+            onRefresh: {
+                await viewModel.refreshSelectedChannel()
+            }
         )
     }
 

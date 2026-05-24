@@ -4,6 +4,8 @@ import AppKit
 struct SettingsView: View {
     @ObservedObject var authViewModel: AuthViewModel
     @Binding var launchAtLoginEnabled: Bool
+    @Binding var showDockIcon: Bool
+    @Binding var showMenuBarIcon: Bool
     @Binding var typography: TypographySettings
     @Binding var menuBarIconStyle: MenuBarIconStyle
     let onSaveCredentials: () -> Void
@@ -85,6 +87,8 @@ struct SettingsView: View {
                     .textFieldStyle(.roundedBorder)
 
                 Toggle(L10n.tr("settings.launchAtLogin"), isOn: $launchAtLoginEnabled)
+                Toggle(L10n.tr("settings.showDockIcon"), isOn: $showDockIcon)
+                Toggle(L10n.tr("settings.showMenuBarIcon"), isOn: $showMenuBarIcon)
 
                 Text(L10n.tr("settings.storageNote"))
                     .font(.footnote)

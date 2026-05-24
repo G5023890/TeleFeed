@@ -71,10 +71,17 @@ final class ReadabilityExtractor: NSObject {
             webView.navigationDelegate = self
             webView.uiDelegate = self
             webView.customUserAgent = userAgent
+            #if os(macOS)
             webView.alphaValue = 0.01
             webView.setValue(false, forKey: "drawsBackground")
             webView.enclosingScrollView?.drawsBackground = false
             webView.enclosingScrollView?.backgroundColor = .clear
+            #else
+            webView.isOpaque = false
+            webView.alpha = 0.01
+            webView.backgroundColor = .clear
+            webView.scrollView.backgroundColor = .clear
+            #endif
             self.webView = webView
 
             webView.load(URLRequest(url: url))

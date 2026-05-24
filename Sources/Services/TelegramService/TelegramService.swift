@@ -1,5 +1,8 @@
 import Foundation
 import OSLog
+#if os(iOS)
+import UIKit
+#endif
 
 enum TelegramServiceError: LocalizedError {
     case missingCredentials
@@ -280,19 +283,18 @@ final class TelegramService: TelegramServiceProtocol {
         }
     }
 
-    func fetchUnreadPosts(for channel: WatchedChannel, limit: Int) async throws -> [UnreadPost] {
+    func fetchRecentPosts(for channel: WatchedChannel, limit: Int) async throws -> [UnreadPost] {
         guard client != nil else {
             throw TelegramServiceError.tdlibUnavailable
         }
 
         let historyChannel = try await refreshChannel(channel)
-
-        guard historyChannel.unreadCount > 0 else {
+        let targetCount = max(0, limit)
+        guard targetCount > 0 else {
             return []
         }
 
-        let targetCount = min(limit, historyChannel.unreadCount)
-        let pageSize = min(100, max(limit * 2, historyChannel.unreadCount + 10))
+        let pageSize = min(100, max(limit * 2, 20))
         var posts: [UnreadPost] = []
         var seenMessageIDs = Set<Int64>()
         var fromMessageID: Int64 = 0
@@ -312,18 +314,12 @@ final class TelegramService: TelegramServiceProtocol {
                 break
             }
 
-            var reachedReadBoundary = false
             for message in messages {
                 guard let messageID = message.int64("id") else {
                     continue
                 }
 
                 if seenMessageIDs.insert(messageID).inserted == false {
-                    continue
-                }
-
-                if messageID <= historyChannel.lastReadInboxMessageID {
-                    reachedReadBoundary = true
                     continue
                 }
 
@@ -334,7 +330,7 @@ final class TelegramService: TelegramServiceProtocol {
                 posts.append(post)
             }
 
-            if posts.count >= targetCount || reachedReadBoundary {
+            if posts.count >= targetCount {
                 break
             }
 
@@ -346,9 +342,9 @@ final class TelegramService: TelegramServiceProtocol {
 
         return Array(posts.sorted { lhs, rhs in
             if lhs.date == rhs.date {
-                return lhs.messageID < rhs.messageID
+                return lhs.messageID > rhs.messageID
             }
-            return lhs.date < rhs.date
+            return lhs.date > rhs.date
         }.prefix(limit))
     }
 
@@ -563,7 +559,7 @@ final class TelegramService: TelegramServiceProtocol {
             "api_id": credentials.apiID,
             "api_hash": credentials.apiHash,
             "system_language_code": Locale.current.language.languageCode?.identifier ?? "en",
-            "device_model": Host.current().localizedName ?? "Mac",
+            "device_model": Self.deviceModelName,
             "system_version": ProcessInfo.processInfo.operatingSystemVersionString,
             "application_version": Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "0.8.4",
             "database_encryption_key": encryptionKey,
@@ -575,6 +571,16 @@ final class TelegramService: TelegramServiceProtocol {
             "ignore_file_names": true,
         ])
         scheduleAuthorizationStateRefresh(reason: "setTdlibParameters")
+    }
+
+    private static var deviceModelName: String {
+        #if os(macOS)
+        return Host.current().localizedName ?? "Mac"
+        #elseif os(iOS)
+        return UIDevice.current.model
+        #else
+        return ProcessInfo.processInfo.hostName
+        #endif
     }
 
     private func handleFileUpdate(_ file: TDLibObject) {

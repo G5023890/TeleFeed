@@ -15,8 +15,13 @@ targets:
     deploymentTarget: "15.0"
     sources:
       - path: Sources
+        excludes:
+          - iOS
+      - path: Resources/Assets/TeleFeed.xcassets
+        buildPhase: resources
     resources:
       - path: Resources/Assets/Icons/IconTeleFeed.png
+      - path: Resources/Assets/Icons/MenuBarIconTemplate.png
       - path: Resources/Assets/Icons/MenuBarIconTelegramRSS.png
       - path: Resources/Assets/Icons/MenuBarIconTelegramRSS2.png
       - path: Resources/Assets/Icons/TeleFeed.icns
@@ -30,6 +35,7 @@ targets:
       - name: Copy Menu Bar Icon
         outputFiles:
           - $(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/Assets/Icons/IconTeleFeed.png
+          - $(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/Assets/Icons/MenuBarIconTemplate.png
           - $(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/Assets/Icons/MenuBarIconTelegramRSS.png
           - $(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/Assets/Icons/MenuBarIconTelegramRSS2.png
           - $(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/TeleFeed.icns
@@ -43,6 +49,7 @@ targets:
           mkdir -p "$LOCALIZATIONS_DIR/en.lproj"
           mkdir -p "$LOCALIZATIONS_DIR/ru.lproj"
           /usr/bin/ditto --norsrc "$PROJECT_DIR/Resources/Assets/Icons/IconTeleFeed.png" "$RES_DIR/IconTeleFeed.png"
+          /usr/bin/ditto --norsrc "$PROJECT_DIR/Resources/Assets/Icons/MenuBarIconTemplate.png" "$RES_DIR/MenuBarIconTemplate.png"
           /usr/bin/ditto --norsrc "$PROJECT_DIR/Resources/Assets/Icons/MenuBarIconTelegramRSS.png" "$RES_DIR/MenuBarIconTelegramRSS.png"
           /usr/bin/ditto --norsrc "$PROJECT_DIR/Resources/Assets/Icons/MenuBarIconTelegramRSS2.png" "$RES_DIR/MenuBarIconTelegramRSS2.png"
           /usr/bin/ditto --norsrc "$PROJECT_DIR/Resources/Assets/Icons/TeleFeed.icns" "$LOCALIZATIONS_DIR/TeleFeed.icns"
@@ -54,11 +61,12 @@ targets:
         PRODUCT_NAME: TeleFeed
         INFOPLIST_FILE: Config/TeleFeed-Info.plist
         GENERATE_INFOPLIST_FILE: NO
+        CODE_SIGN_ENTITLEMENTS: Config/TeleFeed.entitlements
         MACOSX_DEPLOYMENT_TARGET: 15.0
         SWIFT_VERSION: 6.0
         CODE_SIGN_STYLE: Automatic
-        DEVELOPMENT_TEAM: ""
-        MARKETING_VERSION: 0.7.1
+        DEVELOPMENT_TEAM: 9FP39GTDT5
+        MARKETING_VERSION: 0.9.1
         CURRENT_PROJECT_VERSION: 1
         LOCALIZATION_PREFERS_STRING_CATALOGS: NO
         SUPPORTS_MACCATALYST: NO
@@ -80,3 +88,68 @@ targets:
           DEBUG_INFORMATION_FORMAT: dwarf-with-dsym
           STRIP_INSTALLED_PRODUCT: YES
           STRIP_SWIFT_SYMBOLS: YES
+  TeleFeed iOS:
+    type: application
+    platform: iOS
+    deploymentTarget: "26.0"
+    sources:
+      - path: Sources/iOS
+      - path: Sources/Feed/FeedViewModel.swift
+      - path: Sources/Shared/Models
+      - path: Sources/Shared/Utilities/L10n.swift
+      - path: Sources/Services/SecureStorage
+      - path: Sources/Services/StateStore
+      - path: Sources/Services/CloudSync
+      - path: Sources/Services/NewsIntelligence
+      - path: Sources/Services/RSSService
+      - path: Sources/Services/TelegramService
+      - path: Sources/Services/NotificationService
+      - path: Sources/Services/ReaderService
+      - path: Sources/Services/TranslationService
+      - path: Sources/Reader/ReaderArticle.swift
+      - path: Sources/Reader/ReaderFallbackPolicy.swift
+      - path: Sources/Reader/ReaderHTMLTemplate.swift
+      - path: Sources/Reader/ReadabilitySource.swift
+      - path: Resources/Assets/TeleFeed.xcassets
+        buildPhase: resources
+      - path: Resources/Localization/en.lproj/Localizable.strings
+        buildPhase: resources
+      - path: Resources/Localization/ru.lproj/Localizable.strings
+        buildPhase: resources
+    resources:
+      - path: Resources/Assets/TeleFeed.xcassets
+      - path: Resources/Localization/en.lproj/Localizable.strings
+      - path: Resources/Localization/ru.lproj/Localizable.strings
+    dependencies:
+      - package: TDLibFramework
+        product: TDLibFramework
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.codex.TeleFeed.iOS
+        PRODUCT_NAME: TeleFeed
+        INFOPLIST_FILE: Config/TeleFeed-iOS-Info.plist
+        GENERATE_INFOPLIST_FILE: NO
+        CODE_SIGN_ENTITLEMENTS: Config/TeleFeed-iOS.entitlements
+        IPHONEOS_DEPLOYMENT_TARGET: 26.0
+        SWIFT_VERSION: 6.0
+        CODE_SIGN_STYLE: Automatic
+        DEVELOPMENT_TEAM: 9FP39GTDT5
+        MARKETING_VERSION: 0.3.0
+        CURRENT_PROJECT_VERSION: 1
+        LOCALIZATION_PREFERS_STRING_CATALOGS: NO
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        SWIFT_ENABLE_EMIT_CONST_VALUES: NO
+  TeleFeedTests:
+    type: bundle.unit-test
+    platform: macOS
+    deploymentTarget: "15.0"
+    sources:
+      - path: Tests/TeleFeedTests
+    dependencies:
+      - target: TeleFeed
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.codex.TeleFeedTests
+        GENERATE_INFOPLIST_FILE: YES
+        SWIFT_VERSION: 6.0
+        MACOSX_DEPLOYMENT_TARGET: 15.0
